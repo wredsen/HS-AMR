@@ -1,0 +1,47 @@
+Control-Aufgaben:
+- Linefollower (gegeben) verbessern -> Schwierigkeit: Kurven durchfahren, hohe Geschwindigkeit sonst 	sollte bei Ecken gesenkt werden
+
+- v(Translatorische Geschwindigkeit)/w(Rotatorische Geschwindigkeit)-Regelung
+
+- Parklückenerkennung durch vorbeifahren und Rückwärts/Seitwärs einparken
+
+- Servomotoren als Antrieb mit Inkrementaldrehgebern als Sensor -> Schlupf muss beachtet werden
+	-> mit PWM angesteuert -> Prozentwert als Steuereingang des Motors vorgegeben
+	-> Drehgeschwindigkeit des Motors fast proportional zu PWM, aber Proportionalitätsfaktor 			hängt von Batteriezustand ab
+		-> Drehzahlregelung (PID) für jeden Motor erforderlich -> zur Einstellung dieses 				PIDs Daten mit Datenlogger messen und PID experimentell bestimmen 
+			-> in Java: 1 Klasse DISKRETER PID-Regler -> jeweils ein Objekt für jeden 						Motor instanzieren 
+			für unterlagerten Motorregler -> alle Parameter des PID sinnvoll 
+
+für Zeitdiskreten PID-Regler: 
+Pade-Approximation wie in VL AT oder Literaturrecherche
+
+Einfluss Aufbau des Roboters auf Regler:
+- symmetrische Belastung der Motoren anstreben
+- Lichtsensoren so nah wie möglich an Boden -> störende Lichteinflüsse vermeiden
+- Ausgabe von Debuginfos auf Display nutzen (bspw. Farbwert (Prozente Schwarz oder Weiß))
+	Bspw. Sensor s1, s2, an Schwaz-Weiß-Übergang(s1) und Weiß-Schwarz-Übergang(s2) -> 		Regel-Sollwert: s1-s2 = 0
+- Fahrt um Kurve: Problem -> beide Sensoren auf weißem Untergrund -> Lösung auch dafür PID-Regler 	(am besten funktioniert PD-Regler, I-Anteil stört nur) 
+	Führgröße: Differenz der Sensoren s1-s2, Regelgröße: Lichtintensität der Linie der gefolgt 				wird
+
+
+- aus Winkelgeschwindigkeit und Translationsgeschwindigkeit wird Sollgröße für Motorregler ermittelt
+
+- Pfadplanung für Einparken mit Guidance entwickeln -> Polynom (3ten Grades) zum Einparken (von Guidance erhalten) für maximale Punktzahl bei Bewertung:
+	4 Parameter bestimmt aus 	y(start) = 0
+					y'(start) = 0
+					y(ende) = 0
+					y'(ende) = 0
+besser noch : Polynom für x und y separat -> auch senkrechte Fahrten möglich
+			
+
+ ; notfalls geht auch Fahren - Drehen - Fahren mit Punktabzug 
+
+Wichtig noch: Software installieren (noch Eclipse mit Plugin lejos), auch Data Logger !
+
+zur Vorpräsi in 2 Wochen:
+- 2 min pro Person zum Vorstellen
+- Demoprogramm zum Laufen bringen
+- Motoren vermessen -> proportionalitätskonstante feststellen
+- evtl. sogar schon unterlagerte Regelung implementieren
+
+

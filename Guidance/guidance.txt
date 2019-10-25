@@ -1,2 +1,24 @@
-Leer ...
+1. Aufgabe: Überlegung Missionsplaner mit Sebasian Zarnack
+
+-V1-Online als Missionsübersicht.txt [25.10.2019]
+-
+-
+-
+-
+-
+
+Ideen von den anderen:
+
+-
+-
+-
+-
+-
+-
+
+
+2. Aufgabe: Pfadgenerator mit Konstantin Wrede:
+
+f(x,y)=....?
+
 

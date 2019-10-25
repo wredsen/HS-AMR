@@ -1,0 +1,35 @@
+SCOUT_MODUS (Parklückensuche)
+
+- Linienverfolgung
+- Parklückensuche an -> Parklückenvermessung -> ID Festlegung, Ort, Größe
+			Parklückenauswertung -> geeignet ja/nein
+		     
+-> für [HMI]	     -> Anzeige auf App-Karte
+-> für [CTR]	     -> Entwicklung Regelalgorithmus Linienverfolgung
+
+Park_This_Modus (Gezieltes Einparken)
+
+- Übergabe von [HMI] Parklücken-ID
+- Linienverfolgung zum Ort
+- Berechnung Einparkkurve
+- Einparken (Route rückwärtsfahren)
+
+Park_Out_MODUS (Ausparken)
+
+- Pause_Modus bis Ausparksignal
+- Ausparken (Route vorwärtsfahren)
+- Führungslinie finden/feststellen
+- Moduswechsel SCCOUT_MODUS
+
+PAUSE_MODUS (Anhalten)
+
+-von überall in Ruhezustand setzen
+
+
+
+
+***ALLGEMEIN***
+- möglichst schnell!
+- es gibt nur einen Pacours -> für den soll alles programmiert werden
+- Startposition immer gleich	
+- Banden für Position nutzbar

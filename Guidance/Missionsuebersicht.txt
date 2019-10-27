@@ -7,12 +7,16 @@ SCOUT_MODUS (Parklückensuche)
 -> für [HMI]	     -> Anzeige auf App-Karte
 -> für [CTR]	     -> Entwicklung Regelalgorithmus Linienverfolgung
 
+
+
 Park_This_Modus (Gezieltes Einparken)
 
 - Übergabe von [HMI] Parklücken-ID
 - Linienverfolgung zum Ort
 - Berechnung Einparkkurve
 - Einparken (Route rückwärtsfahren)
+- Korrigieren(Messung Platz nach vorne, nach hinten -> Mittig fahren)
+
 
 Park_Out_MODUS (Ausparken)
 
@@ -33,3 +37,13 @@ PAUSE_MODUS (Anhalten)
 - es gibt nur einen Pacours -> für den soll alles programmiert werden
 - Startposition immer gleich	
 - Banden für Position nutzbar
+
+[HMI] benötigt: - Pose
+		- Parklückendaten (ID, Abmessungen)
+		- Programmstatus (Parklücke gefunden, in Parklücke, ...) -> getMethoden implementieren -> return bekommt [HMI]
+		
+[HMI] sendet:	- Parklücken-ID
+		- ausgewählter Modus ( SCOUT, Park_This, Park_Out, Pause, Rangieren/Korrigieren) (optional: Fernsteuerung (letzter Modus))
+		- 		
+
+

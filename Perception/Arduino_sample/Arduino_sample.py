@@ -4,19 +4,28 @@
 ## requires pySerial to be installed 
 import serial
 import time
-timeout = time.time() + 5   # 5 minutes from now
+i = 10;
+timeout = time.time() + 5   # 5 seconds from now
 
 serial_port = '/dev/ttyACM0';
 baud_rate = 38400; #In arduino, Serial.begin(baud_rate)
-write_to_file_path = "/home/sebastian/Dokumente/Mitschriften/WISE_2020/Hauptseminar/HS-AMR/Perception/output_80cm.txt";
 
-output_file = open(write_to_file_path, "w+");
 ser = serial.Serial(serial_port, baud_rate)
 
-while True:
-    line = ser.readline();
-    line = line.decode("utf-8") #ser.readline returns a binary, convert to string
-    print(line);
-    output_file.write(line);
-    if time.time() > timeout:
-        break
+
+for i in range(10,81):
+
+    write_to_file_path = "/home/sebastian/Dokumente/Mitschriften/WISE_2020/Hauptseminar/HS-AMR/Perception/sharp_s1/output_"+str(i)+"cm.txt";
+    output_file = open(write_to_file_path, "w+");
+
+
+    while True:
+      line = ser.readline();
+      line = line.decode("utf-8") #ser.readline returns a binary, convert to string
+      print(line);
+      output_file.write(line);
+      if time.time() > timeout:
+         break
+    
+    input("press enter to continue..."+str(i))
+    timeout = time.time() + 5   # 5 seconds from now

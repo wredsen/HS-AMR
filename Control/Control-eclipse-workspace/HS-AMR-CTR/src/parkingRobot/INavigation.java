@@ -68,7 +68,7 @@ public interface INavigation {
 	 * - slot status (whether it is/is not suitable for parking),
 	 * - measured position of the slot begin front boundary, 
 	 * - measured position of the slot back boundary,
-	 * - quality of parking slot measurement (die Güte der Parklückenvermessung).
+	 * - quality of parking slot measurement (die Guete der Parklï¿½ckenvermessung).
 	 * 
 	 * @author IfA
 	 */

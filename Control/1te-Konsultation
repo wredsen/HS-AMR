@@ -29,7 +29,7 @@ Einfluss Aufbau des Roboters auf Regler:
 - Pfadplanung für Einparken mit Guidance entwickeln -> Polynom (3ten Grades) zum Einparken (von Guidance erhalten) für maximale Punktzahl bei Bewertung:
 	4 Parameter bestimmt aus 	y(start) = 0
 					y'(start) = 0
-					y(ende) = 0
+					y(ende) = endposi
 					y'(ende) = 0
 besser noch : Polynom für x und y separat -> auch senkrechte Fahrten möglich
 			

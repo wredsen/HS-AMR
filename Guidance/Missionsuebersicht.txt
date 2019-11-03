@@ -17,16 +17,20 @@ Park_This_Modus (Gezieltes Einparken)
 - Einparken (Route rückwärtsfahren)
 -> für [CTR]	     -> Übergabe von Winkel und Geschwindigkeit
 - Korrigieren	     -> Messung Platz nach vorne, nach hinten	-> Mittig fahren
+- Park_Modus
 
 
 Park_Out_MODUS (Ausparken)
 
-- Pause_Modus bis Ausparksignal
+- Park_Modus bis Ausparksignal
 - Ausparken (Route vorwärtsfahren)
 -> für [CTR]	     -> Übergabe von Winkel und Geschwindigkeit
 - Führungslinie finden/feststellen
 - Moduswechsel DRIVE_Modus
 
+PARK_Modus
+
+- warten bis ausparksignal
 
 PAUSE_MODUS (Anhalten)
 
@@ -35,6 +39,10 @@ PAUSE_MODUS (Anhalten)
 DRIVE_MODUS (Fahren ohne Parklückensuche)
 
 - Linienverfolgung
+
+???Pause_2_Modus???
+-Pause wenn Signal innerhalb der Zustaende Ein/Ausparken kommt
+ 
 
 
 ***ALLGEMEIN***

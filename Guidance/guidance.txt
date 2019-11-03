@@ -1,7 +1,7 @@
 1. Aufgabe: Überlegung Missionsplaner mit Sebasian Zarnack
 
 -V1-Online als Missionsübersicht.txt [25.10.2019]
--
+-V1.1-Zustandsdiagramm/Automatengraph [03.11.2019]
 -
 -
 -

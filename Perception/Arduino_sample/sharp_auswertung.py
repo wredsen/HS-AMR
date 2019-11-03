@@ -13,7 +13,7 @@ for i in range(10,81): #itterate thru all files
    j=0
    k=0
    l=0
-   with open("/home/sebastian/Dokumente/Mitschriften/WISE_2020/Hauptseminar/HS-AMR/Perception/Messreihe_Sharp_S1_schrott/output_"+str(i)+"cm.txt","r") as file: #open i'ten file 
+   with open("/home/sebastian/Dokumente/Mitschriften/WISE_2020/Hauptseminar/HS-AMR/Perception/Messreihe_Sharp_S1_good/output_"+str(i)+"cm.txt","r") as file: #open i'ten file 
         if file.mode == 'r': #check if file is readable
            for j, line in enumerate(file): #itterate thru file i 
 

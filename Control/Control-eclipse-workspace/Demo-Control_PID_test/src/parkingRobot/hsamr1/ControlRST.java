@@ -73,6 +73,8 @@ public class ControlRST implements IControl {
 	
     double currentDistance = 0.0;
     double Distance = 0.0;
+    
+    PID lineFollowPID = new PID(0, 0.103, 0.5, 0, 0);
   
 	
 	/**
@@ -218,8 +220,8 @@ public class ControlRST implements IControl {
 	 * update parameters during LINE Control Mode
 	 */
 	private void update_LINECTRL_Parameter(){
-		this.lineSensorRight		= perception.getRightLineSensor();
-		this.lineSensorLeft  		= perception.getLeftLineSensor();		
+		this.lineSensorRight		= perception.getRightLineSensorValue();
+		this.lineSensorLeft  		= perception.getLeftLineSensorValue();		
 	}
 	
 	/**
@@ -255,70 +257,22 @@ public class ControlRST implements IControl {
 	private void exec_LINECTRL_ALGO(){
 		leftMotor.forward();
 		rightMotor.forward();
-		int lowPower = 1;
-		int highPower = 30;
+		
+		/*
+		Regelgröße: Lichtintensität linker und rechter Sensor
+		Regelfehler: Sollwert (0) - Istwert der Differenz beider Sensorwerte (lineSensorLeft - lineSensorRight)
+		*/
+		int lineControl = (int) lineFollowPID.runControl(this.lineSensorLeft - this.lineSensorRight); 
+		// das hier später an drehzahlregelung einzelner räder übergeben
 		
 		// MONITOR (example)
 		monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
 		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
-
-        if(this.lineSensorLeft == 2 && (this.lineSensorRight == 1)){
-			
-			// when left sensor is on the line, turn left
-    	    leftMotor.setPower(lowPower);
-			rightMotor.setPower(highPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn left");
-			
-		} 
-        else if(this.lineSensorRight == 2 && (this.lineSensorLeft == 1)){
 		
-			// when right sensor is on the line, turn right
-			leftMotor.setPower(highPower);
-			rightMotor.setPower(lowPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn right");
-		}
-		else if(this.lineSensorLeft == 2 && (this.lineSensorRight == 0)){
-			
-			// when left sensor is on the line, turn left
-			leftMotor.setPower(lowPower);
-			rightMotor.setPower(highPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn left");
-			
-		} 
-		else if(this.lineSensorRight == 2 && (this.lineSensorLeft == 0)){
+		// Annahme: 100 -> schwarz, 0 -> weiß
+		leftMotor.setPower(50 + lineControl);
+		rightMotor.setPower(50 - lineControl);
 		
-			// when right sensor is on the line, turn right
-			leftMotor.setPower(highPower);
-			rightMotor.setPower(lowPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn right");
-		}
-		else if(this.lineSensorLeft == 1 && this.lineSensorRight == 0) {
-				
-			// when left sensor is on the line, turn left
-			leftMotor.setPower(lowPower);
-			rightMotor.setPower(highPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn left");
-				
-		} 
-		else if(this.lineSensorRight == 1 && this.lineSensorLeft == 0) {
-			
-			// when right sensor is on 	 line, turn right
-			leftMotor.setPower(highPower);
-			rightMotor.setPower(lowPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn right");
-		}
 	}
 	
 	private void stop(){
@@ -336,3 +290,4 @@ public class ControlRST implements IControl {
 		//Aufgabe 3.2
 	}
 }
+

@@ -15,21 +15,26 @@ Park_This_Modus (Gezieltes Einparken)
 - Linienverfolgung zum Ort
 - Berechnung Einparkkurve
 - Einparken (Route rückwärtsfahren)
-- Korrigieren(Messung Platz nach vorne, nach hinten -> Mittig fahren)
+-> für [CTR]	     -> Übergabe von Winkel und Geschwindigkeit
+- Korrigieren	     -> Messung Platz nach vorne, nach hinten	-> Mittig fahren
 
 
 Park_Out_MODUS (Ausparken)
 
 - Pause_Modus bis Ausparksignal
 - Ausparken (Route vorwärtsfahren)
+-> für [CTR]	     -> Übergabe von Winkel und Geschwindigkeit
 - Führungslinie finden/feststellen
-- Moduswechsel SCCOUT_MODUS
+- Moduswechsel DRIVE_Modus
+
 
 PAUSE_MODUS (Anhalten)
 
--von überall in Ruhezustand setzen
+- von überall in Ruhezustand setzen
 
+DRIVE_MODUS (Fahren ohne Parklückensuche)
 
+- Linienverfolgung
 
 
 ***ALLGEMEIN***

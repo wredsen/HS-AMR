@@ -8,8 +8,8 @@ mean_value_right = np.arange(20,dtype=float).reshape((10,2)) # pro Zeile (PWM, D
 
 i = 10
 while i <= 100:
-     mean_value_left[(i/10)-1, 0] = i
-     mean_value_right[(i/10)-1, 0] = i
+     mean_value_left[(i//10)-1, 0] = i
+     mean_value_right[(i//10)-1, 0] = i
      with open("/home/wredi/Desktop/HS-AMR/Control/PWM-Drehzahl/LogDaten/NXTData"+str(i)+".txt","r") as file:
           if file.mode == 'r':
                number_of_measures = 0
@@ -22,22 +22,22 @@ while i <= 100:
                               while line[1][-k] != ";":
                                    k+=1
                               right_meas = float(line[1][-(k-1):])
-                              mean_value_right[(i/10)-1, 1] += right_meas
+                              mean_value_right[(i//10)-1, 1] += right_meas
 
                               try: 
                                    m = k+1
                                    while line[1][-m] != ";":
                                         m+=1
                                    left_meas = float(line[1][-(m-1):-(k+1)])
-                                   mean_value_left[(i/10)-1, 1] += left_meas
+                                   mean_value_left[(i//10)-1, 1] += left_meas
                               except IndexError:
                                    print('m greater array')
 
                          except ValueError:
                               print('not a valid number')
 
-               mean_value_right[(i/10)-1, 1] = mean_value_right[(i/10)-1, 1] / number_of_measures
-               mean_value_left[(i/10)-1, 1] = mean_value_left[(i/10)-1, 1] / number_of_measures
+               mean_value_right[(i//10)-1, 1] = mean_value_right[(i//10)-1, 1] / number_of_measures
+               mean_value_left[(i//10)-1, 1] = mean_value_left[(i//10)-1, 1] / number_of_measures
                
      i = i+10
 

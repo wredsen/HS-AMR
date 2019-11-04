@@ -10,7 +10,7 @@ i = 10
 while i <= 100:
      mean_value_left[(i//10)-1, 0] = i
      mean_value_right[(i//10)-1, 0] = i
-     with open("/home/wredi/Desktop/HS-AMR/Control/PWM-Drehzahl/LogDaten_mitLast/NXTData"+str(i)+".txt","r") as file:
+     with open("/home/sebastian/Dokumente/Mitschriften/WISE_2020/Hauptseminar/HS-AMR/Control/PWM-Drehzahl/LogDaten_mitLast/NXTData"+str(i)+".txt","r") as file:
           if file.mode == 'r':
                number_of_measures = 0
                for line in enumerate(file): 
@@ -45,6 +45,12 @@ while i <= 100:
 #print(mean_value_left[:,1])
 #print(mean_value_right[:,1])
 
+x_array = np.arange(13,dtype=float)
+for i in range(0,13):
+     k = i*12
+     x_array[i] = k
+
+
 #Skaliere die RPMs:
 sample_time = 0.104 # miliseconds
 mean_value_left[:,1] = (mean_value_left[:,1]/sample_time) * (60/360) 
@@ -58,8 +64,8 @@ print("Left-Motor-RPM: "+str(fit_left[0])+"*PWM +"+str(fit_left[1]))
 print("Right-Motor-RPM: "+str(fit_right[0])+"*PWM +"+str(fit_right[1]))
 func_left = np.poly1d(fit_left) 
 func_right = np.poly1d(fit_right) 
-plt.plot(mean_value_left[:, 0],func_left(mean_value_left[:, 0]), 'r-')
-plt.plot(mean_value_right[:, 0],func_right(mean_value_right[:, 0]), 'b-')
+plt.plot(x_array[:],func_left(x_array[:]), 'r-')
+plt.plot(x_array[:],func_right(x_array[:]), 'b-')
 plt.xlabel("RPM [1/min]")
 plt.ylabel("PWM [%]")
 red_patch = mpatches.Patch(color='red', label='linker Motor')

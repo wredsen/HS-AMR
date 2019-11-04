@@ -35,7 +35,7 @@ import lejos.nxt.LCD;
  * It is important that data witch is accessed by more than one main module class thread is only handled in a
  * synchronized context to avoid inconsistent or corrupt data!
  */
-public class GuidanceAT {
+public class GuidancePID_test {
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -205,7 +205,7 @@ public class GuidanceAT {
 	 * @return actual state of the main finite state machine
 	 */
 	public static CurrentStatus getCurrentStatus(){
-		return GuidanceAT.currentStatus;
+		return GuidancePID_test.currentStatus;
 	}
 	
 	/**

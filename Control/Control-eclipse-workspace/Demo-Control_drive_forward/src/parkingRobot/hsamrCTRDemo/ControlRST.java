@@ -256,7 +256,7 @@ public class ControlRST implements IControl {
 		leftMotor.forward();
 		rightMotor.forward();
 		int lowPower = 1;
-		int highPower = 20;
+		int highPower = 100;
 		
 		// MONITOR (example)
 		monitor.writeControlVar("LeftSensor", "" + this.encoderLeft.getEncoderMeasurement().getAngleSum()); //lineSensorLeft

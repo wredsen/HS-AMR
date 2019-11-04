@@ -74,7 +74,7 @@ public class ControlRST implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-    PID lineFollowPID = new PID(0, 0.103, 0.5, 0, 0);
+    PID lineFollowPID = new PID(0, 0.103, 0.2, 0, 0.1);
   
 	
 	/**
@@ -269,9 +269,9 @@ public class ControlRST implements IControl {
 		monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
 		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
 		
-		// Annahme: 100 -> schwarz, 0 -> weiß
-		leftMotor.setPower(50 + lineControl);
-		rightMotor.setPower(50 - lineControl);
+		// Annahme: weiß -> 100, schwarz -> 0
+		leftMotor.setPower(30 + lineControl);
+		rightMotor.setPower(30 - lineControl);
 		
 	}
 	

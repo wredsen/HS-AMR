@@ -10,7 +10,7 @@ i = 10
 while i <= 100:
      mean_value_left[(i//10)-1, 0] = i
      mean_value_right[(i//10)-1, 0] = i
-     with open("/home/wredi/Desktop/HS-AMR/Control/PWM-Drehzahl/LogDaten/NXTData"+str(i)+".txt","r") as file:
+     with open("/home/wredi/Desktop/HS-AMR/Control/PWM-Drehzahl/LogDaten_mitLast/NXTData"+str(i)+".txt","r") as file:
           if file.mode == 'r':
                number_of_measures = 0
                for line in enumerate(file): 

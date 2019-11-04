@@ -44,8 +44,11 @@ while i <= 100:
 #print(mean_value_right[:,0])
 #print(mean_value_left[:,1])
 #print(mean_value_right[:,1])
-            
-          
+
+#Skaliere die RPMs:
+sample_time = 0.104 # miliseconds
+mean_value_left[:,1] = (mean_value_left[:,1]/sample_time) * (60/360) 
+mean_value_right[:,1] = (mean_value_right[:,1]/sample_time) * (60/360)           
 
 plt.plot(mean_value_left[:,1], mean_value_left[:,0],'ro')
 plt.plot(mean_value_right[:,1], mean_value_right[:,0],'bo')
@@ -57,7 +60,7 @@ func_left = np.poly1d(fit_left)
 func_right = np.poly1d(fit_right) 
 plt.plot(mean_value_left[:, 0],func_left(mean_value_left[:, 0]), 'r-')
 plt.plot(mean_value_right[:, 0],func_right(mean_value_right[:, 0]), 'b-')
-plt.xlabel("RPM [?]")
+plt.xlabel("RPM [1/min]")
 plt.ylabel("PWM [%]")
 red_patch = mpatches.Patch(color='red', label='linker Motor')
 blue_patch = mpatches.Patch(color='blue', label='rechter Motor')

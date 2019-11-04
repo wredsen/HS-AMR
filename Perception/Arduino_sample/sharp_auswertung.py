@@ -65,6 +65,8 @@ p = np.polyfit(gauss_array[:, 0],gauss_array[:, 1],6)                           
 print(p)                                                                           #print coifficions
 f = np.poly1d(p)                                                                   #build function with coifficions
 plt.plot(gauss_array[:, 0],f(gauss_array[:, 0]), 'b-',label="Polyfit")             #plot polyfit function
+plt.xlabel("Distance in cm")
+plt.ylabel("Spannung in V")
 plt.show()                                                                         #show plots
 
 

@@ -1,4 +1,4 @@
-package parkingRobot.hsamrCTRDemo;
+package parkingRobot.hsamr1;
 
 import java.io.IOException;
 import java.util.ArrayList;

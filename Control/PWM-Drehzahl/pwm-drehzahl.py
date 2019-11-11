@@ -1,6 +1,9 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
+import os
+
+dirname = os.path.dirname(__file__)
 
 # erster Wert linker Encoder, zweiter Wert rechter Encoder
 mean_value_left = np.arange(20,dtype=float).reshape((10,2)) # pro Zeile (PWM, Drehzahl)
@@ -10,7 +13,9 @@ i = 10
 while i <= 100:
      mean_value_left[(i//10)-1, 0] = i
      mean_value_right[(i//10)-1, 0] = i
-     with open("/home/wredi/Desktop/HS-AMR/Control/PWM-Drehzahl/LogDaten_mitLast/NXTData"+str(i)+".txt","r") as file:
+
+     filename = os.path.join(dirname, "LogDaten_mitLast/NXTData"+str(i)+".txt")
+     with open(filename, "r") as file:
           if file.mode == 'r':
                number_of_measures = 0
                for line in enumerate(file): 
@@ -55,8 +60,8 @@ plt.plot(mean_value_left[:,1], mean_value_left[:,0],'ro')
 plt.plot(mean_value_right[:,1], mean_value_right[:,0],'bo')
 fit_left = np.polyfit(mean_value_left[:, 1],mean_value_left[:, 0],1)
 fit_right = np.polyfit(mean_value_right[:, 1],mean_value_right[:, 0],1)
-print("Left-Motor-RPM: "+str(fit_left[0])+"*PWM +"+str(fit_left[1]))
-print("Right-Motor-RPM: "+str(fit_right[0])+"*PWM +"+str(fit_right[1]))
+print("Left-Motor-PWM: "+str(fit_left[0])+"*RPM +"+str(fit_left[1]))
+print("Right-Motor-PWM: "+str(fit_right[0])+"*RPM +"+str(fit_right[1]))
 func_left = np.poly1d(fit_left) 
 func_right = np.poly1d(fit_right) 
 plt.plot(mean_value_left[:, 1],func_left(mean_value_left[:, 1]), 'r-')

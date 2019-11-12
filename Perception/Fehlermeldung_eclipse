@@ -1,0 +1,18 @@
+Got exception during close: java.io.IOException: Error in write
+java.io.IOException: Error in write
+	at lejos.pc.comm.NXTCommUSB.rawWrite(NXTCommUSB.java:271)
+	at lejos.pc.comm.NXTCommUSB.flushBuffer(NXTCommUSB.java:212)
+	at lejos.pc.comm.NXTCommUSB.write(NXTCommUSB.java:556)
+	at lejos.pc.comm.NXTCommUSB.sendRequest(NXTCommUSB.java:496)
+	at lejos.nxt.remote.NXTCommand.openWrite(NXTCommand.java:175)
+	at lejos.nxt.remote.NXTCommand.uploadFile(NXTCommand.java:398)
+	at lejos.pc.tools.Upload.upload(Upload.java:46)
+	at lejos.pc.tools.NXJUpload.run(NXJUpload.java:93)
+	at lejos.pc.tools.NXJUpload.start(NXJUpload.java:36)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at lejos.pc.tools.ToolStarter.startTool(ToolStarter.java:31)
+	at lejos.pc.tools.NXJUpload.main(NXJUpload.java:29)
+uploading the program failed with exit status 1

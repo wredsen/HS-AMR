@@ -128,13 +128,14 @@ public class GuidanceAT {
 						control.setCtrlMode(ControlMode.LINE_CTRL);
 					}
 					
+					control.setCtrlMode(ControlMode.LINE_CTRL);
 					//While action				
 					{
 						//nothing to do here
 					}					
 					
 					//State transition check
-					
+					currentStatus = CurrentStatus.DRIVING;
 				    lastStatus = currentStatus;
 					
 					if ( Button.ENTER.isDown() ){
@@ -149,9 +150,10 @@ public class GuidanceAT {
 					if ( currentStatus != CurrentStatus.DRIVING ){
 						//nothing to do here
 					}
-					currentStatus = CurrentStatus.DRIVING;
+					
 					break;				
 				case INACTIVE:
+					
 					//Into action
 					if ( lastStatus != CurrentStatus.INACTIVE ){
 						control.setCtrlMode(ControlMode.INACTIVE);

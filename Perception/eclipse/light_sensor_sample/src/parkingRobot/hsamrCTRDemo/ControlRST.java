@@ -253,10 +253,6 @@ public class ControlRST implements IControl {
 	 */
     
 	private void exec_LINECTRL_ALGO(){
-		leftMotor.forward();
-		rightMotor.forward();
-		int lowPower = 1;
-		int highPower = 100;
 		
 		// MONITOR (example) this.lineSensorRight		= perception.getRightLineSensor();
 		monitor.writeControlVar("LeftSensor", "" + perception.getLeftLineSensorValue()); //lineSensorLeft

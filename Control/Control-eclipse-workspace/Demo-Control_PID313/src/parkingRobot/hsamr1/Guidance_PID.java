@@ -5,11 +5,16 @@ import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
 import parkingRobot.IControl;
 import parkingRobot.IControl.*;
-import parkingRobot.hsamr1.ControlRST_Kin;
-import parkingRobot.hsamr1.HmiPLT_Kin;
-import parkingRobot.hsamr1.NavigationAT_Kin;
-import parkingRobot.hsamr1.PerceptionPMP_Kin;
-import parkingRobot.hsamr1.Guidance_Kin.CurrentStatus;
+import parkingRobot.hsamr1.ControlRST_PID;
+import parkingRobot.hsamr1.HmiPLT_PID;
+import parkingRobot.hsamr1.NavigationAT_PID;
+import parkingRobot.hsamr1.PerceptionPMP_PID;
+import parkingRobot.hsamr1.Guidance_PID.CurrentStatus;
+import parkingRobot.hsamr1.ControlRST_PID;
+import parkingRobot.hsamr1.Guidance_PID;
+import parkingRobot.hsamr1.Monitor_PID;
+import parkingRobot.hsamr1.NavigationAT_PID;
+import parkingRobot.hsamr1.PerceptionPMP_PID;
 import parkingRobot.INxtHmi;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
@@ -36,7 +41,7 @@ import lejos.nxt.LCD;
  * It is important that data witch is accessed by more than one main module class thread is only handled in a
  * synchronized context to avoid inconsistent or corrupt data!
  */
-public class Guidance_Kin {
+public class Guidance_PID {
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -104,13 +109,13 @@ public class Guidance_Kin {
 		NXTMotor leftMotor  = new NXTMotor(MotorPort.B);
 		NXTMotor rightMotor = new NXTMotor(MotorPort.A);
 		
-		IMonitor monitor = new Monitor_Kin();
+		IMonitor monitor = new Monitor_PID();
 		
-		IPerception perception = new PerceptionPMP_Kin(leftMotor, rightMotor, monitor);
+		IPerception perception = new PerceptionPMP_PID(leftMotor, rightMotor, monitor);
 		perception.calibrateLineSensors();
 		
-		INavigation navigation = new NavigationAT_Kin(perception, monitor);
-		IControl    control    = new ControlRST_Kin(perception, navigation, leftMotor, rightMotor, monitor);
+		INavigation navigation = new NavigationAT_PID(perception, monitor);
+		IControl    control    = new ControlRST_PID(perception, navigation, leftMotor, rightMotor, monitor);
 		//INxtHmi  	hmi        = new HmiPLT(perception, navigation, control, monitor);
 		
 		monitor.startLogging();
@@ -205,7 +210,7 @@ public class Guidance_Kin {
 	 * @return actual state of the main finite state machine
 	 */
 	public static CurrentStatus getCurrentStatus(){
-		return Guidance_Kin.currentStatus;
+		return Guidance_PID.currentStatus;
 	}
 	
 	/**

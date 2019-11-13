@@ -5,11 +5,16 @@ import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
 import parkingRobot.IControl;
 import parkingRobot.IControl.*;
-import parkingRobot.hsamr1.ControlRST_Kin;
-import parkingRobot.hsamr1.HmiPLT_Kin;
-import parkingRobot.hsamr1.NavigationAT_Kin;
-import parkingRobot.hsamr1.PerceptionPMP_Kin;
-import parkingRobot.hsamr1.Guidance_Kin.CurrentStatus;
+import parkingRobot.hsamr1.ControlRST_Kin2;
+import parkingRobot.hsamr1.HmiPLT_Kin2;
+import parkingRobot.hsamr1.NavigationAT_Kin2;
+import parkingRobot.hsamr1.PerceptionPMP_Kin2;
+import parkingRobot.hsamr1.Guidance_Kin2.CurrentStatus;
+import parkingRobot.hsamr1.ControlRST_Kin2;
+import parkingRobot.hsamr1.Guidance_Kin2;
+import parkingRobot.hsamr1.Monitor_Kin2;
+import parkingRobot.hsamr1.NavigationAT_Kin2;
+import parkingRobot.hsamr1.PerceptionPMP_Kin2;
 import parkingRobot.INxtHmi;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
@@ -36,7 +41,7 @@ import lejos.nxt.LCD;
  * It is important that data witch is accessed by more than one main module class thread is only handled in a
  * synchronized context to avoid inconsistent or corrupt data!
  */
-public class Guidance_Kin {
+public class Guidance_Kin2 {
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -48,7 +53,7 @@ public class Guidance_Kin {
 		 */
 		DRIVING,
 		/**
-		 * indicates that robot is performing an parking
+		 * indicates that robot is performing an parking maneuver
 		 */
 		INACTIVE,
 		/**
@@ -104,13 +109,13 @@ public class Guidance_Kin {
 		NXTMotor leftMotor  = new NXTMotor(MotorPort.B);
 		NXTMotor rightMotor = new NXTMotor(MotorPort.A);
 		
-		IMonitor monitor = new Monitor_Kin();
+		IMonitor monitor = new Monitor_Kin2();
 		
-		IPerception perception = new PerceptionPMP_Kin(leftMotor, rightMotor, monitor);
+		IPerception perception = new PerceptionPMP_Kin2(leftMotor, rightMotor, monitor);
 		perception.calibrateLineSensors();
 		
-		INavigation navigation = new NavigationAT_Kin(perception, monitor);
-		IControl    control    = new ControlRST_Kin(perception, navigation, leftMotor, rightMotor, monitor);
+		INavigation navigation = new NavigationAT_Kin2(perception, monitor);
+		IControl    control    = new ControlRST_Kin2(perception, navigation, leftMotor, rightMotor, monitor);
 		//INxtHmi  	hmi        = new HmiPLT(perception, navigation, control, monitor);
 		
 		monitor.startLogging();
@@ -120,70 +125,72 @@ public class Guidance_Kin {
 			
         	switch ( currentStatus )
         	{
-			case DRIVING:
-				
-				
-				//Into action
-				if ( lastStatus != CurrentStatus.DRIVING ){
-					control.setCtrlMode(ControlMode.LINE_CTRL);
-				}
-				
-				//While action				
-				{
-					//nothing to do here
-				}					
-				
-				//State transition check
-				currentStatus = CurrentStatus.DRIVING;
-			    lastStatus = currentStatus;
-				
-				/*if ( Button.ENTER.isDown() ){
-					currentStatus = CurrentStatus.INACTIVE;
-					while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-				}
-				*/
-				if ( Button.ESCAPE.isDown() ){
-					currentStatus = CurrentStatus.EXIT;
-					while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
-				}
-		
-				//Leave action
-				if ( currentStatus != CurrentStatus.DRIVING ){
-					//nothing to do here
-				}
-				
-				break;				
-			case INACTIVE:
-				//Into action
-				if ( lastStatus != CurrentStatus.INACTIVE ){
-					control.setCtrlMode(ControlMode.INACTIVE);
-				}
-				
-				//While action
-				{
-					//nothing to do here
-				}
-				
-				//State transition check
-				lastStatus = currentStatus;
-						
-				if ( Button.ENTER.isDown() ){
+				case DRIVING:
+					// MONITOR (example)
+//					monitor.writeGuidanceComment("Guidance_Driving");
+					
+					//Into action
+					if ( lastStatus != CurrentStatus.DRIVING ){
+						control.setCtrlMode(ControlMode.LINE_CTRL);
+					}
+					
+					//While action				
+					{
+						//nothing to do here
+					}					
 					currentStatus = CurrentStatus.DRIVING;
-					while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-				}else if ( Button.ESCAPE.isDown() ){
-					currentStatus = CurrentStatus.EXIT;
-					while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
-				}
-				
-				//Leave action
-				if ( currentStatus != CurrentStatus.INACTIVE ){
-					//nothing to do here
-				}
-								
-				break;
-			case EXIT:
-
-					//hmi.disconnect();
+					//State transition check
+					/* lastStatus = currentStatus;
+					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
+						currentStatus = CurrentStatus.INACTIVE;
+					}else if ( Button.ENTER.isDown() ){
+						currentStatus = CurrentStatus.INACTIVE;
+						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+					}else if ( Button.ESCAPE.isDown() ){
+						currentStatus = CurrentStatus.EXIT;
+						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
+						currentStatus = CurrentStatus.EXIT;
+					}
+					*/
+					//Leave action
+					if ( currentStatus != CurrentStatus.DRIVING ){
+						//nothing to do here
+					}
+					break;				
+				case INACTIVE:
+					//Into action
+					if ( lastStatus != CurrentStatus.INACTIVE ){
+						control.setCtrlMode(ControlMode.INACTIVE);
+					}
+					
+					//While action
+					{
+						//nothing to do here
+					}
+					
+					//State transition check
+					lastStatus = currentStatus;
+					//if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
+						currentStatus = CurrentStatus.DRIVING;						
+					/*}else if ( Button.ENTER.isDown() ){
+						currentStatus = CurrentStatus.DRIVING;
+						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+					}else if ( Button.ESCAPE.isDown() ){
+						currentStatus = CurrentStatus.EXIT;
+						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
+						currentStatus = CurrentStatus.EXIT;
+					}
+					
+					//Leave action
+					if ( currentStatus != CurrentStatus.INACTIVE ){
+						//nothing to do here
+					}
+					*/					
+					break;
+				case EXIT:
+				//	hmi.disconnect();
 					/** NOTE: RESERVED FOR FUTURE DEVELOPMENT (PLEASE DO NOT CHANGE)
 					// monitor.sendOfflineLog();
 					*/
@@ -205,7 +212,7 @@ public class Guidance_Kin {
 	 * @return actual state of the main finite state machine
 	 */
 	public static CurrentStatus getCurrentStatus(){
-		return Guidance_Kin.currentStatus;
+		return Guidance_Kin2.currentStatus;
 	}
 	
 	/**

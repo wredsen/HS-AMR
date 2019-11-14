@@ -1,7 +1,7 @@
 package parkingRobot.hsamr0;
 
 import lejos.geom.Line;
-
+import lejos.nxt.LCD;
 import lejos.robotics.navigation.Pose;
 
 import parkingRobot.INavigation;
@@ -26,21 +26,26 @@ public class NavigationAT implements INavigation{
 	/**
 	 * index for the rightLightSensorArray and the leftLightSensorArray
 	 */
-	int i=0;
+	int i = 0;
 	/**
 	 * holds the last 10 values from the right Light Sensor
 	 */
-	int[] rightLightSensorArray = new int[50];
+	int[] rightLightSensorArray = new int[10];
 	
 	/**
 	 * holds the last 10 values from the left Light Sensor
 	 */
-	int[] leftLightSensorArray = new int[50];
+	int[] leftLightSensorArray = new int[10];
 	
 	/**
-	 * indicates whether there is a corner or not
+	 * indicates whether there is a right corner or not
 	 */
-	boolean corner = false;
+	boolean rightcorner = false;
+	
+	/**
+	 * indicates whether there is a right corner or not
+	 */
+	boolean leftcorner = false;
 	
 	/**
 	 * holds the index number of the current/last corner
@@ -166,6 +171,9 @@ public class NavigationAT implements INavigation{
 		navThread.setPriority(Thread.MAX_PRIORITY - 1);
 		navThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		navThread.start();
+		
+		monitor.addNavigationVar("rightsum");
+		monitor.addNavigationVar("leftsum");
 	}
 	
 	
@@ -192,16 +200,45 @@ public class NavigationAT implements INavigation{
 	 */
 	public synchronized void updateNavigation(){	
 		this.updateSensors();
-		this.calculateLocation();
 		if (this.parkingSlotDetectionIsOn)
 				this.detectParkingSlot();
-		i = i%49;
+		i = i%10;
 		rightLightSensorArray[i] = lineSensorRight;
 		leftLightSensorArray[i] = lineSensorLeft;
-		System.out.println(detectCorner());
-		System.out.println(corner);
-		// MONITOR (example)
-//		monitor.writeNavigationComment("Navigation");
+		i ++;
+		
+		LCD.clear();	
+		LCD.drawString("Rechts:" + rightcorner, 0, 0);
+		LCD.drawString("Links: " + leftcorner, 0, 1);
+
+		
+		this.calculateLocation();
+		
+		//MONITOR (example)
+		int rightsum = 0;
+		int leftsum = 0;
+		
+		leftcorner = false;
+		rightcorner = false;
+		
+		for(int i=0; i<10; i++){
+			rightsum += rightLightSensorArray[i];
+		}
+		rightsum /= 10;
+		
+		
+		for(int i=0; i<10; i++){
+			leftsum += leftLightSensorArray[i];
+		}
+		leftsum /= 10;
+		
+		LCD.drawString("RM=" + rightsum, 0, 2);
+		LCD.drawString("LM= " + leftsum, 0, 3);
+		
+		monitor.writeNavigationVar("Navigation", "");
+		monitor.writeNavigationVar("Navigation", ""+rightsum );
+		monitor.writeNavigationVar("Navigation", ""+leftsum );
+		
 	}
 	
 	
@@ -227,34 +264,20 @@ public class NavigationAT implements INavigation{
 	 * detects corner and returns boolean value: corner detected --> true ; no corner detected --> false
 	 */
 	private int detectCorner() {
-		int rightsum = 0;
-		int leftsum1 = 0;
-		int	leftsum2 = 0;
 		
-		for(int i=0; i<50; i++)
-		{
-			rightsum = rightsum + rightLightSensorArray[i];
+/*		
+		if ((leftsum >= 15)||(rightsum<=5)){
+			leftcorner = true;	
 		}
 		
-		for(int i=0; i<25; i++)
-		{
-			leftsum1 = leftsum1 + leftLightSensorArray[i];
+		if ((leftsum<=5)||(rightsum>=15)){
+			rightcorner = true;
 		}
 		
-		for(int i=25; i<50; i++)
-		{
-			leftsum2 = leftsum2 + leftLightSensorArray[i];
-		}
-		
-		if ((rightsum < 5)&&(leftsum1<5)&&(leftsum2>30)&&(leftsum1<leftsum2))
-		{
-		corner = true;	
-		}
-		
-		if (corner == true) {
+		if ((rightcorner == true) || (leftcorner == true) ) {
 			cornerNumber ++;
 		}
-		
+*/		
 		cornerNumber = cornerNumber%8;
 		
 		return cornerNumber;
@@ -264,8 +287,12 @@ public class NavigationAT implements INavigation{
 	 * calls the perception methods for obtaining actual measurement data and writes the data into members
 	 */
 	private void updateSensors(){		
+		/*
 		this.lineSensorRight		= perception.getRightLineSensor();
 		this.lineSensorLeft  		= perception.getLeftLineSensor();
+		*/
+		this.lineSensorRight		= perception.getRightLineSensorValue();
+		this.lineSensorLeft  		= perception.getLeftLineSensorValue();
 		
 		this.angleMeasurementLeft  	= this.encoderLeft.getEncoderMeasurement();
 		this.angleMeasurementRight 	= this.encoderRight.getEncoderMeasurement();

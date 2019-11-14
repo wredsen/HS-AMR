@@ -256,69 +256,23 @@ public class ControlRST implements IControl {
 		leftMotor.forward();
 		rightMotor.forward();
 		int lowPower = 1;
-		int highPower = 30;
+		int highPower = 20;
 		
 		// MONITOR (example)
-		monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
-		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
-
-        if(this.lineSensorLeft == 2 && (this.lineSensorRight == 1)){
+		/*
+		monitor.writeControlVar("LeftSensor", "" + this.encoderLeft.getEncoderMeasurement().getAngleSum()); //lineSensorLeft
+		monitor.writeControlVar("RightSensor", "" + this.encoderRight.getEncoderMeasurement().getAngleSum()); //lineSensorRight
+		*/
+        if(true){
 			
-			// when left sensor is on the line, turn left
-    	    leftMotor.setPower(lowPower);
+			// vorwaerts fahren
+    	    leftMotor.setPower(highPower);
 			rightMotor.setPower(highPower);
 			
 			// MONITOR (example)
-			monitor.writeControlComment("turn left");
+			//monitor.writeControlComment("turn forward");
 			
 		} 
-        else if(this.lineSensorRight == 2 && (this.lineSensorLeft == 1)){
-		
-			// when right sensor is on the line, turn right
-			leftMotor.setPower(highPower);
-			rightMotor.setPower(lowPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn right");
-		}
-		else if(this.lineSensorLeft == 2 && (this.lineSensorRight == 0)){
-			
-			// when left sensor is on the line, turn left
-			leftMotor.setPower(lowPower);
-			rightMotor.setPower(highPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn left");
-			
-		} 
-		else if(this.lineSensorRight == 2 && (this.lineSensorLeft == 0)){
-		
-			// when right sensor is on the line, turn right
-			leftMotor.setPower(highPower);
-			rightMotor.setPower(lowPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn right");
-		}
-		else if(this.lineSensorLeft == 1 && this.lineSensorRight == 0) {
-				
-			// when left sensor is on the line, turn left
-			leftMotor.setPower(lowPower);
-			rightMotor.setPower(highPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn left");
-				
-		} 
-		else if(this.lineSensorRight == 1 && this.lineSensorLeft == 0) {
-			
-			// when right sensor is on the line, turn right
-			leftMotor.setPower(highPower);
-			rightMotor.setPower(lowPower);
-			
-			// MONITOR (example)
-			monitor.writeControlComment("turn right");
-		}
 	}
 	
 	private void stop(){

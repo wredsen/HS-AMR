@@ -95,7 +95,7 @@ public class GuidanceAT {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
-        currentStatus = CurrentStatus.INACTIVE;
+        currentStatus = CurrentStatus.DRIVING;
         lastStatus    = CurrentStatus.EXIT;
 		
 		// Generate objects
@@ -106,7 +106,7 @@ public class GuidanceAT {
 		IMonitor monitor = new Monitor();
 		
 		IPerception perception = new PerceptionPMP(leftMotor, rightMotor, monitor);
-		perception.calibrateLineSensors();
+		//perception.calibrateLineSensors();
 		
 		INavigation navigation = new NavigationAT(perception, monitor);
 		IControl    control    = new ControlRST(perception, navigation, leftMotor, rightMotor, monitor);
@@ -115,7 +115,7 @@ public class GuidanceAT {
 		monitor.startLogging();
 				
 		while(true) {
-			showData(navigation, perception);
+			//showData(navigation, perception);
 			
 			
         	switch ( currentStatus )
@@ -125,27 +125,28 @@ public class GuidanceAT {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING ){
-						control.setCtrlMode(ControlMode.LINE_CTRL);
+						//control.setCtrlMode(ControlMode.LINE_CTRL);
 					}
 					
-					control.setCtrlMode(ControlMode.LINE_CTRL);
+					
 					//While action				
-					{
-						//nothing to do here
-					}					
+					monitor.writeControlVar("LeftSensor", "" + perception.getLeftLineSensorValue()); //lineSensorLeft
+					monitor.writeControlVar("RightSensor", "" + perception.getRightLineSensorValue()); //lineSensorRight		
+					showData_linesensor(perception);
 					
 					//State transition check
 					currentStatus = CurrentStatus.DRIVING;
 				    lastStatus = currentStatus;
 					
+				    /*
 					if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.INACTIVE;
-						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+	  	        		//currentStatus = CurrentStatus.INACTIVE;
+						//while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;
 						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
 					}
-				
+				    */
 					//Leave action
 					if ( currentStatus != CurrentStatus.DRIVING ){
 						//nothing to do here
@@ -156,7 +157,7 @@ public class GuidanceAT {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.INACTIVE ){
-						control.setCtrlMode(ControlMode.INACTIVE);
+						//control.setCtrlMode(ControlMode.INACTIVE);
 					}
 					
 					//While action
@@ -168,8 +169,8 @@ public class GuidanceAT {
 					lastStatus = currentStatus;
 							
 					if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.DRIVING;
-						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+						//currentStatus = CurrentStatus.DRIVING;
+						//while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;
 						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
@@ -218,6 +219,15 @@ public class GuidanceAT {
 		LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 0);
 		LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 1);
 		LCD.drawString("Phi (grd): " + (navigation.getPose().getHeading()/Math.PI*180), 0, 2);
+		
+	}
+	
+	protected static void showData_linesensor(IPerception perception){
+		LCD.clear();	
+		
+		LCD.drawString("left Sensor: " + perception.getLeftLineSensorValueRaw(), 0, 0);
+		LCD.drawString("right Sensor: " + perception.getLeftLineSensorValueRaw(), 0, 1);
+	
 		
 	}
 }

@@ -255,7 +255,7 @@ public class ControlRST implements IControl {
 	private void exec_LINECTRL_ALGO(){
 		
 		// MONITOR (example) this.lineSensorRight		= perception.getRightLineSensor();
-		monitor.writeControlVar("LeftSensor", "" + perception.getLeftLineSensorValue()); //lineSensorLeft
+		monitor.writeControlVar("LeftSensor", "" + this.perception.getLeftLineSensorValue()); //lineSensorLeft
 		monitor.writeControlVar("RightSensor", "" + perception.getRightLineSensorValue()); //lineSensorRight
 
 	}

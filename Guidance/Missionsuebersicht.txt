@@ -36,9 +36,6 @@ PAUSE_MODUS (Anhalten)
 
 - von überall in Ruhezustand setzen
 
-DRIVE_MODUS (Fahren ohne Parklückensuche)
-
-- Linienverfolgung
 
 ???Pause_2_Modus???
 -Pause wenn Signal innerhalb der Zustaende Ein/Ausparken kommt

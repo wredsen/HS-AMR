@@ -226,6 +226,10 @@ public class GuidanceAT {
 				case PARK_THIS:
 					//
 					//Into action
+					if ( lastStatus != CurrentStatus.PARK_THIS ){
+						control.setCtrlMode(ControlMode.PARK_CTRL); 
+					}
+					
 					//While action
 					//Leave action
 					break;
@@ -233,9 +237,25 @@ public class GuidanceAT {
 				case PARK_OUT:
 					//
 					//Into action
+					if ( lastStatus != CurrentStatus.PARK_OUT ){
+						control.setCtrlMode(ControlMode.PARK_OUT_CTRL); //PARK_OUT_CTRL muss noch hinzugefügt werden
+					}
 					//While action
+					
 					//State transition check
+					lastStatus = currentStatus;
+					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE){ //PARKOUT muss noch implementiert werden
+						currentStatus = CurrentStatus.PAUSE;
+        			}else if ( Button.ESCAPE.isDown() ){
+        				currentStatus = CurrentStatus.EXIT;
+        				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+        			}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
+        				currentStatus = CurrentStatus.EXIT;
+        			}
+					//elseRoboer hat Linie gefunden -> SCOUT MODUS
+					
 					//Leave action
+					
 					//
 					break;
 //					
@@ -247,6 +267,15 @@ public class GuidanceAT {
 					}
 					//While action
 					//State transition check
+					lastStatus = currentStatus;
+					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_OUT){ //PARKOUT muss noch implementiert werden
+						currentStatus = CurrentStatus.PARK_OUT;
+        			}else if ( Button.ESCAPE.isDown() ){
+        				currentStatus = CurrentStatus.EXIT;
+        				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+        			}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
+        				currentStatus = CurrentStatus.EXIT;
+        			}
 					//Leave action
 					//
 					break;
@@ -262,12 +291,16 @@ public class GuidanceAT {
 					//State transition check
 					lastStatus = currentStatus;
 					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
-						currentStatus = CurrentStatus.SCOUT;
+						currentStatus = CurrentStatus.SCOUT;	
 					}else if ( Button.ENTER.isDown() ){
 						currentStatus = lastStatus;
 						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release	
+					}else if ( Button.ESCAPE.isDown() ){
+						currentStatus = CurrentStatus.EXIT;
+						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
+						currentStatus = CurrentStatus.EXIT;
 					}
-					
 					//Leave action
 					//
 					break;

@@ -26,6 +26,10 @@ public interface IControl {
 		 * einparken
 		 */
 		PARK_CTRL,
+		/**
+		 * ausparken
+		 */
+		PARK_OUT_CTRL,
 		
 		/**
 		 * v/w-Control

@@ -53,7 +53,7 @@ public class Guidance_Kin2 {
 		 */
 		DRIVING,
 		/**
-		 * indicates that robot is performing an parking maneuver
+		 * indicates that robot is performing an parking
 		 */
 		INACTIVE,
 		/**
@@ -121,76 +121,74 @@ public class Guidance_Kin2 {
 		monitor.startLogging();
 				
 		while(true) {
-			showData(navigation, perception);
+			//showData(navigation, perception);
 			
         	switch ( currentStatus )
         	{
-				case DRIVING:
-					// MONITOR (example)
-//					monitor.writeGuidanceComment("Guidance_Driving");
-					
-					//Into action
-					if ( lastStatus != CurrentStatus.DRIVING ){
-						control.setCtrlMode(ControlMode.LINE_CTRL);
-					}
-					
-					//While action				
-					{
-						//nothing to do here
-					}					
+			case DRIVING:
+				
+				
+				//Into action
+				if ( lastStatus != CurrentStatus.DRIVING ){
+					control.setCtrlMode(ControlMode.LINE_CTRL);
+				}
+				
+				//While action				
+				{
+					//nothing to do here
+				}					
+				
+				//State transition check
+				currentStatus = CurrentStatus.DRIVING;
+			    lastStatus = currentStatus;
+				
+				/*if ( Button.ENTER.isDown() ){
+					currentStatus = CurrentStatus.INACTIVE;
+					while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+				}
+				*/
+				if ( Button.ESCAPE.isDown() ){
+					currentStatus = CurrentStatus.EXIT;
+					while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+				}
+		
+				//Leave action
+				if ( currentStatus != CurrentStatus.DRIVING ){
+					//nothing to do here
+				}
+				
+				break;				
+			case INACTIVE:
+				//Into action
+				if ( lastStatus != CurrentStatus.INACTIVE ){
+					control.setCtrlMode(ControlMode.INACTIVE);
+				}
+				
+				//While action
+				{
+					//nothing to do here
+				}
+				
+				//State transition check
+				lastStatus = currentStatus;
+						
+				if ( Button.ENTER.isDown() ){
 					currentStatus = CurrentStatus.DRIVING;
-					//State transition check
-					/* lastStatus = currentStatus;
-					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
-						currentStatus = CurrentStatus.INACTIVE;
-					}else if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.INACTIVE;
-						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-					}else if ( Button.ESCAPE.isDown() ){
-						currentStatus = CurrentStatus.EXIT;
-						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
-					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
-						currentStatus = CurrentStatus.EXIT;
-					}
-					*/
-					//Leave action
-					if ( currentStatus != CurrentStatus.DRIVING ){
-						//nothing to do here
-					}
-					break;				
-				case INACTIVE:
-					//Into action
-					if ( lastStatus != CurrentStatus.INACTIVE ){
-						control.setCtrlMode(ControlMode.INACTIVE);
-					}
-					
-					//While action
-					{
-						//nothing to do here
-					}
-					
-					//State transition check
-					lastStatus = currentStatus;
-					//if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
-						currentStatus = CurrentStatus.DRIVING;						
-					/*}else if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.DRIVING;
-						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-					}else if ( Button.ESCAPE.isDown() ){
-						currentStatus = CurrentStatus.EXIT;
-						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
-					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
-						currentStatus = CurrentStatus.EXIT;
-					}
-					
-					//Leave action
-					if ( currentStatus != CurrentStatus.INACTIVE ){
-						//nothing to do here
-					}
-					*/					
-					break;
-				case EXIT:
-				//	hmi.disconnect();
+					while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+				}else if ( Button.ESCAPE.isDown() ){
+					currentStatus = CurrentStatus.EXIT;
+					while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+				}
+				
+				//Leave action
+				if ( currentStatus != CurrentStatus.INACTIVE ){
+					//nothing to do here
+				}
+								
+				break;
+			case EXIT:
+
+					//hmi.disconnect();
 					/** NOTE: RESERVED FOR FUTURE DEVELOPMENT (PLEASE DO NOT CHANGE)
 					// monitor.sendOfflineLog();
 					*/

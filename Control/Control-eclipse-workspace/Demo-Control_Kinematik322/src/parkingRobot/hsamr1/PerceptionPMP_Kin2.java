@@ -116,12 +116,20 @@ public class PerceptionPMP_Kin2 implements IPerception {
 	public int getLeftLineSensorValue(){
 		//the next line gives bin output, remove in the next version
 		//return ((this.LeftLineSensor-this.LSlblack)/(this.LSlwhite-this.LSlblack))*100;
+		if (this.LSlwhite-this.LSlblack == 0) {
+			this.LSlwhite = 1; 
+			this.LSlblack = 0;
+		}
 		return ((this.LeftLineSensor-this.LSlblack) *100/(this.LSlwhite-this.LSlblack));
 	}
 	
 	public int getRightLineSensorValue(){
 		//the next line gives bin output, remove in the next version
 		//return ((this.RightLineSensor-this.LSrblack)/(this.LSrwhite-this.LSrblack))*100;
+		if (this.LSrwhite-this.LSrblack == 0) {
+			this.LSrwhite = 0; 
+			this.LSrblack = 1;
+		}
 		return ((this.RightLineSensor-this.LSrblack) *100/(this.LSrwhite-this.LSrblack));
 	}
 	

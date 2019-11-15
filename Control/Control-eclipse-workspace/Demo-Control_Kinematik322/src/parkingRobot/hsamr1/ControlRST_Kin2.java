@@ -6,6 +6,7 @@ import parkingRobot.IControl;
 import parkingRobot.IMonitor;
 import parkingRobot.IPerception;
 import parkingRobot.IPerception.*;
+import lejos.nxt.LCD;
 import lejos.nxt.NXTMotor;
 import parkingRobot.INavigation;
 
@@ -17,7 +18,7 @@ public class ControlRST_Kin2 implements IControl {
 	
 	/**
 	 * reference to {@link IPerception.EncoderSensor} class for left robot wheel which measures the wheels angle difference
-	 * between actual an last request
+	 * between actual an l	ast request
 	 */
 	IPerception.EncoderSensor encoderLeft							=	null;
 	/**
@@ -74,13 +75,23 @@ public class ControlRST_Kin2 implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-	double rpmSampleTime = 0.103; // in seconds
+	double rpmSampleTime = 0.105; // in seconds
 	double wheelRadius = 56; // in mm
 	
-	PID_Kin2 lineFollowPID = new PID_Kin2(0, rpmSampleTime, 0.2, 0, 0.1);
-    PID_Kin2 leftRPMPID = new PID_Kin2(0, rpmSampleTime, 0.6, 0.0, 0);
-    PID_Kin2 rightRPMPID = new PID_Kin2(0, rpmSampleTime, 0.6, 0.0, 0);
-  
+	PID_Kin2 lineFollowPID = new PID_Kin2(0, rpmSampleTime, 0.2, 0, 0.1, 999999);
+    PID_Kin2 leftRPMPID = new PID_Kin2(0, rpmSampleTime, 0.5, 0.3, 0.0, 99999); //P:0.5, I:0.3
+    PID_Kin2 rightRPMPID = new PID_Kin2(0, rpmSampleTime, 0.9, 0.8, 0.0, 99999); //P:0.5, I:0.3
+    
+    int leftControlOut = 0;
+    int rightControlOut = 0;
+    double measuredRPMLeft = 0;
+    double measuredRPMRight = 0;
+    
+	double desiredTransSpeed = 10; // in cm/s
+	double desiredRPMLeft = 0;
+	double desiredRPMRight = 0;
+	int desiredPowerLeft = 0;
+	int desiredPowerRight = 0;
 	
 	/**
 	 * provides the reference transfer so that the class knows its corresponding navigation object (to obtain the current 
@@ -103,8 +114,8 @@ public class ControlRST_Kin2 implements IControl {
 			
 		this.encoderLeft  = perception.getControlLeftEncoder();
 		this.encoderRight = perception.getControlRightEncoder();
-		this.lineSensorRight		= perception.getRightLineSensor();
 		this.lineSensorLeft  		= perception.getLeftLineSensor();
+		this.lineSensorRight		= perception.getRightLineSensor();
 		
 		// MONITOR (example)
 		monitor.addControlVar("RightSensor");
@@ -112,7 +123,7 @@ public class ControlRST_Kin2 implements IControl {
 		
 		this.ctrlThread = new ControlThread_Kin2(this);
 		
-		ctrlThread.setPriority(Thread.MAX_PRIORITY - 1);
+		ctrlThread.setPriority(Thread.MAX_PRIORITY-1);
 		ctrlThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		ctrlThread.start();
 	}
@@ -263,17 +274,10 @@ public class ControlRST_Kin2 implements IControl {
 		leftMotor.forward();
 		rightMotor.forward();
 		
-		double desiredTransSpeed = 10; // in cm/s
+		AngleDifferenceMeasurement leftAngle = this.encoderLeft.getEncoderMeasurement();
+		AngleDifferenceMeasurement rightAngle = this.encoderRight.getEncoderMeasurement();
 		
 		
-		double desiredRPMLeft = 0;
-		double desiredRPMRight = 0;
-		int desiredPowerLeft = 0;
-		int desiredPowerRight = 0;
-	    
-	    double measuredRPMLeft = (this.encoderLeft.getEncoderMeasurement().getAngleSum()/rpmSampleTime) * (60/360); //in revelations per min
-		double measuredRPMRight = (this.encoderRight.getEncoderMeasurement().getAngleSum()/rpmSampleTime) * (60/360); //in revelations per min
-
 		
 		// MONITOR (example)
 		monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
@@ -283,8 +287,8 @@ public class ControlRST_Kin2 implements IControl {
 		
 		/* Steuerung der Translatorischen Geschwindigkeit */
 		if(trajectoryMode == 0) {
-			desiredRPMLeft = desiredTransSpeed/(wheelRadius*3.1416/(10*60));
-			desiredRPMRight = desiredTransSpeed/(wheelRadius*3.1416/(10*60));
+			desiredRPMLeft = desiredTransSpeed/(wheelRadius*3.1416/(10.0*60.0));
+			desiredRPMRight = desiredRPMLeft;
 			
 			// Vorsteuerung 
 			desiredPowerLeft = (int) (0.7213 * desiredRPMLeft + 9.752);
@@ -296,25 +300,35 @@ public class ControlRST_Kin2 implements IControl {
 			double desiredSpeedLeft = 7; // in cm/s
 			double desiredSpeedRight = 13; // in cm/s
 			// bei Radstand d = 15 cm wäre Drehradius von r_m = 25 cm zu erwarten
-			desiredRPMLeft = desiredSpeedLeft/(wheelRadius*3.1416/(10*60));
-			desiredRPMRight = desiredSpeedRight/(wheelRadius*3.1416/(10*60));
+			desiredRPMLeft = desiredSpeedLeft/(wheelRadius*3.1416/(10.0*60.0));
+			desiredRPMRight = desiredSpeedRight/(wheelRadius*3.1416/(10.0*60.0));
 			
 			// Vorsteuerung
 			desiredPowerLeft = (int) (0.7213 * desiredRPMLeft + 9.752);
 			desiredPowerRight = (int) (0.7588 * desiredRPMRight + 8.743);
 		}	
+		
+		
+		measuredRPMLeft = ((double) leftAngle.getAngleSum() / (double) leftAngle.getDeltaT()) * 166.667; //in revelations per min
+		measuredRPMRight = ((double) rightAngle.getAngleSum() / (double) rightAngle.getDeltaT()) * 166.667; //in revelations per min
+		
 		leftRPMPID.updateDesiredValue(desiredRPMLeft);
 		rightRPMPID.updateDesiredValue(desiredRPMRight);
 		
-		int leftControlOut = (int)leftRPMPID.runControl(measuredRPMLeft);
-		int rightControlOut = (int)rightRPMPID.runControl(measuredRPMRight);
-		System.out.println("RegLin:"+leftControlOut);
-		System.out.println("RegRec:"+rightControlOut);
+		leftControlOut = (int) leftRPMPID.runControl(measuredRPMLeft);
+		rightControlOut = (int) rightRPMPID.runControl(measuredRPMRight);
 		
+		leftMotor.setPower(leftControlOut);
+		rightMotor.setPower(rightControlOut);
 		
-		leftMotor.setPower(desiredPowerLeft + leftControlOut);
-		rightMotor.setPower(desiredPowerRight + rightControlOut);
-		
+		LCD.clear();
+		LCD.drawString("DesRPMLeft:"+desiredRPMLeft, 0, 1);
+		LCD.drawString("DesRPMRight:"+desiredRPMRight, 0, 2);
+		LCD.drawString("MeasRPMLeft:"+measuredRPMLeft, 0, 3);
+		LCD.drawString("MeasRPMRight:"+measuredRPMRight, 0, 4);
+		LCD.drawString("RegLeft:"+leftControlOut, 0, 5);
+		LCD.drawString("RegRight:"+rightControlOut, 0, 6);
+		//LCD.drawString("SampleTime:"+this.encoderRight.getEncoderMeasurement().getDeltaT(), 0, 7);
 	}
 	
 	private void stop(){

@@ -121,7 +121,7 @@ public class Guidance_PID {
 		monitor.startLogging();
 				
 		while(true) {
-			showData(navigation, perception);
+			//showData(navigation, perception);
 			
         	switch ( currentStatus )
         	{

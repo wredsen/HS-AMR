@@ -6,6 +6,7 @@ import parkingRobot.IControl;
 import parkingRobot.IMonitor;
 import parkingRobot.IPerception;
 import parkingRobot.IPerception.*;
+import lejos.nxt.LCD;
 import lejos.nxt.NXTMotor;
 import parkingRobot.INavigation;
 
@@ -59,9 +60,8 @@ public class ControlRST_PID implements IControl {
 	
 	//Basis PWM-Wert für Motorgeschwindigkeit
 	int baseSpeed = 50;
-	double rpmLeft = 0;
+	double rpmLeft = 2;
 	double rpmRight = 0;
-	double speedRightWheel = 0; // in cm/s
 	double rpmSampleTime = 0.103; // in seconds
 	double wheelRadius = 56; // in mm
 
@@ -83,7 +83,7 @@ public class ControlRST_PID implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-    PID_PID lineFollowPID = new PID_PID(0, rpmSampleTime, 0.2, 0, 0.05);
+    PID_PID lineFollowPID = new PID_PID(0, rpmSampleTime, 0.2, 0, 0.01);
   
 	
 	/**
@@ -279,13 +279,16 @@ public class ControlRST_PID implements IControl {
 		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
 		
 		// Annahme: weiß -> 100, schwarz -> 0
-		leftMotor.setPower(baseSpeed + lineControl);
-		rightMotor.setPower(baseSpeed - lineControl);
+		leftMotor.setPower(baseSpeed - lineControl);
+		rightMotor.setPower(baseSpeed + lineControl);
 		
-		rpmLeft = (60/360) * this.encoderLeft.getEncoderMeasurement().getAngleSum()/rpmSampleTime;
-		rpmRight = (60/360) * this.encoderRight.getEncoderMeasurement().getAngleSum()/rpmSampleTime;
-		speedRightWheel = rpmRight * 3.1416 * wheelRadius / (10*60); // in cm/s
+		rpmLeft = 0.166667 * this.encoderLeft.getEncoderMeasurement().getAngleSum()/rpmSampleTime;
+		rpmRight = 0.166667 * this.encoderRight.getEncoderMeasurement().getAngleSum()/rpmSampleTime;
 		
+		LCD.clear();
+		LCD.drawString("MeasRPMLeft: "+ rpmLeft, 0, 1);
+		LCD.drawString("MesRPMRight: "+rpmRight, 0, 2);
+		LCD.drawString("ContLine: "+lineControl, 0, 3);
 	}
 	
 	private void stop(){

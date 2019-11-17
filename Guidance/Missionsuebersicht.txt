@@ -57,3 +57,16 @@ PAUSE_MODUS (Anhalten)
 		- 		
 
 
+
+Ich benötige folgende Funktionen:
+
+getter  -> Roboter befindet sich in Slot j/n (Navigation?) getStatus in INAvigation überführen in NavigationAT-klasse
+	-> Roboter hat die schwarze Linie wiedergefunden nach Ausparken (Navigation) 
+
+
+IHMI	-> MODE PARK_OUT 
+
+
+ICONTROL-> ControlMode PARK_OUT_CTRL
+
+Wenn eine Parklücke gefunden wurde -> ID, Größe, Ort, Lücke groß genug? evt. neue Klasse SLOT?

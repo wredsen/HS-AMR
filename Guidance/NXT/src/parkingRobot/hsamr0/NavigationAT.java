@@ -5,6 +5,7 @@ import lejos.robotics.navigation.Pose;
 
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
+import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
 import parkingRobot.IMonitor;
 
 import parkingRobot.hsamr0.NavigationThread;
@@ -22,7 +23,6 @@ import parkingRobot.hsamr0.NavigationThread;
  * @author IfA
  */
 public class NavigationAT implements INavigation{
-	
 	/**
 	 * line information measured by right light sensor: 0 - beside line, 1 - on line border or gray underground, 2 - on line
 	 */
@@ -123,7 +123,11 @@ public class NavigationAT implements INavigation{
 	 * thread started by the 'Navigation' class for background calculating
 	 */
 	NavigationThread navThread = new NavigationThread(this);
-
+	/**
+	 * für GUIDANCE
+	 */
+	
+	ParkingSlotStatus status = null;
 	
 	/**
 	 * provides the reference transfer so that the class knows its corresponding perception object (to obtain the measurement
@@ -262,4 +266,13 @@ public class NavigationAT implements INavigation{
 	private void detectParkingSlot(){
 		return; // has to be implemented by students
 	}
+	/**
+	 * MUSS NOCH ANGEPASST WERDEN VON KOSTA
+	 * @return status characterization of the parking slot status
+	 */
+	public ParkingSlotStatus getStatus() {
+		return status;
+	}
+	
+	
 }

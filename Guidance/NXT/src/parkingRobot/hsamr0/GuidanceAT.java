@@ -65,6 +65,10 @@ public class GuidanceAT {
 		 */
 		PARK_THIS,
 		/**
+		 * Zeigt an, dass der Roboter in der nächsten Parklücke einparkt.
+		 */
+		PARK_NEAR,
+		/**
 		 * Zeigt an, dass der Roboter ausparkt.
 		 */
 		PARK_OUT,
@@ -171,7 +175,7 @@ public class GuidanceAT {
 					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
 						currentStatus = CurrentStatus.EXIT;
 					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_NOW){ //nächstgelegener Parkplatz
-						currentStatus = CurrentStatus.PARK_THIS;
+						currentStatus = CurrentStatus.PARK_NEAR;
 					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS){ //ausgewählter Parkplatz
 						currentStatus = CurrentStatus.PARK_THIS;	
 					}	
@@ -182,37 +186,6 @@ public class GuidanceAT {
 						navigation.setDetectionState(false);
 					}
 					break;
-//					
-/*				case INACTIVE:
-					//Into action
-					if ( lastStatus != CurrentStatus.INACTIVE ){
-						control.setCtrlMode(ControlMode.INACTIVE);
-					}
-					
-					//While action
-					{
-						//nothing to do here
-					}
-					
-					//State transition check
-					lastStatus = currentStatus;
-					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
-						currentStatus = CurrentStatus.SCOUT;						
-					}else if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.SCOUT;
-						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-					}else if ( Button.ESCAPE.isDown() ){
-						currentStatus = CurrentStatus.EXIT;
-						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
-					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
-						currentStatus = CurrentStatus.EXIT;
-					}
-					
-					//Leave action
-					if ( currentStatus != CurrentStatus.INACTIVE ){
-						//nothing to do here
-					}					
-					break;*/
 //					
 				case EXIT:
 					hmi.disconnect();
@@ -225,15 +198,36 @@ public class GuidanceAT {
 //					
 				case PARK_THIS:
 					//
-					//Into action
-					if ( lastStatus != CurrentStatus.PARK_THIS ){
-						control.setCtrlMode(ControlMode.PARK_CTRL); 
+					//Into action				
+					//While action
+					//State transition check
+					lastStatus = currentStatus;
+					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
+						currentStatus = CurrentStatus.PAUSE;
+					}else if ( Button.ENTER.isDown() ){
+						currentStatus = CurrentStatus.PAUSE;
+						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+					}else if ( Button.ESCAPE.isDown() ){
+						currentStatus = CurrentStatus.EXIT;
+						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
+						currentStatus = CurrentStatus.EXIT;
+					}else if (navigation.getStatus()==true){ //im_Parkplatz //muss noch hinzugefügt werden
+						currentStatus=CurrentStatus.PARK;
 					}
 					
-					//While action
+					
 					//Leave action
 					break;
 //				
+				case PARK_NEAR:
+					//
+					//Into action			
+					//While action
+					//State transition check
+					//Leave action
+					break;
+//	
 				case PARK_OUT:
 					//
 					//Into action
@@ -309,7 +303,7 @@ public class GuidanceAT {
 				break;
         	}
         		
-        	Thread.sleep(100);        	
+        	Thread.sleep(50);        	
 		}
 	}
 	

@@ -125,13 +125,13 @@ public class Perception {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING ){
-						control.setCtrlMode(ControlMode.LINE_CTRL);
+						control.setCtrlMode(ControlMode.INACTIVE);
 					}
 					
 					
 					//While action				
-					monitor.writeControlVar("LeftSensor", "" + perception.getLeftLineSensorValue()); //lineSensorLeft
-					monitor.writeControlVar("RightSensor", "" + perception.getRightLineSensorValue()); //lineSensorRight		
+					monitor.writeControlVar("LeftSensor", "" + perception.getLeftLineSensorValueRaw()); //lineSensorLeft
+					monitor.writeControlVar("RightSensor", "" + perception.getRightLineSensorValueRaw()); //lineSensorRight		
 					showData_linesensor(perception);
 					
 					//State transition check
@@ -228,9 +228,9 @@ public class Perception {
 		LCD.clear();	
 		
 		LCD.drawString("left Sensor: " + perception.getLeftLineSensorValueRaw(), 0, 0);
-		LCD.drawString("right Sensor: " + perception.getLeftLineSensorValueRaw(), 0, 1);
+		LCD.drawString("right Sensor: " + perception.getRightLineSensorValueRaw(), 0, 1);
 		LCD.drawString("s front: " + perception.getFrontSensorDistance(), 0, 2);
-		LCD.drawString("s side: " + perception.getFrontSideSensorDistance(), 0, 3);
+		//LCD.drawString("s side: " + perception.getFrontSideSensorDistance(), 0, 3);
 		
 	}
 }

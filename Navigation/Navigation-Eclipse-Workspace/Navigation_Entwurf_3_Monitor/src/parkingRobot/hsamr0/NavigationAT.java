@@ -195,6 +195,10 @@ public class NavigationAT implements INavigation{
 		navThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		navThread.start();
 		
+		monitor.addControlVar("testvariable1");
+		monitor.addControlVar("testvariable2");
+		monitor.addControlVar("cornerNumber");
+		
 	}
 	
 	
@@ -238,6 +242,13 @@ public class NavigationAT implements INavigation{
 		testvariable2 = getAverageDiff(rightLightSensorList);
 		testvariable1 = getAverageDiff(leftLightSensorList);
 		
+		/*
+		monitor.writeControlVar("Diff_L", "" + testvariable1);
+		monitor.writeControlVar("Diff_L", "" + testvariable2);
+		monitor.writeControlVar("Nummer", "" + cornerNumber);
+		
+		monitor.writeControlComment("es_funzt");
+		*/
 		LCD.clear();	
 		LCD.drawString("Diff. L =" + testvariable1, 0, 0);
 		LCD.drawString("Diff. R =" + testvariable2, 0, 1);

@@ -35,7 +35,7 @@ import lejos.nxt.LCD;
  * It is important that data witch is accessed by more than one main module class thread is only handled in a
  * synchronized context to avoid inconsistent or corrupt data!
  */
-public class GuidanceAT {
+public class Perception {
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -125,7 +125,7 @@ public class GuidanceAT {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING ){
-						//control.setCtrlMode(ControlMode.LINE_CTRL);
+						control.setCtrlMode(ControlMode.LINE_CTRL);
 					}
 					
 					
@@ -138,15 +138,15 @@ public class GuidanceAT {
 					currentStatus = CurrentStatus.DRIVING;
 				    lastStatus = currentStatus;
 					
-				    /*
+				    
 					if ( Button.ENTER.isDown() ){
-	  	        		//currentStatus = CurrentStatus.INACTIVE;
-						//while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+	  	        		currentStatus = CurrentStatus.INACTIVE;
+						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;
 						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
 					}
-				    */
+				    
 					//Leave action
 					if ( currentStatus != CurrentStatus.DRIVING ){
 						//nothing to do here
@@ -157,7 +157,9 @@ public class GuidanceAT {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.INACTIVE ){
-						//control.setCtrlMode(ControlMode.INACTIVE);
+						control.setCtrlMode(ControlMode.INACTIVE);
+						LCD.clear();
+						LCD.drawString("Pause!", 0, 0);
 					}
 					
 					//While action
@@ -169,8 +171,8 @@ public class GuidanceAT {
 					lastStatus = currentStatus;
 							
 					if ( Button.ENTER.isDown() ){
-						//currentStatus = CurrentStatus.DRIVING;
-						//while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+						currentStatus = CurrentStatus.DRIVING;
+						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;
 						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
@@ -205,7 +207,7 @@ public class GuidanceAT {
 	 * @return actual state of the main finite state machine
 	 */
 	public static CurrentStatus getCurrentStatus(){
-		return GuidanceAT.currentStatus;
+		return Perception.currentStatus;
 	}
 	
 	/**
@@ -227,7 +229,8 @@ public class GuidanceAT {
 		
 		LCD.drawString("left Sensor: " + perception.getLeftLineSensorValueRaw(), 0, 0);
 		LCD.drawString("right Sensor: " + perception.getLeftLineSensorValueRaw(), 0, 1);
-	
+		LCD.drawString("s front: " + perception.getFrontSensorDistance(), 0, 2);
+		LCD.drawString("s side: " + perception.getFrontSideSensorDistance(), 0, 3);
 		
 	}
 }

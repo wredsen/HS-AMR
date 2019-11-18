@@ -100,8 +100,8 @@ public class ControlRST implements IControl {
 		this.lineSensorLeft  		= perception.getLeftLineSensor();
 		
 		// MONITOR (example)
-		monitor.addControlVar("RightSensor");
-		monitor.addControlVar("LeftSensor");
+		//monitor.addControlVar("RightSensor");
+		//monitor.addControlVar("LeftSensor");
 		
 		this.ctrlThread = new ControlThread(this);
 		
@@ -260,8 +260,8 @@ public class ControlRST implements IControl {
 		
 		// MONITOR (example)
 		
-		monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
-		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
+		//monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
+		//monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
 		
         if(true){
 			

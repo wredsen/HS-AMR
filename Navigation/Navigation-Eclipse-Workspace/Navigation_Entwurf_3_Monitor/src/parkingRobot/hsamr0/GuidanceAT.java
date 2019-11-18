@@ -101,7 +101,7 @@ public class GuidanceAT {
 		// Generate objects
 		
 		NXTMotor leftMotor  = new NXTMotor(MotorPort.B);
-		NXTMotor rightMotor = new NXTMotor(MotorPort.A);
+		NXTMotor rightMotor = new NXTMotor(MotorPort.C);
 		
 		IMonitor monitor = new Monitor();
 		

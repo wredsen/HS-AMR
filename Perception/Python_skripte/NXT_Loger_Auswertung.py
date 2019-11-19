@@ -61,12 +61,12 @@ for i in range(0,6):
                mean_value_left[i, 0]  = np.mean(sample_value_left)
                mean_value_right[i, 1] = np.std(sample_value_right)
                mean_value_left[i, 1]  = np.std(sample_value_left)
-               print()
+               
                
      
 
-print('black bright mean R  '+str(mean_value_right[0,0]))
-print('black bright mean L  '+str(mean_value_left[0,0]))
+print('black bright mean  R '+str(mean_value_right[0,0]))
+print('black bright mean  L '+str(mean_value_left[0,0]))
 print('black bright sigma R '+str(mean_value_right[0,1]))
 print('black bright sigma L '+str(mean_value_left[0,1]))
 print(' ')

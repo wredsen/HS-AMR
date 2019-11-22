@@ -74,7 +74,7 @@ public class ControlRST_Kin implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-	double rpmSampleTime = 0.103; // in seconds
+	double rpmSampleTime = 0.054; // in seconds
 	double wheelRadius = 56; // in mm
     
     PID_Kin lineFollowPID = new PID_Kin(0, rpmSampleTime, 0.2, 0, 0.1);
@@ -273,14 +273,14 @@ public class ControlRST_Kin implements IControl {
 		monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
 		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
 		
-		int trajectoryMode = 1; // 0 -> Translation, 1 -> Kreisbahn
+		int trajectoryMode = 0; // 0 -> Translation, 1 -> Kreisbahn
 		
 		/* Steuerung der Translatorischen Geschwindigkeit */
 		if(trajectoryMode == 0) {
 			desiredRPMLeft = desiredTransSpeed/(wheelRadius*3.1416/(10*60));
 			desiredRPMRight = desiredTransSpeed/(wheelRadius*3.1416/(10*60));
-			desiredPowerLeft = (int) (0.7213 * desiredRPMLeft + 9.752);
-			desiredPowerRight = (int) (0.7588 * desiredRPMRight + 8.743);
+			desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
+			desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
 		}
 		
 		/* Steuerung der Rotatorischen Geschwindigkeit */
@@ -290,8 +290,8 @@ public class ControlRST_Kin implements IControl {
 			// bei Radstand d = 15 cm wäre Drehradius von r_m = 25 cm zu erwarten
 			desiredRPMLeft = desiredSpeedLeft/(wheelRadius*3.1416/(10*60));
 			desiredRPMRight = desiredSpeedRight/(wheelRadius*3.1416/(10*60));
-			desiredPowerLeft = (int) (0.7213 * desiredRPMLeft + 9.752);
-			desiredPowerRight = (int) (0.7588 * desiredRPMRight + 8.743);
+			desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
+			desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
 		}
 			
 		leftMotor.setPower(desiredPowerLeft);

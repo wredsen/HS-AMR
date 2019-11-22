@@ -3,12 +3,16 @@ package parkingRobot.hsamr1;
 
 import lejos.robotics.navigation.Pose;
 import parkingRobot.IControl;
+import parkingRobot.IControl.ControlMode;
 import parkingRobot.IMonitor;
 import parkingRobot.IPerception;
 import parkingRobot.IPerception.*;
 import lejos.nxt.LCD;
 import lejos.nxt.NXTMotor;
 import parkingRobot.INavigation;
+import lejos.nxt.Sound;
+import lejos.nxt.comm.RConsole;
+import lejos.geom.Point;
 
 /**
  * Main class for control module
@@ -75,12 +79,12 @@ public class ControlRST_Kin2 implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-	double rpmSampleTime = 0.105; // in seconds
-	double wheelRadius = 56; // in mm
+	double rpmSampleTime = 0.054; // in seconds
+	final double wheelRadius = 56; // in mm
 	
 	PID_Kin2 lineFollowPID = new PID_Kin2(0, rpmSampleTime, 0.2, 0, 0.1, 999999);
-    PID_Kin2 leftRPMPID = new PID_Kin2(0, rpmSampleTime, 0.5, 0.3, 0.0, 99999); //P:0.5, I:0.3
-    PID_Kin2 rightRPMPID = new PID_Kin2(0, rpmSampleTime, 0.9, 0.8, 0.0, 99999); //P:0.5, I:0.3
+    PID_Kin2 leftRPMPID = new PID_Kin2(0, rpmSampleTime, 0.6, 0.2, 0.005, 99999); //P:0.5, I:0.3
+    PID_Kin2 rightRPMPID = new PID_Kin2(0, rpmSampleTime, 0.7, 0.3, 0.005, 99999); //P:0.5, I:0.3
     
     int leftControlOut = 0;
     int rightControlOut = 0;
@@ -189,6 +193,9 @@ public class ControlRST_Kin2 implements IControl {
 	 */
 	public void exec_CTRL_ALGO(){
 		
+		this.angleMeasurementLeft = encoderLeft.getEncoderMeasurement();
+		this.angleMeasurementRight = encoderRight.getEncoderMeasurement();
+		
 		switch (currentCTRLMODE)
 		{
 		  case LINE_CTRL	: update_LINECTRL_Parameter();
@@ -238,6 +245,7 @@ public class ControlRST_Kin2 implements IControl {
 	private void update_LINECTRL_Parameter(){
 		this.lineSensorRight		= perception.getRightLineSensorValue();
 		this.lineSensorLeft  		= perception.getLeftLineSensorValue();		
+		this.currentPosition		= navigation.getPose();
 	}
 	
 	/**
@@ -274,8 +282,8 @@ public class ControlRST_Kin2 implements IControl {
 		leftMotor.forward();
 		rightMotor.forward();
 		
-		AngleDifferenceMeasurement leftAngle = this.encoderLeft.getEncoderMeasurement();
-		AngleDifferenceMeasurement rightAngle = this.encoderRight.getEncoderMeasurement();
+		AngleDifferenceMeasurement leftAngle = this.angleMeasurementLeft;
+		AngleDifferenceMeasurement rightAngle = this.angleMeasurementRight;
 		
 		
 		
@@ -291,8 +299,8 @@ public class ControlRST_Kin2 implements IControl {
 			desiredRPMRight = desiredRPMLeft;
 			
 			// Vorsteuerung 
-			desiredPowerLeft = (int) (0.7213 * desiredRPMLeft + 9.752);
-			desiredPowerRight = (int) (0.7588 * desiredRPMRight + 8.743);
+			desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
+			desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
 		}
 		
 		/* Steuerung der Rotatorischen Geschwindigkeit */
@@ -304,8 +312,8 @@ public class ControlRST_Kin2 implements IControl {
 			desiredRPMRight = desiredSpeedRight/(wheelRadius*3.1416/(10.0*60.0));
 			
 			// Vorsteuerung
-			desiredPowerLeft = (int) (0.7213 * desiredRPMLeft + 9.752);
-			desiredPowerRight = (int) (0.7588 * desiredRPMRight + 8.743);
+			desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
+			desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
 		}	
 		
 		

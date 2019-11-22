@@ -83,7 +83,6 @@ public class ControlRST_PID implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-    PID_PID lineFollowPID = new PID_PID(0, rpmSampleTime, 0.2, 0, 0.01);
   
 	
 	/**
@@ -264,6 +263,9 @@ public class ControlRST_PID implements IControl {
 	 */
     
 	private void exec_LINECTRL_ALGO(){
+		
+	    PID_PID lineFollowPID = new PID_PID(0, rpmSampleTime, 0.2, 0, 0.01);
+	    
 		leftMotor.forward();
 		rightMotor.forward();
 		
@@ -273,10 +275,6 @@ public class ControlRST_PID implements IControl {
 		*/
 		int lineControl = (int) lineFollowPID.runControl(this.lineSensorLeft - this.lineSensorRight); 
 		// das hier später an drehzahlregelung einzelner räder übergeben
-		
-		// MONITOR (example)
-		monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
-		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
 		
 		// Annahme: weiß -> 100, schwarz -> 0
 		leftMotor.setPower(baseSpeed - lineControl);

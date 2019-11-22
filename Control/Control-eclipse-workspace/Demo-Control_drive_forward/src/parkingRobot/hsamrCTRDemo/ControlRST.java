@@ -6,6 +6,7 @@ import parkingRobot.IControl;
 import parkingRobot.IMonitor;
 import parkingRobot.IPerception;
 import parkingRobot.IPerception.*;
+import lejos.nxt.LCD;
 import lejos.nxt.NXTMotor;
 import parkingRobot.INavigation;
 
@@ -256,11 +257,14 @@ public class ControlRST implements IControl {
 		leftMotor.forward();
 		rightMotor.forward();
 		int lowPower = 1;
-		int highPower = 100;
+		int highPower = 50;
+		
+		AngleDifferenceMeasurement leftAngle = this.encoderLeft.getEncoderMeasurement();
+		AngleDifferenceMeasurement rightAngle = this.encoderRight.getEncoderMeasurement();
 		
 		// MONITOR (example)
-		monitor.writeControlVar("LeftSensor", "" + this.encoderLeft.getEncoderMeasurement().getAngleSum()); //lineSensorLeft
-		monitor.writeControlVar("RightSensor", "" + this.encoderRight.getEncoderMeasurement().getAngleSum()); //lineSensorRight
+		monitor.writeControlVar("LeftSensor", "" + leftAngle.getAngleSum()); //lineSensorLeft
+		monitor.writeControlVar("RightSensor", "" + rightAngle.getAngleSum()); //lineSensorRight
 
         if(true){
 			
@@ -271,6 +275,12 @@ public class ControlRST implements IControl {
 			// MONITOR (example)
 			//monitor.writeControlComment("turn forward");
 			
+			double measuredRPMLeft = ((double) leftAngle.getAngleSum() / (double) leftAngle.getDeltaT()) * 166.667; //in revelations per min
+			double measuredRPMRight = ((double) rightAngle.getAngleSum() / (double) rightAngle.getDeltaT()) * 166.667; //in revelations per min
+
+			
+			LCD.drawString("MeasRPMLeft:"+measuredRPMLeft, 0, 4);
+			LCD.drawString("MeasRPMRight:"+measuredRPMRight, 0, 5);
 		} 
 	}
 	

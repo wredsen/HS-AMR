@@ -331,10 +331,22 @@ public class ControlRST_Ver1 implements IControl {
 		int desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
 		int desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
 		
-		// Annahme: weiß -> 100, schwarz -> 0	
-		leftMotor.setPower(30 - lineControl);
-		rightMotor.setPower(30 + lineControl);
+		if((this.lineSensorLeft - this.lineSensorRight) > 35) {
+			rightMotor.setPower(-30);
+			leftMotor.setPower(60);
+		}
+
+		else if((this.lineSensorRight - this.lineSensorLeft) > 35) {
+			rightMotor.setPower(60);
+			leftMotor.setPower(-30);
+		}
 		
+		else {
+			rightMotor.setPower(40 + lineControl);
+			leftMotor.setPower(40 - lineControl);
+		}
+
+
 		LCD.drawString("Regelaus:"+lineControl, 0, 5);
 		LCD.clear();
 	}

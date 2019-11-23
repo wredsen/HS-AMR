@@ -7,7 +7,6 @@ import lejos.robotics.navigation.Pose;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
 import parkingRobot.IMonitor;
-
 import parkingRobot.hsamr0.NavigationThread;
 
 import java.util.*;
@@ -31,9 +30,15 @@ public class NavigationAT implements INavigation{
 	double testvariable3 = 0;
 	
 	/**
-	 * holds the value for the minimal difference the sensors have to detect if there is a corner
+	 * holds the value for the average difference of the sensor that DOES NOT go over the black line in a Corner
 	 */
-	float minimalDifference =50;
+	double lowLimit = -10;
+	
+	/**
+	 * holds the value for the average difference of the sensor that DOES go over the black line in a Corner
+	 */
+	
+	double highLimit = -100;
 	
 	/**
 	 * holds the constant amount of light sensor values in the Linked Lists
@@ -73,7 +78,7 @@ public class NavigationAT implements INavigation{
 	/**
 	 * holds the index number of the current/last corner
 	 */
-	int cornerNumber = 0;
+	private int cornerNumber = 0;
 	
 	/**
 	 * line information measured by right light sensor: 0 - beside line, 1 - on line border or gray underground, 2 - on line
@@ -195,9 +200,10 @@ public class NavigationAT implements INavigation{
 		navThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		navThread.start();
 		
+		
 		monitor.addNavigationVar("testvariable1");
 		monitor.addNavigationVar("testvariable2");
-		monitor.addNavigationVar("cornerNumber");
+		//monitor.addNavigationVar("cornerNumber");
 		
 	}
 	
@@ -229,35 +235,34 @@ public class NavigationAT implements INavigation{
 		rightLightSensorList.add(rightLightSensorValue);		// adds the current light sensor Values to the lists
 		leftLightSensorList.add(leftLightSensorValue);
 		
-		if (rightLightSensorList.size()>10) {					// deletes old, unnecessary value from lists
+		if (rightLightSensorList.size()>amountOfValues) {					// deletes old, unnecessary value from lists
 			rightLightSensorList.remove(0);
 			leftLightSensorList.remove(0);
 		}
 		
-		detectCorner();
-		
 		if (this.parkingSlotDetectionIsOn)
 				this.detectParkingSlot();
 		
-		testvariable1 = getAverageDiff(leftLightSensorList);
+		testvariable1 = getAverageDiff(leftLightSensorList);						// Setting variables for the screen an monitor output
 		testvariable2 = getAverageDiff(rightLightSensorList);
 		
-		
-		
-		monitor.writeNavigationVar("testvariable1", "" + testvariable1);
+		monitor.writeNavigationVar("testvariable1", "" + testvariable1);			// Monitor Output
 		monitor.writeNavigationVar("testvariable2", "" + testvariable2);
-		monitor.writeNavigationVar("cornerNumber", "" + cornerNumber);
-		
-		//monitor.writeControlComment("es_funzt");
+		//monitor.writeNavigationVar("cornerNumber", "" + cornerNumber);
 		
 		LCD.clear();	
-		LCD.drawString("Diff. L =" + testvariable1, 0, 0);
+		LCD.drawString("Diff. L =" + testvariable1, 0, 0);							// Screen Output
 		LCD.drawString("Diff. R =" + testvariable2, 0, 1);
-		LCD.drawString("C.Numm. =" + cornerNumber, 0, 2);
+		//LCD.drawString("C.Numm. =" + cornerNumber, 0, 2);
 		LCD.drawString("Lichtsen.R =" + rightLightSensorValue, 0, 3);
 		LCD.drawString("Lichtsen.L =" + leftLightSensorValue, 0, 4);
-
+		
 		this.calculateLocation();
+		
+		/*if (detectCorner()) {						// zum ersten Testen noch nicht notwendig, erst wenn Kurve richtig erkannt und Robo stehen geblieben ist!
+			evaluateCornerDetection();
+			}
+		*/
 	}
 	
 	
@@ -277,6 +282,11 @@ public class NavigationAT implements INavigation{
 	}
 	
 	
+	public synchronized boolean getCorner() {
+		return detectCorner();
+	}
+	
+	
 	// Private methods
 	
 	/**
@@ -288,7 +298,7 @@ public class NavigationAT implements INavigation{
 		double a1 = 0;
 		double a2 = 0;
 		
-		if (list.size() >= 10) {
+		if (list.size() >= amountOfValues) {
 			for(int i=(list.size()-amountOfValues); i<(list.size()-(amountOfValues/2)); i++){
 				a1 += list.get(i);
 			}
@@ -308,26 +318,80 @@ public class NavigationAT implements INavigation{
 	
 	
 	/**
-	 * detects corner and returns boolean value: corner detected --> true ; no corner detected --> false
+	 * detects corner, determines type of corner and returns boolean value: corner detected --> true ; no corner detected --> false
 	 */
-	private int detectCorner() {
+	public boolean detectCorner() {
+		boolean corner = false;
 		rightCorner = false;
 		leftCorner = false;
-
-		if((getAverageDiff(rightLightSensorList)>minimalDifference)&&(getAverageDiff(leftLightSensorList)<minimalDifference)) {
+		if(( getAverageDiff(rightLightSensorList) < lowLimit ) && (getAverageDiff(rightLightSensorList) > highLimit) && ( getAverageDiff(leftLightSensorList) < highLimit )) {
+			corner = true;
+			leftCorner=true;
+			cornerNumber++;
+			cornerNumber = cornerNumber % 8;
+		}
+		
+		if (( getAverageDiff(leftLightSensorList) < lowLimit ) && ( getAverageDiff(leftLightSensorList) > highLimit ) && ( getAverageDiff(rightLightSensorList) < highLimit )) {
+			corner = true;
 			rightCorner = true;
 			cornerNumber++;
+			cornerNumber = cornerNumber % 8;		
 		}
-		
-		if((getAverageDiff(leftLightSensorList)>minimalDifference)&&(getAverageDiff(rightLightSensorList)<minimalDifference)) {
-			leftCorner = true;
-			cornerNumber++;
-		}
-		
-		cornerNumber = cornerNumber%8;
-		
-		return cornerNumber;
+		return corner;	
 	}
+	
+	
+	/**
+	 *  evaluates the corner and overwrites the pose if the measured values are meaningful
+	 */
+	private void evaluateCornerDetection() {
+			switch(cornerNumber)
+			{
+				case '0': 
+					if (leftCorner=true) {
+						this.pose.setLocation(0,0);
+					}
+					break; 
+				case '1': 
+					if (leftCorner=true) {
+						this.pose.setLocation(180,0);
+					}
+					break; 
+				case '2':
+					if(leftCorner=true) {
+						this.pose.setLocation(180,60);	
+					}
+					break; 
+				case '3': 
+					if(leftCorner=true) {
+						this.pose.setLocation(150,60);	
+					}
+					break;
+				case '4':
+					if(rightCorner=true) {
+						this.pose.setLocation(150,30);	
+					}
+					break;
+				case '5':
+					if(rightCorner=true) {
+						this.pose.setLocation(30,30);	
+					}
+					break;
+				case '6':
+					if(leftCorner=true) {
+						this.pose.setLocation(30,60);	
+					}
+					break;
+				case '7':
+					if(leftCorner=true) {
+						this.pose.setLocation(0,60);	
+					}
+					break;
+				default:
+			}		
+		// Sinnvolles Ergebnis? --> Abstandsfunktion zu aktueller Pose einführen --> nur wenn in bestimmten Abstand zu Kurve, darf Kurve übernommen werden!
+	}
+	
 	
 	/**
 	 * calls the perception methods for obtaining actual measurement data and writes the data into members

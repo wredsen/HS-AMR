@@ -295,7 +295,7 @@ public class NavigationAT implements INavigation{
 	
 	
 	public synchronized boolean getCorner() {
-		if (getCornerReached() == true) {
+		if (getCornerArea() == true) {
 			return detectCorner();
 		}
 		else {
@@ -304,7 +304,7 @@ public class NavigationAT implements INavigation{
 	}
 	
 
-	public synchronized boolean getCornerReached() {
+	public synchronized boolean getCornerArea() {
 		boolean safety = false;
 		
 		if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								// Sicherheitsbereiche in denen auch wirklich eine Ecke liegt!
@@ -578,11 +578,65 @@ public class NavigationAT implements INavigation{
 				    	    this.pose.setHeading((float)angleResult);
 				    	}		   
 				    }				    
-				    
 				// Linie 5
+					if(angleResult>0.9*Math.PI&&angleResult<1.1*Math.PI&&this.pose.getX()>=0.3&&this.pose.getX()<1.47&&this.pose.getY()<0.4) {
+						yDiff=yResult-0.3;                               
+																												//Abweichung korriegieren
+				    	if(yDiff<=-0.005) {
+				    		yResult=0.3;
+					   	    this.pose.setLocation((float)xResult,(float)yResult);                          
+					       	this.pose.setHeading((float)angleResult);	
+					   	}
+				    	if(yDiff>=0.005) {
+				    		yResult=0.3;	
+					   	    this.pose.setLocation((float)xResult,(float)yResult);                          
+					       	this.pose.setHeading((float)angleResult);
+				    	}
+				    	else {                                                									//direkt ausgeben
+				    	this.pose.setLocation((float)xResult,(float)yResult);                            
+				    	this.pose.setHeading((float)angleResult); 	
+						}
+					}
 				// Linie 6
+					   if(angleResult>0.4*Math.PI&&angleResult<0.8*Math.PI&&this.pose.getX()>=0.25&&this.pose.getX()<=0.35) {    
+							  xDiff=xResult-0.3;
+							  																					//Abweichung korriegieren
+						   	if(xDiff>=0.01) {
+						   		xResult=0.3;
+						   		this.pose.setLocation((float)xResult,(float)yResult);                         
+						       	this.pose.setHeading((float)angleResult);
+						   	}
+						   	if(xDiff<=-0.01) {
+						   		xResult=0.3;
+						   		this.pose.setLocation((float)xResult,(float)yResult);                         
+						       	this.pose.setHeading((float)angleResult);
+						   	}
+						   	else {                                                								//direkt ausgeben
+						       	this.pose.setLocation((float)xResult,(float)yResult);                            
+						       	this.pose.setHeading((float)angleResult);
+						    }		
+					   }
 				// Linie 7
-				// Linie 8	
+					   if(angleResult>0.9*Math.PI&&angleResult<1.1*Math.PI&&this.pose.getX()>0.05&&this.pose.getX()<=0.3) {
+						   yDiff=yResult-0.6;                               
+						   																						//Abweichung korriegieren
+						   	if(yDiff>=0.01) {
+					   	   		yResult=0.6;
+					   	   		this.pose.setLocation((float)xResult,(float)yResult);                         
+					   	   		this.pose.setHeading((float)angleResult);
+					   		} 	
+						   	if(yDiff<=-0.01) {
+						   		yResult=0.6;
+						   		this.pose.setLocation((float)xResult,(float)yResult);                          
+						   		this.pose.setHeading((float)angleResult);	
+						   	}
+						   	else {                                                								//einfach ausgeben
+						   		this.pose.setLocation((float)xResult,(float)yResult);                            
+						   		this.pose.setHeading((float)angleResult);
+						   	}	 
+					   }					   
+				// Linie 8
+					   
 				}
 			
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			

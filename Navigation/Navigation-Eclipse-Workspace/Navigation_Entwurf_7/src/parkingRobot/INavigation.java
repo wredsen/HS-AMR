@@ -70,7 +70,7 @@ public interface INavigation {
 	 * Checks whether the bot is in the near of a corner or not.
 	 * @return safety: true if a corner is close, false if not
 	 */
-	public boolean getCornerReached();
+	public boolean getCornerArea();
 	
 	// Subclasses
 	

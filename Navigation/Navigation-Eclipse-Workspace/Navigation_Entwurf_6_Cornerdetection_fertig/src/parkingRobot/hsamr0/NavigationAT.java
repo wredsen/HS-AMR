@@ -26,6 +26,8 @@ import java.util.*;
 public class NavigationAT implements INavigation{
 	
 	
+	int mapModus = 1; 	// 1 for real, big map and 2 for small test-map
+	
 	double testvariable1 = 0;
 	double testvariable2 = 0;
 	double testvariable3 = 0;
@@ -286,7 +288,7 @@ public class NavigationAT implements INavigation{
 	
 	
 	public synchronized boolean getCorner() {
-		if (getCornerReached() == true) {
+		if (getCornerArea() == true) {
 			return detectCorner();
 		}
 		else {
@@ -294,39 +296,67 @@ public class NavigationAT implements INavigation{
 		}
 	}
 	
-	public synchronized boolean getCornerReached() {
-		boolean safety = true;																	// IMMER TRUE für Tests! --> SPÄTER ÄNDERN!!!!!!!
+	public synchronized boolean getCornerArea() {
+		boolean safety = false;																	// IMMER TRUE für Tests! --> SPÄTER ÄNDERN!!!!!!!
 		
-		if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								// Sicherheitsbereiche in denen auch wirklich eine Ecke liegt!
-			safety = true;
-		}
+		if (mapModus == 1) {
+			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								// Sicherheitsbereiche in denen auch wirklich eine Ecke liegt!
+				safety = true;
+			}
 	
-		if ((this.pose.getX()>=0.70)&&(this.pose.getY()<=0.10)) {
-			safety = true;
+			if ((this.pose.getX()>=0.70)&&(this.pose.getY()<=0.10)) {
+				safety = true;
+			}
+		
+			if ((this.pose.getX()>=1.70)&&(this.pose.getY()>=0.50)) {
+				safety = true;
+			}
+		
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.50)) {
+				safety = true;
+			}
+		
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
+				safety = true;
+			}
+		
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
+				safety = true;
+			}
+		
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
+				safety = true;
+			}
+		
+			if ((this.pose.getX()<=0.1)&&(this.pose.getY()>=0.50)) {
+				safety = true;
+			}
 		}
 		
-		if ((this.pose.getX()>=1.70)&&(this.pose.getY()>=0.50)) {
-			safety = true;
-		}
+		if (mapModus == 2) {
+			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								// Sicherheitsbereiche in denen auch wirklich eine Ecke liegt!
+				safety = true;
+			}
+	
+			if ((this.pose.getX()>=0.65)&&(this.pose.getY()<=0.10)) {
+				safety = true;
+			}
 		
-		if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.50)) {
-			safety = true;
-		}
+			if ((this.pose.getX()>=0.65)&&(this.pose.getY()>=0.50)) {
+				safety = true;
+			}
 		
-		if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
-			safety = true;
-		}
+			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.55)&&(this.pose.getY()>=0.50)) {
+				safety = true;
+			}
 		
-		if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
-			safety = true;
-		}
+			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.55)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
+				safety = true;
+			}
 		
-		if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
-			safety = true;
-		}
-		
-		if ((this.pose.getX()<=0.1)&&(this.pose.getY()>=0.50)) {
-			safety = true;
+			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.20)&&(this.pose.getY()<=0.40)) {
+				safety = true;
+			}
 		}
 		
 		return safety;

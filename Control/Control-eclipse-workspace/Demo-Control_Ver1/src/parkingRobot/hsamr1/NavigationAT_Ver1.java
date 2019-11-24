@@ -253,13 +253,6 @@ public class NavigationAT_Ver1 implements INavigation{
 		monitor.writeNavigationVar("testvariable2", "" + testvariable2);
 		//monitor.writeNavigationVar("cornerNumber", "" + cornerNumber);
 		
-		LCD.clear();	
-		LCD.drawString(" R Diff =" + testvariable1, 0, 0);							// Screen Output
-		LCD.drawString(" L Diff =" + testvariable2, 0, 1);
-		//LCD.drawString("C.Numm. =" + cornerNumber, 0, 2);
-		LCD.drawString("Lichtsen.R =" + rightLightSensorValue, 0, 3);
-		LCD.drawString("Lichtsen.L =" + leftLightSensorValue, 0, 4);
-		
 		this.calculateLocation();
 		
 		/*if (detectCorner()) {						// zum ersten Testen noch nicht notwendig, erst wenn Kurve richtig erkannt und Robo stehen geblieben ist!

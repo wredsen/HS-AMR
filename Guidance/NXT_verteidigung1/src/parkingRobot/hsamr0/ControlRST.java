@@ -187,9 +187,7 @@ public class ControlRST implements IControl {
 		  					  break;		  					  
 		  case INACTIVE 	: exec_INACTIVE();
 			                  break;
-		  case PARK_OUT_CTRL:
-			  				  break;
-	      }
+		}
 
 	}
 	

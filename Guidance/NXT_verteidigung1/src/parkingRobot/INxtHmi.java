@@ -37,15 +37,7 @@ public interface INxtHmi {
 		/**
 		 * Close bluetooth connection 
 		 */
-		DISCONNECT,
-		/**
-		 * Close bluetooth connection 
-		 */
-		PARK_OUT,
-		/**
-		 * Last Status wählen
-		 */
-		RETURN;
+		DISCONNECT;
 	}
 	
 	/**

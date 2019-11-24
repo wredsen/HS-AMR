@@ -130,7 +130,7 @@ public class Guidance_Ver1 {
 				
 				//Into action
 				if ( lastStatus != CurrentStatus.DRIVING ){
-					control.setCtrlMode(ControlMode.LINE_CTRL);
+					control.setCtrlMode(ControlMode.SETPOSE);
 				}
 				
 				//While action				

@@ -63,7 +63,7 @@ public class ControlRST_Ver1 implements IControl {
 	int rightMotorPower = 0;
 	
 	double velocity = 10.0;	// in cm/s
-	double angularVelocity = 0.0;	// in 1/s
+	double angularVelocity = 0.10;	// in 1/s
 	
 	Pose startPosition = new Pose();
 	Pose currentPosition = new Pose();
@@ -241,15 +241,16 @@ public class ControlRST_Ver1 implements IControl {
 		this.drive(this.velocity, this.angularVelocity);
 	}
     
-	// UNBEDINGT REWORKEN: gehackt fuer 1. Verteidigung (120 cm forward)
-	int drivingDistance = 100;
+	// UNBEDINGT REWORKEN: gehackt fuer 1. Verteidigung
+	// int drivingDistance = 100; //(120 cm forward @ 10 cm/s)
+    int rotatingDistance = 32;	//(90 deg @ viel zu schnell)
     private void exec_SETPOSE_ALGO(){
     	
     	PID_Ver1 omegaPID = new PID_Ver1(0, rpmSampleTime, 0.05, 0, 0.005, 2);
     	
-    	if (drivingDistance > 5) {
-    		this.setDestination(0, drivingDistance, 0);
-    		drivingDistance--;
+    	if (rotatingDistance > 20) {
+    		this.setDestination(rotatingDistance, 0, 0);
+    		rotatingDistance--;
     	}
     	else {
     		this.setCtrlMode(ControlMode.INACTIVE);

@@ -313,7 +313,9 @@ public class ControlRST_Ver1 implements IControl {
     
 	private void exec_LINECTRL_ALGO(){	    
 		
-		PID_Ver1 lineFollowPID = new PID_Ver1(0, rpmSampleTime, 0.2, 0, 0.05, 999999);
+		PID_Ver1 lineFollowPIDSlow = new PID_Ver1(0, rpmSampleTime, 0.1, 0, 0.01, 999999);
+		PID_Ver1 lineFollowPIDFast = new PID_Ver1(0, rpmSampleTime, 0.2, 0, 0.005, 999999);
+		int BASEPOWER = 0;
 		leftMotor.forward();
 		rightMotor.forward();
 		
@@ -321,7 +323,8 @@ public class ControlRST_Ver1 implements IControl {
 		Regelgröße: Lichtintensität linker und rechter Sensor
 		Regelfehler: Sollwert (0) - Istwert der Differenz beider Sensorwerte (lineSensorLeft - lineSensorRight)
 		*/
-		int lineControl = (int) lineFollowPID.runControl(this.lineSensorLeft - this.lineSensorRight); 
+		int lineControlSlow = (int) lineFollowPIDSlow.runControl(this.lineSensorLeft - this.lineSensorRight);
+		int lineControlFast = (int) lineFollowPIDFast.runControl(this.lineSensorLeft - this.lineSensorRight);
 		// das hier später an drehzahlregelung einzelner räder übergeben
 		
 		double desiredVelocity = velocity; 
@@ -331,24 +334,26 @@ public class ControlRST_Ver1 implements IControl {
 		int desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
 		int desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
 		
-		if((this.lineSensorLeft - this.lineSensorRight) > 35) {
-			rightMotor.setPower(-30);
-			leftMotor.setPower(60);
-		}
-
-		else if((this.lineSensorRight - this.lineSensorLeft) > 35) {
-			rightMotor.setPower(60);
-			leftMotor.setPower(-30);
+		if (this.navigation.getCornerArea() == true) {
+			BASEPOWER = 30;
+			LCD.clear();
+			LCD.drawString("CornerArea", 0, 5);
+			if (this.navigation.getCorner() == true) {
+				drive(0, 0.07);
+				Sound.twoBeeps();
+			}
+			
+			else {
+				rightMotor.setPower(BASEPOWER + lineControlSlow);
+				leftMotor.setPower(BASEPOWER - lineControlSlow);
+			}		
 		}
 		
 		else {
-			rightMotor.setPower(40 + lineControl);
-			leftMotor.setPower(40 - lineControl);
+			BASEPOWER = 50;
+			rightMotor.setPower(BASEPOWER + lineControlFast);
+			leftMotor.setPower(BASEPOWER - lineControlFast);
 		}
-
-
-		LCD.drawString("Regelaus:"+lineControl, 0, 5);
-		LCD.clear();
 	}
 	
 	private void stop(){

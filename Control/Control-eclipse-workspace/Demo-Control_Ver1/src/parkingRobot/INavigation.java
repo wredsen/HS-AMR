@@ -60,6 +60,19 @@ public interface INavigation {
 	public ParkingSlot[] getParkingSlots();
 	
 	
+	/**
+	 * Getter method for other modules to decide whether there is a corner or not 
+	 * @return Corner detected --> true, No Corner --> false
+	 */
+	public boolean getCorner();
+	
+	
+	/**
+	 * Checks whether the bot is in the near of a corner or not.
+	 * @return safety: true if a corner is close, false if not
+	 */
+	public boolean getCornerArea();
+	
 	// Subclasses
 	
 	/**
@@ -68,7 +81,7 @@ public interface INavigation {
 	 * - slot status (whether it is/is not suitable for parking),
 	 * - measured position of the slot begin front boundary, 
 	 * - measured position of the slot back boundary,
-	 * - quality of parking slot measurement (die Guete der Parkl�ckenvermessung).
+	 * - quality of parking slot measurement (die Güte der Parklückenvermessung).
 	 * 
 	 * @author IfA
 	 */
@@ -112,6 +125,7 @@ public interface INavigation {
 		 * stores the quality of parking slot measurement. Lower value assumes lower quality.
 		 */
 		int measurementQuality;
+		
 		
 		// Constructor
 
@@ -206,6 +220,5 @@ public interface INavigation {
 		public int getMeasurementQuality() {
 			return measurementQuality;
 		}
-
 	}	
 }

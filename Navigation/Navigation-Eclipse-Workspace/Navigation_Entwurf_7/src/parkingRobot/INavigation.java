@@ -67,10 +67,22 @@ public interface INavigation {
 	public boolean getCorner();
 	
 	/**
-	 * Checks whether the bot is in the near of a corner or not.
+	 * Checks whether the robot is in the near of a corner or not.
 	 * @return safety: true if a corner is close, false if not
 	 */
 	public boolean getCornerArea();
+	
+	/**
+	 * Gives information about the Type of the current / last corner
+	 * @return true --> detected corner is a left Corner
+	 */
+	public boolean getLeftCorner();
+	
+	/**
+	 * Gives information about the Type of the current / last corner
+	 * @return true --> detected corner is a right Corner
+	 */
+	public boolean getRightCorner();
 	
 	// Subclasses
 	

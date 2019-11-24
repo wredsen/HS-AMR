@@ -286,6 +286,13 @@ public class NavigationAT implements INavigation{
 		return null;
 	}
 	
+	public synchronized boolean getLeftCorner() {
+		return leftCorner;
+	}
+	
+	public synchronized boolean getRightCorner() {
+		return rightCorner;
+	}
 	
 	public synchronized boolean getCorner() {
 		if (getCornerArea() == true) {
@@ -297,65 +304,81 @@ public class NavigationAT implements INavigation{
 	}
 	
 	public synchronized boolean getCornerArea() {
-		boolean safety = false;																	// IMMER TRUE für Tests! --> SPÄTER ÄNDERN!!!!!!!
+		boolean safety = false;
+		rightCorner = false;
+		leftCorner = false;
 		
 		if (mapModus == 1) {
-			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								// Sicherheitsbereiche in denen auch wirklich eine Ecke liegt!
+			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								
 				safety = true;
+				leftCorner = true;
 			}
 	
 			if ((this.pose.getX()>=0.70)&&(this.pose.getY()<=0.10)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
 			if ((this.pose.getX()>=1.70)&&(this.pose.getY()>=0.50)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
 			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.50)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
 			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
 				safety = true;
+				rightCorner = true;
 			}
 		
 			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
 				safety = true;
+				rightCorner = true;
 			}
 		
 			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
 			if ((this.pose.getX()<=0.1)&&(this.pose.getY()>=0.50)) {
 				safety = true;
+				leftCorner = true;
 			}
 		}
 		
 		if (mapModus == 2) {
-			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								// Sicherheitsbereiche in denen auch wirklich eine Ecke liegt!
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
 				safety = true;
+				leftCorner = true;
 			}
 	
-			if ((this.pose.getX()>=0.65)&&(this.pose.getY()<=0.10)) {
+			if ((this.pose.getX()>=0.60)&&(this.pose.getY()<=0.10)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
-			if ((this.pose.getX()>=0.65)&&(this.pose.getY()>=0.50)) {
+			if ((this.pose.getX()>=0.60)&&(this.pose.getY()>=0.45)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
-			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.55)&&(this.pose.getY()>=0.50)) {
+			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.45)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
-			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.55)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
+			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.45)) {
 				safety = true;
+				rightCorner = true;
 			}
 		
-			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.20)&&(this.pose.getY()<=0.40)) {
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.20)&&(this.pose.getY()<=0.45)) {
 				safety = true;
+				leftCorner = true;
 			}
 		}
 		
@@ -449,42 +472,42 @@ public class NavigationAT implements INavigation{
 			{
 				case '0': 
 					if (leftCorner=true) {
-						this.pose.setLocation(0,0);
+						this.pose.setLocation((float)0.00,(float)0.00);
 					}
 					break; 
 				case '1': 
 					if (leftCorner=true) {
-						this.pose.setLocation(180,0);
+						this.pose.setLocation((float)1.80,(float)0.00);
 					}
 					break; 
 				case '2':
 					if(leftCorner=true) {
-						this.pose.setLocation(180,60);	
+						this.pose.setLocation((float)1.80,(float)0.60);	
 					}
 					break; 
 				case '3': 
 					if(leftCorner=true) {
-						this.pose.setLocation(150,60);	
+						this.pose.setLocation((float)1.50,(float)0.00);	
 					}
 					break;
 				case '4':
 					if(rightCorner=true) {
-						this.pose.setLocation(150,30);	
+						this.pose.setLocation((float)1.50,(float)0.30);	
 					}
 					break;
 				case '5':
 					if(rightCorner=true) {
-						this.pose.setLocation(30,30);	
+						this.pose.setLocation((float)0.30,(float)0.30);	
 					}
 					break;
 				case '6':
 					if(leftCorner=true) {
-						this.pose.setLocation(30,60);	
+						this.pose.setLocation((float)0.30,(float)0.60);	
 					}
 					break;
 				case '7':
 					if(leftCorner=true) {
-						this.pose.setLocation(0,60);	
+						this.pose.setLocation((float)0.00,(float)0.60);	
 					}
 					break;
 				default:

@@ -26,6 +26,7 @@ import java.util.*;
  */
 public class NavigationAT implements INavigation{
 	
+	int mapModus = 1; 	// 1 for real, big map and 2 for small test-map
 	
 	////////////////////////////////////////////////////////////	Variabeln für Lokalisierungsauswertung
 	double angleDiff = 0;													
@@ -303,48 +304,92 @@ public class NavigationAT implements INavigation{
 		}
 	}
 	
-
+	public synchronized boolean getLeftCorner() {
+		return leftCorner;
+	}
+	
+	public synchronized boolean getRightCorner() {
+		return rightCorner;
+	}
+	
+	
 	public synchronized boolean getCornerArea() {
 		boolean safety = false;
+		rightCorner = false;
+		leftCorner = false;
 		
-		if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								// Sicherheitsbereiche in denen auch wirklich eine Ecke liegt!
-			safety = true;
-			cornerNumber=0;
-		}
+		if (mapModus == 1) {
+			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								
+				safety = true;
+				leftCorner = true;
+			}
 	
-		if ((this.pose.getX()>=1.70)&&(this.pose.getY()<=0.10)) {
-			safety = true;
-			cornerNumber=1;
+			if ((this.pose.getX()>=0.70)&&(this.pose.getY()<=0.10)) {
+				safety = true;
+				leftCorner = true;
+			}
+		
+			if ((this.pose.getX()>=1.70)&&(this.pose.getY()>=0.50)) {
+				safety = true;
+				leftCorner = true;
+			}
+		
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.50)) {
+				safety = true;
+				leftCorner = true;
+			}
+		
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
+				safety = true;
+				rightCorner = true;
+			}
+		
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
+				safety = true;
+				rightCorner = true;
+			}
+		
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
+				safety = true;
+				leftCorner = true;
+			}
+		
+			if ((this.pose.getX()<=0.1)&&(this.pose.getY()>=0.50)) {
+				safety = true;
+				leftCorner = true;
+			}
 		}
 		
-		if ((this.pose.getX()>=1.70)&&(this.pose.getY()>=0.50)) {
-			safety = true;
-			cornerNumber=2;
-		}
+		if (mapModus == 2) {
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
+				safety = true;
+				leftCorner = true;
+			}
+	
+			if ((this.pose.getX()>=0.60)&&(this.pose.getY()<=0.10)) {
+				safety = true;
+				leftCorner = true;
+			}
 		
-		if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.50)) {
-			safety = true;
-			cornerNumber=3;
-		}
+			if ((this.pose.getX()>=0.60)&&(this.pose.getY()>=0.45)) {
+				safety = true;
+				leftCorner = true;
+			}
 		
-		if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
-			safety = true;
-			cornerNumber=4;
-		}
+			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.45)) {
+				safety = true;
+				leftCorner = true;
+			}
 		
-		if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
-			safety = true;
-			cornerNumber=5;
-		}
+			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.45)) {
+				safety = true;
+				rightCorner = true;
+			}
 		
-		if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
-			safety = true;
-			cornerNumber=6;
-		}
-		
-		if ((this.pose.getX()<=0.1)&&(this.pose.getY()>=0.50)) {
-			safety = true;
-			cornerNumber=7;
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.20)&&(this.pose.getY()<=0.45)) {
+				safety = true;
+				leftCorner = true;
+			}
 		}
 		
 		return safety;

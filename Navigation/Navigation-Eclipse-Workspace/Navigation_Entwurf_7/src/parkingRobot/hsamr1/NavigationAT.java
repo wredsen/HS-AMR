@@ -510,7 +510,6 @@ public class NavigationAT implements INavigation{
 				    	   this.pose.setLocation((float)xResult,(float)yResult);                         
 				    	   this.pose.setHeading((float)angleResult);   
 				    	} 	
-				    	
 				    	if(yDiff<=-0.01) {                               
 					   		yResult=0;
 					   	    this.pose.setLocation((float)xResult,(float)yResult);                          
@@ -630,21 +629,38 @@ public class NavigationAT implements INavigation{
 						   		this.pose.setLocation((float)xResult,(float)yResult);                          
 						   		this.pose.setHeading((float)angleResult);	
 						   	}
-						   	else {                                                								//einfach ausgeben
+						   	else {                                                								//direkt ausgeben
 						   		this.pose.setLocation((float)xResult,(float)yResult);                            
 						   		this.pose.setHeading((float)angleResult);
 						   	}	 
 					   }					   
 				// Linie 8
-					   
+					   if(this.pose.getX()<=0.1&&this.pose.getX()>=-0.1&&angleResult>=1.4*Math.PI&&angleResult<=1.6*Math.PI) {//
+						   
+					   	   angleDiff=angleResult-1.5*Math.PI;            										//Angle Abweichung korriegieren                  
+					   	   if(angleDiff>0.1*Math.PI) {
+					   		   angleResult=1.5*Math.PI;
+					   	   } 	
+						       
+					   	   xDiff=xResult-0;
+						   if(xDiff>=0.01) {                                    								//Abweichung korriegieren
+							   xResult=0;
+							   this.pose.setLocation((float)xResult,(float)yResult);                         
+							   this.pose.setHeading((float)angleResult);
+						   }
+						   	
+						   if(xDiff<=-0.01) {
+							   xResult=0;
+							   this.pose.setLocation((float)xResult,(float)yResult);                         
+							   this.pose.setHeading((float)angleResult);
+						   }
+					       																						//direkt ausgeben
+						   this.pose.setLocation((float)xResult,(float)yResult);                            
+					       this.pose.setHeading((float)angleResult);
+					   }					   
 				}
 			
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
-			
-			
-			
-			
-			
 			
 		this.pose.setLocation((float)xResult, (float)yResult);
 		this.pose.setHeading((float)angleResult);		 

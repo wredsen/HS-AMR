@@ -243,21 +243,24 @@ public class ControlRST_Ver1 implements IControl {
 	}
     
 	// UNBEDINGT REWORKEN: gehackt fuer 1. Verteidigung
-	// int drivingDistance = 100; //(120 cm forward @ 10 cm/s)
+    double drivingOffset = 0.1;
+	double drivingDistance = 1.2+drivingOffset; // Angabe in Metern (120 cm forward @ 10 cm/s)
     double rotatingOffset = 0.45;
     double rotatingDistance = -(Math.PI/2 + rotatingOffset);	//(90 deg @ 30 deg/s)
     private void exec_SETPOSE_ALGO(){
     	
-    	PID_Ver1 omegaPID = new PID_Ver1(0, rpmSampleTime, 0.05, 0, 0.005, 2);
-    	this.setAngularVelocity(-1.0);
+    	PID_Ver1 omegaPID = new PID_Ver1(0, rpmSampleTime, 0.1, 0, 0.05, 2);
+    	this.setAngularVelocity(1.0);
     	
     	this.update_SETPOSE_Parameter();
-    	this.setDestination(rotatingDistance, 0, 0);
+    	this.setDestination(0, drivingDistance, 0);
     	LCD.clear();
-		LCD.drawString("akt:"+currentPosition.getHeading() + " " + currentPosition.getX() + " " + currentPosition.getY(), 0, 3);
-		LCD.drawString("Ziel:"+destination.getHeading() + " " + destination.getX() + " " + destination.getY(), 0, 4);
+		LCD.drawString("akt phi:"+ currentPosition.getHeading(), 0, 3);
+		LCD.drawString("Ziel phi:"+ destination.getHeading() + " " + destination.getX() + " " + destination.getY(), 0, 4);
+		LCD.drawString("akt:" + currentPosition.getX() + " " + currentPosition.getY(), 0, 6);
+		LCD.drawString("Ziel:"+ destination.getX() + " " + destination.getY(), 0, 7);
     	
-    	double v = 20;
+    	this.setVelocity(10);
     	double omega = this.angularVelocity;
     	double eta;
     	
@@ -280,7 +283,7 @@ public class ControlRST_Ver1 implements IControl {
 		    	omega = omegaPID.runControl(this.currentPosition.getHeading());
 		 
 		    	RConsole.println("[control] Fehler: " + omega);
-		    	drive(v,omega);
+		    	drive(this.velocity,omega);
 	    	}
     	}
     	else if (Math.abs(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(5) && this.angularVelocity != 0)
@@ -399,8 +402,8 @@ public class ControlRST_Ver1 implements IControl {
 		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
 		
 		/* Vorsteuerung*/
-		desiredRPMLeft = (desiredVelocity-(desiredAngularVelocity*(wheelDistance/2)/(2*10)))/((wheelDiameter/2)*Math.PI/(10.0*60.0));
-		desiredRPMRight = (desiredVelocity+(desiredAngularVelocity*(wheelDistance/2)/(2*10)))/((wheelDiameter/2)*Math.PI/(10.0*60.0)); 
+		desiredRPMLeft = (0.5*desiredVelocity-(desiredAngularVelocity*(wheelDistance/2)/(2*10)))/((wheelDiameter/2)*Math.PI/(10.0*60.0));
+		desiredRPMRight = (0.5*desiredVelocity+(desiredAngularVelocity*(wheelDistance/2)/(2*10)))/((wheelDiameter/2)*Math.PI/(10.0*60.0)); 
 		desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
 		desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
 			

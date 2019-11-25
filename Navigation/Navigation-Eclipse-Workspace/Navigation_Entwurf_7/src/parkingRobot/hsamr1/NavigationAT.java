@@ -252,30 +252,9 @@ public class NavigationAT implements INavigation{
 		}
 		
 		if (this.parkingSlotDetectionIsOn)
-				this.detectParkingSlot();
-		
-		if (rightLightSensorList.size() >= 2) {
-		testvariable1 = rightLightSensorList.get(1)-rightLightSensorList.get(0);
-		testvariable2 = leftLightSensorList.get(1)-leftLightSensorList.get(0);
-		}
-		
-		monitor.writeNavigationVar("testvariable1", "" + testvariable1);			// Monitor Output
-		monitor.writeNavigationVar("testvariable2", "" + testvariable2);
-		//monitor.writeNavigationVar("cornerNumber", "" + cornerNumber);
-		
-		LCD.clear();	
-		LCD.drawString(" R Diff =" + testvariable1, 0, 0);							// Screen Output
-		LCD.drawString(" L Diff =" + testvariable2, 0, 1);
-		//LCD.drawString("C.Numm. =" + cornerNumber, 0, 2);
-		LCD.drawString("Lichtsen.R =" + rightLightSensorValue, 0, 3);
-		LCD.drawString("Lichtsen.L =" + leftLightSensorValue, 0, 4);
+				this.detectParkingSlot();		
 		
 		this.calculateLocation();
-		
-		if (getCorner()==true) {						// zum ersten Testen noch nicht notwendig, erst wenn Kurve richtig erkannt und Robo stehen geblieben ist!
-			evaluateCornerDetection();
-			}
-		
 	}
 	
 	
@@ -296,8 +275,13 @@ public class NavigationAT implements INavigation{
 	
 	
 	public synchronized boolean getCorner() {
+		boolean c = false;
 		if (getCornerArea() == true) {
-			return detectCorner();
+			c = detectCorner();
+			if (c==true) {
+				evaluateCornerDetection();
+			}
+			return c;
 		}
 		else {
 			return false;
@@ -312,6 +296,70 @@ public class NavigationAT implements INavigation{
 		return rightCorner;
 	}
 	
+	
+	public synchronized boolean getCornerType() {
+		
+		if (mapModus == 1) {
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
+				return true;
+			}
+	
+			if ((this.pose.getX()>=0.65)&&(this.pose.getY()<=0.10)) {
+				return true;
+			}
+		
+			if ((this.pose.getX()>=1.65)&&(this.pose.getY()>=0.45)) {
+				return true;
+			}
+		
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.45)) {
+				return true;
+			}
+		
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
+				return false;
+			}
+		
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
+				return false;
+			}
+		
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
+				return true;
+			}
+		
+			if ((this.pose.getX()<=0.1)&&(this.pose.getY()>=0.50)) {
+				return true;
+			}
+		}
+		
+		if (mapModus == 2) {
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
+				return true;
+			}
+	
+			if ((this.pose.getX()>=0.60)&&(this.pose.getY()<=0.10)) {
+				return true;
+			}
+		
+			if ((this.pose.getX()>=0.60)&&(this.pose.getY()>=0.45)) {
+				return true;
+			}
+		
+			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.45)) {
+				return true;
+			}
+		
+			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.45)) {
+				return false;
+			}
+		
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.20)&&(this.pose.getY()<=0.45)) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	public synchronized boolean getCornerArea() {
 		boolean safety = false;

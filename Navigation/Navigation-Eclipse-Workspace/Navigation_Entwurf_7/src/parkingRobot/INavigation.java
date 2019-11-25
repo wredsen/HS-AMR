@@ -73,6 +73,12 @@ public interface INavigation {
 	public boolean getCornerArea();
 	
 	/**
+	 * Gives information about the Type of the Corner
+	 * @return true if a left corner is close, false if a right corner is close 
+	 */
+	public boolean getCornerType();
+	
+	/**
 	 * Gives information about the Type of the current / last corner
 	 * @return true --> detected corner is a left Corner
 	 */

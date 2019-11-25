@@ -309,22 +309,22 @@ public class NavigationAT implements INavigation{
 		leftCorner = false;
 		
 		if (mapModus == 1) {
-			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
 				safety = true;
 				leftCorner = true;
 			}
 	
-			if ((this.pose.getX()>=0.70)&&(this.pose.getY()<=0.10)) {
+			if ((this.pose.getX()>=1.65)&&(this.pose.getY()<=0.10)) {
 				safety = true;
 				leftCorner = true;
 			}
 		
-			if ((this.pose.getX()>=1.70)&&(this.pose.getY()>=0.50)) {
+			if ((this.pose.getX()>=1.65)&&(this.pose.getY()>=0.45)) {
 				safety = true;
 				leftCorner = true;
 			}
 		
-			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.50)) {
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.45)) {
 				safety = true;
 				leftCorner = true;
 			}
@@ -334,17 +334,17 @@ public class NavigationAT implements INavigation{
 				rightCorner = true;
 			}
 		
-			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.45)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
 				safety = true;
 				rightCorner = true;
 			}
 		
-			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.45)&&(this.pose.getY()>=0.45)) {
 				safety = true;
 				leftCorner = true;
 			}
 		
-			if ((this.pose.getX()<=0.1)&&(this.pose.getY()>=0.50)) {
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()>=0.50)) {
 				safety = true;
 				leftCorner = true;
 			}

@@ -244,13 +244,14 @@ public class ControlRST_Ver1 implements IControl {
     
 	// UNBEDINGT REWORKEN: gehackt fuer 1. Verteidigung
     double drivingOffset = 0.1;
-	double drivingDistance = 1.2+drivingOffset; // Angabe in Metern (120 cm forward @ 10 cm/s)
+	double drivingDistance = 0.3+drivingOffset; // Angabe in Metern (120 cm forward @ 10 cm/s)
     double rotatingOffset = 0.45;
     double rotatingDistance = -(Math.PI/2 + rotatingOffset);	//(90 deg @ 30 deg/s)
     private void exec_SETPOSE_ALGO(){
     	
-    	PID_Ver1 omegaPID = new PID_Ver1(0, rpmSampleTime, 0.1, 0, 0.05, 2);
+    	PID_Ver1 omegaPID = new PID_Ver1(0, rpmSampleTime, 0.2, 0, 0.05, 2);
     	this.setAngularVelocity(1.0);
+    	this.setVelocity(5);
     	
     	this.update_SETPOSE_Parameter();
     	this.setDestination(0, drivingDistance, 0);
@@ -260,7 +261,6 @@ public class ControlRST_Ver1 implements IControl {
 		LCD.drawString("akt:" + currentPosition.getX() + " " + currentPosition.getY(), 0, 6);
 		LCD.drawString("Ziel:"+ destination.getX() + " " + destination.getY(), 0, 7);
     	
-    	this.setVelocity(10);
     	double omega = this.angularVelocity;
     	double eta;
     	
@@ -273,7 +273,7 @@ public class ControlRST_Ver1 implements IControl {
 	    	eta = angleCourse - this.currentPosition.getHeading();
 	    	omegaPID.updateDesiredValue(eta);
 	    	
-	    	if (eta >  Math.toRadians(5) && this.angularVelocity != 0) // only turn
+	    	if (Math.abs(eta) >  Math.toRadians(5) && this.angularVelocity != 0) // only turn
 	    	{
 	    		drive(0,this.angularVelocity);
 	    	}
@@ -319,7 +319,7 @@ public class ControlRST_Ver1 implements IControl {
 	private void exec_LINECTRL_ALGO(){	    
 		
 		PID_Ver1 lineFollowPIDSlow = new PID_Ver1(0, rpmSampleTime, 0.1, 0, 0.01, 999999);
-		PID_Ver1 lineFollowPIDFast = new PID_Ver1(0, rpmSampleTime, 0.2, 0, 0.005, 999999);
+		PID_Ver1 lineFollowPIDFast = new PID_Ver1(0, rpmSampleTime, 0.15, 0, 0.005, 999999);
 		int BASEPOWER = 0;
 		leftMotor.forward();
 		rightMotor.forward();
@@ -339,26 +339,41 @@ public class ControlRST_Ver1 implements IControl {
 		int desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
 		int desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
 		
+		LCD.clear();
+		
 		if (this.navigation.getCornerArea() == true) {
 			BASEPOWER = 30;
-			LCD.clear();
 			LCD.drawString("CornerArea", 0, 5);
+			
+			
 			if (this.navigation.getCorner() == true) {
-				drive(0, 0.07);
-				Sound.twoBeeps();
+				if (this.navigation.getCornerType() == true) {
+					drive(0, 2.0);
+				}
+				
+				else {
+					drive(0, -2.0);
+				}
+				
+				//Sound.twoBeeps();
 			}
 			
 			else {
 				rightMotor.setPower(BASEPOWER + lineControlSlow);
 				leftMotor.setPower(BASEPOWER - lineControlSlow);
-			}		
+			}	
 		}
 		
 		else {
-			BASEPOWER = 50;
+			BASEPOWER = 40;
 			rightMotor.setPower(BASEPOWER + lineControlFast);
 			leftMotor.setPower(BASEPOWER - lineControlFast);
+
 		}
+		
+		LCD.drawString("X:" + navigation.getPose().getX(), 0, 2);
+		LCD.drawString("Y:" + navigation.getPose().getY(), 0, 3);
+		LCD.drawString("C Num = " + this.navigation.getCornerNumber(), 0,5);
 	}
 	
 	private void stop(){

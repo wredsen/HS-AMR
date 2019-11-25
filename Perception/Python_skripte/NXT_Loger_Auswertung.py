@@ -65,63 +65,88 @@ for i in range(0,6):
                
      
 
-print('black bright mean  R '+str(mean_value_right[0,0]))
-print('black bright mean  L '+str(mean_value_left[0,0]))
-print('black bright sigma R '+str(mean_value_right[0,1]))
-print('black bright sigma L '+str(mean_value_left[0,1]))
+print('schwarz hell Mittelwert   R '+str(mean_value_right[0,0]))
+print('schwarz hell Mittelwert   L '+str(mean_value_left[0,0]))
+print('schwarz hell sigma        R '+str(mean_value_right[0,1]))
+print('schwarz hell sigma        L '+str(mean_value_left[0,1]))
 print(' ')
-print('black dark mean    R '+str(mean_value_right[1,0]))
-print('black dark mean    L '+str(mean_value_left[1,0]))
-print('black dark sigma   R '+str(mean_value_right[1,1]))
-print('black dark sigma   L '+str(mean_value_left[1,1]))
+print('schwarz dunkel Mittelwert R '+str(mean_value_right[1,0]))
+print('schwarz dunkel Mittelwert L '+str(mean_value_left[1,0]))
+print('schwarz dunkel sigma      R '+str(mean_value_right[1,1]))
+print('schwarz dunkel sigma      L '+str(mean_value_left[1,1]))
 print(' ')
-print('gray bright mean   R '+str(mean_value_right[2,0]))
-print('gray bright mean   L '+str(mean_value_left[2,0]))
-print('gray bright sigma  R '+str(mean_value_right[2,1]))
-print('gray bright sigma  L '+str(mean_value_left[2,1]))
+print('grau hell Mittelwert      R '+str(mean_value_right[2,0]))
+print('grau hell Mittelwert      L '+str(mean_value_left[2,0]))
+print('grau hell sigma           R '+str(mean_value_right[2,1]))
+print('grau hell sigma           L '+str(mean_value_left[2,1]))
 print(' ')
-print('gray dark mean     R '+str(mean_value_right[3,0]))
-print('gray dark mean     L '+str(mean_value_left[3,0]))
-print('gray dark sigma    R '+str(mean_value_right[3,1]))
-print('gray dark sigma    L '+str(mean_value_left[3,1]))
+print('grau dunkel Mittelwert    R '+str(mean_value_right[3,0]))
+print('grau dunkel Mittelwert    L '+str(mean_value_left[3,0]))
+print('grau dunkel sigma         R '+str(mean_value_right[3,1]))
+print('grau dunkel sigma         L '+str(mean_value_left[3,1]))
 print(' ')
-print('white bright mean  R '+str(mean_value_right[4,0]))
-print('white bright mean  L '+str(mean_value_left[4,0]))
-print('white bright sigma R '+str(mean_value_right[4,1]))
-print('white bright sigma L '+str(mean_value_left[4,1]))
+print('weiß hell Mittelwert      R '+str(mean_value_right[4,0]))
+print('weiß hell Mittelwert      L '+str(mean_value_left[4,0]))
+print('weiß hell sigma           R '+str(mean_value_right[4,1]))
+print('weiß hell sigma           L '+str(mean_value_left[4,1]))
 print(' ')
-print('white dark mean    R '+str(mean_value_right[5,0]))
-print('white dark mean    L '+str(mean_value_left[5,0]))
-print('white dark sigma   R '+str(mean_value_right[5,1]))
-print('white dark sigma   L '+str(mean_value_left[5,1]))
+print('weiß dunkel Mittelwert    R '+str(mean_value_right[5,0]))
+print('weiß dunkel Mittelwert    L '+str(mean_value_left[5,0]))
+print('weiß dunkel sigma         R '+str(mean_value_right[5,1]))
+print('weiß dunkel sigma         L '+str(mean_value_left[5,1]))
 
 
-plt.plot(mean_value_left[:,1], mean_value_left[:,0],'ro')                            #plot scatter of left motor with red dots  
-plt.plot(mean_value_right[:,1], mean_value_right[:,0],'bo')                          #plot scatter of right motor with blue dots
+width=0.2
+ind= np.arange(6)
+fig = plt.figure()
+ax = fig.add_subplot(111)
 
-#claculate a fit of first degree
-fit_left = np.polyfit(mean_value_left[:, 1],mean_value_left[:, 0],1)                 
-fit_right = np.polyfit(mean_value_right[:, 1],mean_value_right[:, 0],1)
 
-#print out function
-print("Left-Motor-RPM: "+str(fit_left[0])+"*PWM +"+str(fit_left[1]))                 
-print("Right-Motor-RPM: "+str(fit_right[0])+"*PWM +"+str(fit_right[1]))
+yvals=[mean_value_left[0,0],mean_value_left[1,0],mean_value_left[2,0],mean_value_left[3,0],mean_value_left[4,0],mean_value_left[5,0]]
+rects1 = ax.bar(ind,yvals,width)
+zvals=[mean_value_right[0,0],mean_value_right[1,0],mean_value_right[2,0],mean_value_right[3,0],mean_value_right[4,0],mean_value_right[5,0]]
+rects2 = ax.bar(ind+width,zvals,width)
 
-#generate plottable function
-func_left = np.poly1d(fit_left)                                                     
-func_right = np.poly1d(fit_right) 
+ax.set_ylabel('direkter Messwert')
+ax.set_xticks(ind+width)
+ax.set_xticklabels( ('schwarz hell','schwarz dunkel', 'grau hell','grau dunkel','weiß hell', 'weiß dunkel') )
+ax.legend( (rects1[0], rects2[0]), ('links', 'rechts') )
 
-#plot both fit functions 
-plt.plot(mean_value_left[:, 1],func_left(mean_value_left[:, 1]), 'r-')
-plt.plot(mean_value_right[:, 1],func_right(mean_value_right[:, 1]), 'b-')
+def autolabel(rects):
+    for rect in rects:
+        h = rect.get_height()
+        ax.text(rect.get_x()+rect.get_width()/2.,h-0.2, '%d'%int(h),
+                ha='center', va='bottom')
 
-#label axes
-plt.xlabel("RPM [1/min]")
-plt.ylabel("PWM [%]")
+autolabel(rects1)
+autolabel(rects2)
 
-#label graphs
-red_patch = mpatches.Patch(color='red', label='linker Motor')
-blue_patch = mpatches.Patch(color='blue', label='rechter Motor')
-plt.legend(handles=[red_patch, blue_patch])                                          #show legend
+
+width=0.2
+ind= np.arange(6)
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
+
+yvals=[mean_value_left[0,1],mean_value_left[1,1],mean_value_left[2,1],mean_value_left[3,1],mean_value_left[4,1],mean_value_left[5,1]]
+rects1 = ax.bar(ind,yvals,width)
+zvals=[mean_value_right[0,1],mean_value_right[1,1],mean_value_right[2,1],mean_value_right[3,1],mean_value_right[4,1],mean_value_right[5,1]]
+rects2 = ax.bar(ind+width,zvals,width)
+
+ax.set_ylabel('Zufällige Messabweichung')
+ax.set_xticks(ind+width)
+ax.set_xticklabels( ('schwarz hell','schwarz dunkel', 'grau hell','grau dunkel','weiß hell', 'weiß dunkel') )
+ax.legend( (rects1[0], rects2[0]), ('links', 'rechts') )
+
+def autolabel(rects):
+    for rect in rects:
+        h = rect.get_height()
+        ax.text(rect.get_x()+rect.get_width()/2.,h, '%f'%float(h),
+                ha='center', va='bottom')
+
+autolabel(rects1)
+autolabel(rects2)
+
+
 
 plt.show()

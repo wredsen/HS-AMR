@@ -1,12 +1,29 @@
-black bright mean  31.0
-black bright sigma 0.0
-black dark mean    28.0
-black bright sigma 0.0
-gray bright mean   44.998
-black bright sigma 0.044676615807377355
-gray dark mean     44.998
-black bright sigma 0.044676615807377355
-white bright mean  60.0
-black bright sigma 0.0
-white dark mean    58.0
-black bright sigma 0.0
+black bright mean  R 31.0
+black bright mean  L 33.996
+black bright sigma R 0.0
+black bright sigma L 0.06311893535223802
+ 
+black dark mean    R 28.0
+black dark mean    L 31.978
+black dark sigma   R 0.0
+black dark sigma   L 0.14668333238647122
+ 
+gray bright mean   R 44.998
+gray bright mean   L 47.998
+gray bright sigma  R 0.044676615807377355
+gray bright sigma  L 0.044676615807377355
+ 
+gray dark mean     R 44.998
+gray dark mean     L 44.242
+gray dark sigma    R 0.044676615807377355
+gray dark sigma    L 0.42829429134649927
+ 
+white bright mean  R 55.0
+white bright mean  L 52.996
+white bright sigma R 0.0
+white bright sigma L 0.06311893535223802
+ 
+white dark mean    R 52.998
+white dark mean    L 49.99
+white dark sigma   R 0.044676615807377355
+white dark sigma   L 0.09949874371066202

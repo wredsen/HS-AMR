@@ -146,7 +146,7 @@ public enum CurrentStatusDrive {
 		monitor.startLogging();
 				
 		while(true) {
-			showData(navigation, perception);
+//			showData(navigation, perception);
 			
         	switch ( currentStatus )
         	{
@@ -165,12 +165,16 @@ public enum CurrentStatusDrive {
 					switch(currentStatusDrive)
 					{
 					case FAST:
+							//Into action
+							if(lastStatusDrive!=currentStatusDrive) {
+								Thread.sleep(1000);
+							}
+							//While action
 							control.setCtrlMode(ControlMode.FAST);
-							Thread.sleep(1000);
+														
 							break;
 					case SLOW:
 							control.setCtrlMode(ControlMode.SLOW);
-							turning=false;
 							break;
 					case TURN:
 							control.setCtrlMode(ControlMode.TURN);
@@ -179,16 +183,20 @@ public enum CurrentStatusDrive {
 							break;
 						}
 					//State transition check DRIVE
-					
+					lastStatusDrive = currentStatusDrive;
 					if(navigation.getCornerArea()==false || turning) {
-						lastStatusDrive = currentStatusDrive;
 						currentStatusDrive=CurrentStatusDrive.FAST;
+						turning=false;
+						LCD.clear();	
+						LCD.drawString("FAST",0,0);
 					}else if(navigation.getCornerArea()==true) {
-						lastStatusDrive = currentStatusDrive;
 						currentStatusDrive=CurrentStatusDrive.SLOW;
+						LCD.clear();	
+						LCD.drawString("SLOW",0,0);
 					}else if(navigation.getCornerArea()==true && navigation.getCorner()==true) {
-						lastStatusDrive = currentStatusDrive;
 						currentStatusDrive=CurrentStatusDrive.TURN;
+						LCD.clear();	
+						LCD.drawString("TURN",0,0);
 					}
 						
 
@@ -289,4 +297,6 @@ public enum CurrentStatusDrive {
 //			LCD.drawString("HMI Mode UNKNOWN", 0, 3);
 //		}
 	}
+	
+		
 }

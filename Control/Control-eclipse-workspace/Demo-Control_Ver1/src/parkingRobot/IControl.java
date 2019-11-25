@@ -17,6 +17,11 @@ public interface IControl {
 	 */
 	public enum ControlMode {
 		
+		FAST,
+		
+		SLOW,
+		
+		TURN(),
 		/**
 		 * folgt schwarzer Linie
 		 */

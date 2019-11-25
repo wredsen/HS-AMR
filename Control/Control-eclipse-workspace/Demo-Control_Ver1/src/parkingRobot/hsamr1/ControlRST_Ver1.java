@@ -184,20 +184,30 @@ public class ControlRST_Ver1 implements IControl {
 		
 		switch (currentCTRLMODE)
 		{
-		  case LINE_CTRL	: update_LINECTRL_Parameter();
-		                      exec_LINECTRL_ALGO();
-		                      break;
-		  case VW_CTRL		: update_VWCTRL_Parameter();
-		   					  exec_VWCTRL_ALGO();
-		   					  break; 
-		  case SETPOSE      : update_SETPOSE_Parameter();
-			  				  exec_SETPOSE_ALGO();
-		                      break;
-		  case PARK_CTRL	: update_PARKCTRL_Parameter();
-		  					  exec_PARKCTRL_ALGO();
-		  					  break;		  					  
-		  case INACTIVE 	: exec_INACTIVE();
-			                  break;
+			case FAST	:	update_LINECTRL_Parameter();
+							exec_FAST_ALGO();
+							break;
+			case SLOW	:	update_LINECTRL_Parameter();
+							exec_SLOW_ALGO();
+							break;
+			case TURN	:	update_LINECTRL_Parameter();
+							exec_TURN_ALGO();
+							break;
+							
+			  case LINE_CTRL	: update_LINECTRL_Parameter();
+			                      exec_LINECTRL_ALGO();
+			                      break;
+			  case VW_CTRL		: update_VWCTRL_Parameter();
+			   					  exec_VWCTRL_ALGO();
+			   					  break; 
+			  case SETPOSE      : update_SETPOSE_Parameter();
+				  				  exec_SETPOSE_ALGO();
+			                      break;
+			  case PARK_CTRL	: update_PARKCTRL_Parameter();
+			  					  exec_PARKCTRL_ALGO();
+			  					  break;		  					  
+			  case INACTIVE 	: exec_INACTIVE();
+				                  break;
 		}
 
 	}
@@ -250,16 +260,14 @@ public class ControlRST_Ver1 implements IControl {
     private void exec_SETPOSE_ALGO(){
     	
     	PID_Ver1 omegaPID = new PID_Ver1(0, rpmSampleTime, 0.2, 0, 0.05, 2);
-    	this.setAngularVelocity(1.0);
     	this.setVelocity(5);
     	
     	this.update_SETPOSE_Parameter();
-    	this.setDestination(0, drivingDistance, 0);
-    	LCD.clear();
-		LCD.drawString("akt phi:"+ currentPosition.getHeading(), 0, 3);
-		LCD.drawString("Ziel phi:"+ destination.getHeading() + " " + destination.getX() + " " + destination.getY(), 0, 4);
-		LCD.drawString("akt:" + currentPosition.getX() + " " + currentPosition.getY(), 0, 6);
-		LCD.drawString("Ziel:"+ destination.getX() + " " + destination.getY(), 0, 7);
+    	//LCD.clear();
+		//LCD.drawString("akt phi:"+ currentPosition.getHeading(), 0, 3);
+		//LCD.drawString("Ziel phi:"+ destination.getHeading() + " " + destination.getX() + " " + destination.getY(), 0, 4);
+		//LCD.drawString("akt:" + currentPosition.getX() + " " + currentPosition.getY(), 0, 6);
+		//LCD.drawString("Ziel:"+ destination.getX() + " " + destination.getY(), 0, 7);
     	
     	double omega = this.angularVelocity;
     	double eta;
@@ -315,6 +323,58 @@ public class ControlRST_Ver1 implements IControl {
 	 * Linienverfolgung fuer gegebene Werte 0,1,2
 	 * white = 0, black = 2, grey = 1
 	 */
+    private void exec_FAST_ALGO() {
+    	PID_Ver1 lineFollowPIDFast = new PID_Ver1(0, rpmSampleTime, 0.08, 0, 0.005, 999999);
+    	int BASEPOWER = 40;
+    	leftMotor.forward();
+		rightMotor.forward();
+		
+		int lineControlFast = (int) lineFollowPIDFast.runControl(this.lineSensorLeft - this.lineSensorRight);
+		double desiredVelocity = velocity;
+		double desiredRPMLeft = desiredVelocity/(wheelDiameter*Math.PI/(10.0*60.0));
+		double desiredRPMRight = desiredVelocity/(wheelDiameter*Math.PI/(10.0*60.0)); 
+		int desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
+		int desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
+		
+		
+			
+		rightMotor.setPower(BASEPOWER + lineControlFast);
+		leftMotor.setPower(BASEPOWER - lineControlFast);
+		
+		//LCD.clear();
+		//LCD.drawString("X:" + navigation.getPose().getX(), 0, 2);
+		//LCD.drawString("Y:" + navigation.getPose().getY(), 0, 3);
+		//LCD.drawString("C Num = " + this.navigation.getCornerNumber(), 0,5);		
+    }
+    
+    private void exec_SLOW_ALGO() {
+    	PID_Ver1 lineFollowPIDSlow = new PID_Ver1(0, rpmSampleTime, 0.1, 0, 0.01, 999999);
+    	int BASEPOWER = 30;
+    	leftMotor.forward();
+		rightMotor.forward();
+		
+		int lineControlSlow = (int) lineFollowPIDSlow.runControl(this.lineSensorLeft - this.lineSensorRight);
+		double desiredVelocity = velocity;
+		double desiredRPMLeft = desiredVelocity/(wheelDiameter*Math.PI/(10.0*60.0));
+		double desiredRPMRight = desiredVelocity/(wheelDiameter*Math.PI/(10.0*60.0)); 
+		int desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
+		int desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
+		
+		
+			
+		rightMotor.setPower(BASEPOWER + lineControlSlow);
+		leftMotor.setPower(BASEPOWER - lineControlSlow);
+		
+		//LCD.clear();
+		//LCD.drawString("X:" + navigation.getPose().getX(), 0, 2);
+		//LCD.drawString("Y:" + navigation.getPose().getY(), 0, 3);
+		//LCD.drawString("C Num = " + this.navigation.getCornerNumber(), 0,5);		
+    }
+    
+    private void exec_TURN_ALGO(){
+    	this.update_SETPOSE_Parameter();
+    }
+    
     
 	private void exec_LINECTRL_ALGO(){	    
 		
@@ -339,11 +399,11 @@ public class ControlRST_Ver1 implements IControl {
 		int desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
 		int desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
 		
-		LCD.clear();
+		//LCD.clear();
 		
 		if (this.navigation.getCornerArea() == true) {
 			BASEPOWER = 30;
-			LCD.drawString("CornerArea", 0, 5);
+			//LCD.drawString("CornerArea", 0, 5);
 			
 			
 			if (this.navigation.getCorner() == true) {
@@ -371,9 +431,9 @@ public class ControlRST_Ver1 implements IControl {
 
 		}
 		
-		LCD.drawString("X:" + navigation.getPose().getX(), 0, 2);
-		LCD.drawString("Y:" + navigation.getPose().getY(), 0, 3);
-		LCD.drawString("C Num = " + this.navigation.getCornerNumber(), 0,5);
+		//LCD.drawString("X:" + navigation.getPose().getX(), 0, 2);
+		//LCD.drawString("Y:" + navigation.getPose().getY(), 0, 3);
+		//LCD.drawString("C Num = " + this.navigation.getCornerNumber(), 0,5);
 	}
 	
 	private void stop(){

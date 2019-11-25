@@ -146,16 +146,19 @@ public enum CurrentStatusDrive {
 		monitor.startLogging();
 				
 		while(true) {
-//			showData(navigation, perception);
-			
+			LCD.clear();
+			showData(navigation, perception);
         	switch ( currentStatus )
         	{
 				case DRIVING:
 					// MONITOR (example)
 //					monitor.writeGuidanceComment("Guidance_Driving");
-					
+						
+					LCD.drawString("DRIVING",0,0);
 					//Into action
-					
+					if(lastStatus!=currentStatus) {
+						control.setCtrlMode(ControlMode.FAST);
+					}
 					//While action	
 					switch(currentStatusDrive)
 					{
@@ -174,20 +177,20 @@ public enum CurrentStatusDrive {
 							break;
 					case TURN:
 							if(lastStatusDrive!=currentStatusDrive) {
-								double angle = Math.PI;
+								double angle = Math.PI/2;
 								if (navigation.getCornerType() == true) {
-									angle = 2*Math.PI;
+									angle = Math.PI/2;
 									control.setVelocity(0);
-									control.setAngularVelocity(10.0);
+									control.setAngularVelocity(3.0);
 								}
 								else {
-									angle = -2*Math.PI;
+									angle = -Math.PI/2;
 									control.setVelocity(0);
-									control.setAngularVelocity(-10.0);
+									control.setAngularVelocity(-3.0);
 								}
 								control.setDestination(navigation.getPose().getHeading()+angle,	 navigation.getPose().getX(), navigation.getPose().getY());
 								control.setCtrlMode(ControlMode.TURN);
-								Thread.sleep(5000);
+								Thread.sleep(1000);
 								turning=true;
 							}							
 							break;
@@ -197,20 +200,17 @@ public enum CurrentStatusDrive {
 					if(navigation.getCornerArea()==false || turning) {
 						currentStatusDrive=CurrentStatusDrive.FAST;
 						turning=false;
-						LCD.clear();	
-						LCD.drawString("FAST",0,0);
+						LCD.drawString("FAST",0,1);
 					}
 					
 					if(navigation.getCornerArea()==true && (currentStatusDrive!=CurrentStatusDrive.TURN)) {
 						currentStatusDrive=CurrentStatusDrive.SLOW;
-						LCD.clear();	
-						LCD.drawString("SLOW",0,0);
+						LCD.drawString("SLOW",0,1);
 					}
 					
 					if(navigation.getCornerArea()==true && navigation.getCorner()==true) {
 						currentStatusDrive=CurrentStatusDrive.TURN;
-						LCD.clear();	
-						LCD.drawString("TURN",0,0);
+						LCD.drawString("TURN",0,1);
 					}
 						
 
@@ -294,12 +294,10 @@ public enum CurrentStatusDrive {
 	 * 
 	 * @param navigation reference to the navigation class for getting pose information
 	 */
-	protected static void showData(INavigation navigation, IPerception perception){
-		LCD.clear();	
+	protected static void showData(INavigation navigation, IPerception perception){	
 		
-		LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 0);
-		LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 1);
-		LCD.drawString("Phi (grd): " + (navigation.getPose().getHeading()/Math.PI*180), 0, 2);
+		LCD.drawString("LichtR: " + perception.getRightLineSensorValue(), 0, 3);
+		LCD.drawString("LichtL: " + perception.getLeftLineSensorValue(), 0, 4);
 		
 //		perception.showSensorData();
 		

@@ -281,7 +281,7 @@ public class ControlRST_Ver1 implements IControl {
 	    	eta = angleCourse - this.currentPosition.getHeading();
 	    	omegaPID.updateDesiredValue(eta);
 	    	
-	    	if (Math.abs(eta) >  Math.toRadians(5) && this.angularVelocity != 0) // only turn
+	    	if (Math.abs(eta) >  Math.toRadians(10) && this.angularVelocity != 0) // only turn
 	    	{
 	    		drive(0,this.angularVelocity);
 	    	}
@@ -294,7 +294,7 @@ public class ControlRST_Ver1 implements IControl {
 		    	drive(this.velocity,omega);
 	    	}
     	}
-    	else if (Math.abs(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(5) && this.angularVelocity != 0)
+    	else if (Math.abs(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(10) && this.angularVelocity != 0)
     	{
     		drive(0,this.angularVelocity);
 	    	// Destination angle
@@ -373,6 +373,8 @@ public class ControlRST_Ver1 implements IControl {
     
     private void exec_TURN_ALGO(){
     	this.update_SETPOSE_Parameter();
+    	stop();
+    	exec_SETPOSE_ALGO();
     }
     
     

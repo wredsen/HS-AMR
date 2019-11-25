@@ -132,7 +132,7 @@ public enum CurrentStatusDrive {
 		// Generate objects
 		
 		NXTMotor leftMotor  = new NXTMotor(MotorPort.B);
-		NXTMotor rightMotor = new NXTMotor(MotorPort.A);
+		NXTMotor rightMotor = new NXTMotor(MotorPort.C);
 		
 		IMonitor monitor = new Monitor_Ver1();
 		
@@ -153,21 +153,21 @@ public enum CurrentStatusDrive {
 				case DRIVING:
 					// MONITOR (example)
 //					monitor.writeGuidanceComment("Guidance_Driving");
-					
+					//currentStatusDrive = CurrentStatusDrive.SLOW;
+			        //lastStatusDrive    = CurrentStatusDrive.TURN;
 					//Into action
-					if ( lastStatus != CurrentStatus.DRIVING ){
-						control.setCtrlMode(ControlMode.FAST);
-					}
+					//if ( lastStatus != CurrentStatus.DRIVING ){
+					//	control.setCtrlMode(ControlMode.FAST);
+					//}
 					
 					//While action	
-					currentStatusDrive = CurrentStatusDrive.SLOW;
-			        lastStatusDrive    = CurrentStatusDrive.TURN;
+					
 					switch(currentStatusDrive)
 					{
 					case FAST:
 							//Into action
 							if(lastStatusDrive!=currentStatusDrive) {
-								Thread.sleep(1000);
+								Thread.sleep(500);
 							}
 							//While action
 							control.setCtrlMode(ControlMode.FAST);
@@ -177,6 +177,7 @@ public enum CurrentStatusDrive {
 							control.setCtrlMode(ControlMode.SLOW);
 							break;
 					case TURN:
+							
 							control.setCtrlMode(ControlMode.TURN);
 							Thread.sleep(100);
 							turning=true;

@@ -26,7 +26,7 @@ import java.util.*;
  */
 public class NavigationAT_Ver1 implements INavigation{
 	
-	int mapModus = 1; 	// 1 for real, big map and 2 for small test-map
+	int mapModus = 2; 	// 1 for real, big map and 2 for small test-map
 	
 	////////////////////////////////////////////////////////////	Variabeln für Lokalisierungsauswertung
 	double angleDiff = 0;													

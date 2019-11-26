@@ -177,16 +177,18 @@ public enum CurrentStatusDrive {
 							break;
 					case TURN:
 							if(lastStatusDrive!=currentStatusDrive) {
-								double angle = Math.PI/2;
+								double angle;
 								if (navigation.getCornerType() == true) {
 									angle = Math.PI/2;
 									control.setVelocity(0);
 									control.setAngularVelocity(3.0);
+									LCD.drawString("TURN left",0,1);
 								}
 								else {
 									angle = -Math.PI/2;
 									control.setVelocity(0);
 									control.setAngularVelocity(-3.0);
+									LCD.drawString("TURN right",0,1);
 								}
 								control.setDestination(navigation.getPose().getHeading()+angle,	 navigation.getPose().getX(), navigation.getPose().getY());
 								control.setCtrlMode(ControlMode.TURN);
@@ -210,7 +212,6 @@ public enum CurrentStatusDrive {
 					
 					if(navigation.getCornerArea()==true && navigation.getCorner()==true) {
 						currentStatusDrive=CurrentStatusDrive.TURN;
-						LCD.drawString("TURN",0,1);
 					}
 						
 

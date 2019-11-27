@@ -112,7 +112,7 @@ public class Guidance_PID {
 		IMonitor monitor = new Monitor_PID();
 		
 		IPerception perception = new PerceptionPMP_PID(leftMotor, rightMotor, monitor);
-		perception.calibrateLineSensors();
+		//perception.calibrateLineSensors();	sind hard gesettet
 		
 		INavigation navigation = new NavigationAT_PID(perception, monitor);
 		IControl    control    = new ControlRST_PID(perception, navigation, leftMotor, rightMotor, monitor);
@@ -199,7 +199,7 @@ public class Guidance_PID {
 				break;
         	}
         		
-        	Thread.sleep(100);        	
+        	Thread.sleep(10);        	
 		}
 	}
 	

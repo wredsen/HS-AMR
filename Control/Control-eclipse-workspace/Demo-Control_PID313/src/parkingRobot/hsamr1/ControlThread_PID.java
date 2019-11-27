@@ -34,7 +34,7 @@ public class ControlThread_PID extends Thread {
         while(true){
         	try{
             	control.exec_CTRL_ALGO();
-	            Thread.sleep(100);
+	            Thread.sleep(10);
         	} catch(InterruptedException ie){	        		
         	}
         }

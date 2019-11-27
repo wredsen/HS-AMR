@@ -79,7 +79,7 @@ public class ControlRST_Ver1 implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-	double rpmSampleTime = 0.054; // in seconds
+	double rpmSampleTime = 0.014; // in seconds
 	final double wheelDiameter = 56; // in mm
 	final double wheelDistance = 150; // in mm
 	
@@ -260,7 +260,6 @@ public class ControlRST_Ver1 implements IControl {
     private void exec_SETPOSE_ALGO(){
     	
     	PID_Ver1 omegaPID = new PID_Ver1(0, rpmSampleTime, 0.2, 0, 0.05, 2);
-    	this.setVelocity(5);
     	
     	this.update_SETPOSE_Parameter();
     	//LCD.clear();
@@ -281,7 +280,7 @@ public class ControlRST_Ver1 implements IControl {
 	    	eta = angleCourse - this.currentPosition.getHeading();
 	    	omegaPID.updateDesiredValue(eta);
 	    	
-	    	if (Math.abs(eta) >  Math.toRadians(10) && this.angularVelocity != 0) // only turn
+	    	if (Math.abs(eta) >  Math.toRadians(20) && this.angularVelocity != 0) // only turn
 	    	{
 	    		drive(0,this.angularVelocity);
 	    	}
@@ -294,7 +293,7 @@ public class ControlRST_Ver1 implements IControl {
 		    	drive(this.velocity,omega);
 	    	}
     	}
-    	else if (Math.abs(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(10) && this.angularVelocity != 0)
+    	else if (Math.abs(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(20) && this.angularVelocity != 0)
     	{
     		drive(0,this.angularVelocity);
 	    	// Destination angle
@@ -324,8 +323,8 @@ public class ControlRST_Ver1 implements IControl {
 	 * white = 0, black = 2, grey = 1
 	 */
     private void exec_FAST_ALGO() {
-    	PID_Ver1 lineFollowPIDFast = new PID_Ver1(0, rpmSampleTime, 0.08, 0, 0.005, 999999);
-    	int BASEPOWER = 40;
+    	PID_Ver1 lineFollowPIDFast = new PID_Ver1(0, rpmSampleTime, 0.15, 0, 0.005, 999999);
+    	int BASEPOWER = 50;
     	leftMotor.forward();
 		rightMotor.forward();
 		
@@ -348,8 +347,8 @@ public class ControlRST_Ver1 implements IControl {
     }
     
     private void exec_SLOW_ALGO() {
-    	PID_Ver1 lineFollowPIDSlow = new PID_Ver1(0, rpmSampleTime, 0.1, 0, 0.01, 999999);
-    	int BASEPOWER = 30;
+    	PID_Ver1 lineFollowPIDSlow = new PID_Ver1(0, rpmSampleTime, 0.1, 0, 0.35, 999999);
+    	int BASEPOWER = 25;
     	leftMotor.forward();
 		rightMotor.forward();
 		
@@ -481,8 +480,8 @@ public class ControlRST_Ver1 implements IControl {
 		/* Vorsteuerung*/
 		desiredRPMLeft = (0.5*desiredVelocity-(desiredAngularVelocity*(wheelDistance/2)/(2*10)))/((wheelDiameter/2)*Math.PI/(10.0*60.0));
 		desiredRPMRight = (0.5*desiredVelocity+(desiredAngularVelocity*(wheelDistance/2)/(2*10)))/((wheelDiameter/2)*Math.PI/(10.0*60.0)); 
-		desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
-		desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
+		desiredPowerLeft = (int) (0.76097 * desiredRPMLeft + 9.12246);
+		desiredPowerRight = (int) (0.71270 * desiredRPMRight + 9.0397);
 			
 		
 		measuredRPMLeft = ((double) leftAngle.getAngleSum() / (double) leftAngle.getDeltaT()) * 166.667; //in revelations per min

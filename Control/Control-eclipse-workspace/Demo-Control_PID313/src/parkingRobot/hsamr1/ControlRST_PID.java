@@ -59,10 +59,10 @@ public class ControlRST_PID implements IControl {
 	int rightMotorPower = 0;
 	
 	//Basis PWM-Wert für Motorgeschwindigkeit
-	int baseSpeed = 50;
+	int baseSpeed = 30;
 	double rpmLeft = 2;
 	double rpmRight = 0;
-	double rpmSampleTime = 0.103; // in seconds
+	double rpmSampleTime = 0.013; // in seconds
 	double wheelRadius = 56; // in mm
 
 	
@@ -264,8 +264,8 @@ public class ControlRST_PID implements IControl {
     
 	private void exec_LINECTRL_ALGO(){
 		
-	    PID_PID lineFollowPID = new PID_PID(0, rpmSampleTime, 0.2, 0, 0.01);
-	    
+	    PID_PID lineFollowPID = new PID_PID(0, rpmSampleTime, 0.1, 0.0, 0.35); 	//@10ms ThreadSleep: FAST P: 0.1, D:0.002
+	    																		//@10ms ThreadSleep: Slow P: 0.1, D: 0.35
 		leftMotor.forward();
 		rightMotor.forward();
 		

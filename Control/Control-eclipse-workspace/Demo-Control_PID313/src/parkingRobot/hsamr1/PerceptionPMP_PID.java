@@ -37,10 +37,10 @@ public class PerceptionPMP_PID implements IPerception {
 	
 	int RightLineSensor		=	0;
 	int LeftLineSensor		=	0;
-	int LSrwhite			=	0; 
-	int LSrblack			=	0;
-	int LSlwhite			=	0; 
-	int LSlblack			=	0;
+	int LSrwhite			=	30; 
+	int LSrblack			=	30;
+	int LSlwhite			=	60; 
+	int LSlblack			=	60;
 
 
 	double UOdmometry		=	0;
@@ -116,13 +116,31 @@ public class PerceptionPMP_PID implements IPerception {
 	public int getLeftLineSensorValue(){
 		//the next line gives bin output, remove in the next version
 		//return ((this.LeftLineSensor-this.LSlblack)/(this.LSlwhite-this.LSlblack))*100;
+		if(this.LSlwhite-this.LSlblack == 0) {
+			return getLeftLineSensorValueRaw();	
+		}
 		return ((this.LeftLineSensor-this.LSlblack) *100/(this.LSlwhite-this.LSlblack));
+	}
+	
+	public int getLeftLineSensorValueRaw(){
+		//the next line gives bin output, remove in the next version
+		//return ((this.LeftLineSensor-this.LSlblack)/(this.LSlwhite-this.LSlblack))*100;
+		return this.LeftLineSensor;
 	}
 	
 	public int getRightLineSensorValue(){
 		//the next line gives bin output, remove in the next version
 		//return ((this.RightLineSensor-this.LSrblack)/(this.LSrwhite-this.LSrblack))*100;
+		if(this.LSrwhite-this.LSrblack == 0) {
+			return getRightLineSensorValueRaw();	
+		}
 		return ((this.RightLineSensor-this.LSrblack) *100/(this.LSrwhite-this.LSrblack));
+	}
+	
+	public int getRightLineSensorValueRaw(){
+		//the next line gives bin output, remove in the next version
+		//return ((this.RightLineSensor-this.LSrblack)/(this.LSrwhite-this.LSrblack))*100;
+		return this.RightLineSensor;
 	}
 	
 	public synchronized void calibrateLineSensors(){
@@ -295,6 +313,5 @@ public class PerceptionPMP_PID implements IPerception {
 		this.navigationRightEncoder.addAngle((double)deltaPhi);		
 	}	
 }
-
 
 

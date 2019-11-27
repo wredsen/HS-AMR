@@ -26,7 +26,7 @@ import java.util.*;
  */
 public class NavigationAT_Ver1 implements INavigation{
 	
-	int mapModus = 2; 	// 1 for real, big map and 2 for small test-map
+	int mapModus = 1; 	// 1 for real map  / and 2 for small test-map
 	
 	////////////////////////////////////////////////////////////	Variabeln für Lokalisierungsauswertung
 	double angleDiff = 0;													
@@ -89,7 +89,7 @@ public class NavigationAT_Ver1 implements INavigation{
 	/**
 	 * holds the index number of the current/last corner
 	 */
-	public int cornerNumber = 0;
+	private int cornerNumber = 0;
 	
 	/**
 	 * line information measured by right light sensor: 0 - beside line, 1 - on line border or gray underground, 2 - on line
@@ -288,10 +288,6 @@ public class NavigationAT_Ver1 implements INavigation{
 		}
 	}
 	
-	public synchronized int getCornerNumber() {
-		return cornerNumber;
-	}
-	
 	public synchronized boolean getLeftCorner() {
 		return leftCorner;
 	}
@@ -367,64 +363,80 @@ public class NavigationAT_Ver1 implements INavigation{
 	
 	public synchronized boolean getCornerArea() {
 		boolean safety = false;
+		rightCorner = false;
+		leftCorner = false;
 		
 		if (mapModus == 1) {
 			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								
 				safety = true;
+				leftCorner = true;
 			}
 	
-			if ((this.pose.getX()>=1.65)&&(this.pose.getY()<=0.10)) {
+			if ((this.pose.getX()>=1.70)&&(this.pose.getY()<=0.10)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
-			if ((this.pose.getX()>=1.65)&&(this.pose.getY()>=0.45)) {
+			if ((this.pose.getX()>=1.70)&&(this.pose.getY()>=0.40)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
-			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.50)&&(this.pose.getY()>=0.45)) {
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.70)&&(this.pose.getY()>=0.40)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
-			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.70)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.40)) {
 				safety = true;
+				rightCorner = true;
 			}
 		
 			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
 				safety = true;
+				rightCorner = true;
 			}
 		
 			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
 			if ((this.pose.getX()<=0.1)&&(this.pose.getY()>=0.50)) {
 				safety = true;
+				leftCorner = true;
 			}
 		}
 		
 		if (mapModus == 2) {
 			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
 				safety = true;
+				leftCorner = true;
 			}
 	
 			if ((this.pose.getX()>=0.60)&&(this.pose.getY()<=0.10)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
 			if ((this.pose.getX()>=0.60)&&(this.pose.getY()>=0.45)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
 			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.45)) {
 				safety = true;
+				leftCorner = true;
 			}
 		
 			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.45)) {
 				safety = true;
+				rightCorner = true;
 			}
 		
 			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.20)&&(this.pose.getY()<=0.45)) {
 				safety = true;
+				leftCorner = true;
 			}
 		}
 		
@@ -438,13 +450,13 @@ public class NavigationAT_Ver1 implements INavigation{
 	 */
 	public boolean detectCorner() {
 		boolean corner = false;
+		rightCorner = false;
+		leftCorner = false;
 		if (rightLightSensorList.size()>=2) {
 			if (((rightLightSensorList.get(1)-rightLightSensorList.get(0)>=70)||(leftLightSensorList.get(1)-leftLightSensorList.get(0)>=70))) {
 				corner = true;
 				Sound.twoBeeps();
 				cornerNumber++;
-				cornerNumber = cornerNumber%8;
-				evaluateCornerDetection();
 			}	
 		}
 		return corner;	
@@ -458,29 +470,44 @@ public class NavigationAT_Ver1 implements INavigation{
 			switch(cornerNumber)
 			{
 				case '0': 
+					if (leftCorner=true) {
 						this.pose.setLocation((float)0.00,(float)0.00);
+					}
 					break; 
 				case '1': 
+					if (leftCorner=true) {
 						this.pose.setLocation((float)1.80,(float)0.00);
-						//Sound.twoBeeps();
+					}
 					break; 
 				case '2':
+					if(leftCorner=true) {
 						this.pose.setLocation((float)1.80,(float)0.60);	
+					}
 					break; 
 				case '3': 
+					if(leftCorner=true) {
 						this.pose.setLocation((float)1.50,(float)0.60);	
+					}
 					break;
 				case '4':
+					if(rightCorner=true) {
 						this.pose.setLocation((float)1.50,(float)0.30);	
+					}
 					break;
 				case '5':
+					if(rightCorner=true) {
 						this.pose.setLocation((float)0.30,(float)0.30);	
+					}
 					break;
 				case '6':
+					if(leftCorner=true) {
 						this.pose.setLocation((float)0.30,(float)0.60);	
+					}
 					break;
 				case '7':
+					if(leftCorner=true) {
 						this.pose.setLocation((float)0.00,(float)0.60);	
+					}
 					break;
 				default:
 			}		

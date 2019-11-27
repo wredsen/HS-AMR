@@ -51,10 +51,6 @@ public interface INavigation {
 	 * @return pose class containing pose at time of last computation 
 	 */
 	public Pose getPose();
-	
-	public boolean getCornerType();
-	
-	public int getCornerNumber();
 
 	/**
 	 * returns references to all known parking slot classes with information about ID, status, start position and end position
@@ -70,12 +66,17 @@ public interface INavigation {
 	 */
 	public boolean getCorner();
 	
-	
 	/**
 	 * Checks whether the robot is in the near of a corner or not.
 	 * @return safety: true if a corner is close, false if not
 	 */
 	public boolean getCornerArea();
+	
+	/**
+	 * Gives information about the Type of the Corner
+	 * @return true if a left corner is close, false if a right corner is close 
+	 */
+	public boolean getCornerType();
 	
 	/**
 	 * Gives information about the Type of the current / last corner

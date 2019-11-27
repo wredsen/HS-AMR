@@ -14,7 +14,7 @@ while i <= 100:
      mean_value_left[(i//10)-1, 0] = i
      mean_value_right[(i//10)-1, 0] = i
 
-     filename = os.path.join(dirname, "LogDaten_mitLast_aktualisiert/NXTData"+str(i)+".txt")
+     filename = os.path.join(dirname, "../../Perception/PWM-Drehzahl/mit_last/pwm_"+str(i)+".txt")
      with open(filename, "r") as file:
           if file.mode == 'r':
                number_of_measures = 0
@@ -52,7 +52,7 @@ while i <= 100:
 
 
 #Skaliere die RPMs:
-sample_time = 0.034 # miliseconds
+sample_time = 0.105 # miliseconds
 mean_value_left[:,1] = (mean_value_left[:,1]/sample_time) * (60/360) 
 mean_value_right[:,1] = (mean_value_right[:,1]/sample_time) * (60/360)           
 

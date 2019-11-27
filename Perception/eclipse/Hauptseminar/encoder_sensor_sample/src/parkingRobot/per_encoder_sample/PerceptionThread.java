@@ -1,4 +1,4 @@
-gpackage parkingRobot.per_encoder_sample;
+package parkingRobot.per_encoder_sample;
 
 import parkingRobot.IPerception;
 

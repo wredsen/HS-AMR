@@ -259,8 +259,8 @@ public class ControlRST implements IControl {
 		monitor.writeControlVar("LeftSensor", "" + this.encoderLeft.getEncoderMeasurement().getAngleSum()); //encoder SensorLeft
 		monitor.writeControlVar("RightSensor", "" + this.encoderRight.getEncoderMeasurement().getAngleSum()); //encoder SensorRight
 		this.showData_linesensor();
-		leftMotor.setPower(100);
-		rightMotor.setPower(100);
+		leftMotor.setPower(20);
+		rightMotor.setPower(20);
 		
 	}
 	

@@ -65,25 +65,28 @@ while i <= 100:
                #calculate the mean of the sampeled values
                mean_value_right[(i//10)-1, 1] = np.mean(sample_value_right)       
                mean_value_left[(i//10)-1, 1]  = np.mean(sample_value_left)
-               #calcul
+               #calculate sigma of sample value
                mean_value_right[(i//10)-1, 2] = np.std(sample_value_right)
                mean_value_left[(i//10)-1, 2]  = np.std(sample_value_left)
      i = i+10          
                
-print(mean_value_left[:,0])
-
+print(mean_value_left[:,1])
+print(mean_value_right[:,1])
 
 #Skaliere die RPMs:
-sample_time = 0.104 # miliseconds
-mean_value_left[:,3] = (mean_value_left[:,0]/sample_time) * (60/360) 
-mean_value_right[:,3] = (mean_value_right[:,0]/sample_time) * (60/360)           
+sample_time = 0.105 # miliseconds
+mean_value_left[:,3] = (mean_value_left[:,1]/sample_time) * (60/360) 
+mean_value_right[:,3] = (mean_value_right[:,1]/sample_time) * (60/360)     
 
-plt.plot(mean_value_left[:,1], mean_value_left[:,0],'ro')                            #plot scatter of left motor with red dots  
-plt.plot(mean_value_right[:,1], mean_value_right[:,0],'bo')                          #plot scatter of right motor with blue dots
+print(mean_value_left[:,3])
+print(mean_value_right[:,3])
+
+plt.plot(mean_value_left[:,3], mean_value_left[:,0],'ro')                            #plot scatter of left motor with red dots  
+plt.plot(mean_value_right[:,3], mean_value_right[:,0],'bo')                          #plot scatter of right motor with blue dots
 
 #claculate a fit of first degree
-fit_left = np.polyfit(mean_value_left[:, 1],mean_value_left[:, 0],1)                 
-fit_right = np.polyfit(mean_value_right[:, 1],mean_value_right[:, 0],1)
+fit_left = np.polyfit(mean_value_left[:, 3],mean_value_left[:, 0],1)                 
+fit_right = np.polyfit(mean_value_right[:, 3],mean_value_right[:, 0],1)
 
 #print out function
 print("Left-Motor-RPM: "+str(fit_left[0])+"*PWM +"+str(fit_left[1]))                 
@@ -94,8 +97,8 @@ func_left = np.poly1d(fit_left)
 func_right = np.poly1d(fit_right) 
 
 #plot both fit functions 
-plt.plot(mean_value_left[:, 1],func_left(mean_value_left[:, 1]), 'r-')
-plt.plot(mean_value_right[:, 1],func_right(mean_value_right[:, 1]), 'b-')
+plt.plot(mean_value_left[:, 3],func_left(mean_value_left[:, 3]), 'r-')
+plt.plot(mean_value_right[:, 3],func_right(mean_value_right[:, 3]), 'b-')
 
 #label axes
 plt.xlabel("RPM [1/min]")

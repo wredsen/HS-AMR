@@ -13,7 +13,7 @@ i = 10
 while i <= 100:
      mean_value_left[(i//10)-1, 0] = i            #fill array with x values from index
      mean_value_right[(i//10)-1, 0] = i    
-     filename = os.path.join(dirname,"LogDaten_mitLast/NXTData"+str(i)+".txt")       #define relative path
+     filename = os.path.join(dirname,'../PWM-Drehzahl/mit_last/pwm_'+str(i)+'.txt')       #define relative path
      with open(filename,"r") as file:                                                #open file from relative path
           if file.mode == 'r':                                                       #check if file is open as "read"
                number_of_measures = 0                                                #counter for sampeled values
@@ -50,14 +50,17 @@ while i <= 100:
      i = i+10
 
 #print(mean_value_right[:,0])
-#print(mean_value_left[:,1])
-#print(mean_value_right[:,1])
+print(mean_value_left[:,1])
+print(mean_value_right[:,1])
 
 
 #Skaliere die RPMs:
 sample_time = 0.104 # miliseconds
 mean_value_left[:,1] = (mean_value_left[:,1]/sample_time) * (60/360) 
 mean_value_right[:,1] = (mean_value_right[:,1]/sample_time) * (60/360)           
+
+print(mean_value_left[:,1])
+print(mean_value_right[:,1])
 
 plt.plot(mean_value_left[:,1], mean_value_left[:,0],'ro')                            #plot scatter of left motor with red dots  
 plt.plot(mean_value_right[:,1], mean_value_right[:,0],'bo')                          #plot scatter of right motor with blue dots
@@ -83,8 +86,7 @@ plt.xlabel("RPM [1/min]")
 plt.ylabel("PWM [%]")
 
 #label graphs
-red_patch = mpatches.Patch(color='red', label='linker M mean_value_left[(i//10)-1, 0] = i            #fill array with x values from index
-     mean_value_right[(i//10)-1, 0] = i    otor')
+red_patch = mpatches.Patch(color='red', label='linker Motor')
 blue_patch = mpatches.Patch(color='blue', label='rechter Motor')
 plt.legend(handles=[red_patch, blue_patch])                                          #show legend
 

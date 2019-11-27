@@ -1,14 +1,14 @@
-package parkingRobot.hsamrCTRDemo;
+package parkingRobot.per_encoder_sample;
 
 import lejos.nxt.Button;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
 import parkingRobot.IControl;
 import parkingRobot.IControl.*;
-import parkingRobot.hsamrCTRDemo.ControlRST;
-import parkingRobot.hsamrCTRDemo.HmiPLT;
-import parkingRobot.hsamrCTRDemo.NavigationAT;
-import parkingRobot.hsamrCTRDemo.PerceptionPMP;
+import parkingRobot.per_encoder_sample.ControlRST;
+import parkingRobot.per_encoder_sample.HmiPLT;
+import parkingRobot.per_encoder_sample.NavigationAT;
+import parkingRobot.per_encoder_sample.PerceptionPMP;
 import parkingRobot.INxtHmi;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
@@ -35,7 +35,7 @@ import lejos.nxt.LCD;
  * It is important that data witch is accessed by more than one main module class thread is only handled in a
  * synchronized context to avoid inconsistent or corrupt data!
  */
-public class Perception {
+public class Guidence_per {
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -101,7 +101,7 @@ public class Perception {
 		// Generate objects
 		
 		NXTMotor leftMotor  = new NXTMotor(MotorPort.B);
-		NXTMotor rightMotor = new NXTMotor(MotorPort.A);
+		NXTMotor rightMotor = new NXTMotor(MotorPort.C);
 		
 		IMonitor monitor = new Monitor();
 		
@@ -125,14 +125,13 @@ public class Perception {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING ){
-						control.setCtrlMode(ControlMode.INACTIVE);
+						control.setCtrlMode(ControlMode.LINE_CTRL);
 					}
 					
 					
 					//While action				
-					monitor.writeControlVar("LeftSensor", "" + perception.getLeftLineSensorValueRaw()); //lineSensorLeft
-					monitor.writeControlVar("RightSensor", "" + perception.getRightLineSensorValueRaw()); //lineSensorRight		
-					showData_linesensor(perception);
+						
+					//showData_linesensor(perception);
 					
 					//State transition check
 					currentStatus = CurrentStatus.DRIVING;
@@ -207,7 +206,7 @@ public class Perception {
 	 * @return actual state of the main finite state machine
 	 */
 	public static CurrentStatus getCurrentStatus(){
-		return Perception.currentStatus;
+		return Guidence_per.currentStatus;
 	}
 	
 	/**

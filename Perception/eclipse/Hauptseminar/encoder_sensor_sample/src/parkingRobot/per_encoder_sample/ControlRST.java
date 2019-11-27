@@ -1,4 +1,4 @@
-package parkingRobot.hsamrCTRDemo;
+package parkingRobot.per_encoder_sample;
 
 
 import lejos.robotics.navigation.Pose;
@@ -6,6 +6,7 @@ import parkingRobot.IControl;
 import parkingRobot.IMonitor;
 import parkingRobot.IPerception;
 import parkingRobot.IPerception.*;
+import lejos.nxt.LCD;
 import lejos.nxt.NXTMotor;
 import parkingRobot.INavigation;
 
@@ -255,9 +256,12 @@ public class ControlRST implements IControl {
 	private void exec_LINECTRL_ALGO(){
 		
 		// MONITOR (example) this.lineSensorRight		= perception.getRightLineSensor();
-		monitor.writeControlVar("LeftSensor", "" + this.perception.getLeftLineSensorValue()); //lineSensorLeft
-		monitor.writeControlVar("RightSensor", "" + perception.getRightLineSensorValue()); //lineSensorRight
-
+		monitor.writeControlVar("LeftSensor", "" + this.encoderLeft.getEncoderMeasurement().getAngleSum()); //encoder SensorLeft
+		monitor.writeControlVar("RightSensor", "" + this.encoderRight.getEncoderMeasurement().getAngleSum()); //encoder SensorRight
+		this.showData_linesensor();
+		leftMotor.setPower(100);
+		rightMotor.setPower(100);
+		
 	}
 	
 	private void stop(){
@@ -265,6 +269,15 @@ public class ControlRST implements IControl {
 		this.rightMotor.stop();
 	}
 		
+	protected void showData_linesensor(){
+		LCD.clear();	
+		
+		LCD.drawString("left S: " + this.encoderLeft.getEncoderMeasurement().getAngleSum(), 0, 0);
+		LCD.drawString("right S: " + this.encoderRight.getEncoderMeasurement().getAngleSum(), 0, 1);
+		
+		
+	}
+	
     /**
      * calculates the left and right angle speed of the both motors with given velocity 
      * and angle velocity of the robot

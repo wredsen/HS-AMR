@@ -1,4 +1,4 @@
-package parkingRobot.hsamrCTRDemo;
+package parkingRobot.per_encoder_sample;
 
 
 //import lejos.nxt.LCD;
@@ -12,7 +12,7 @@ import lejos.nxt.NXTMotor;
 import lejos.nxt.SensorPort;
 
 import parkingRobot.IPerception;
-import parkingRobot.hsamrCTRDemo.PerceptionThread;
+import parkingRobot.per_encoder_sample.PerceptionThread;
 import parkingRobot.IMonitor;
 import lejos.nxt.comm.*;
 
@@ -119,7 +119,7 @@ public class PerceptionPMP implements IPerception {
 		if(this.LSlwhite-this.LSlblack == 0) {
 			return getLeftLineSensorValueRaw();	
 		}
-		return ((this.LeftLineSensor-this.LSlblack) *100/(this.LSlwhite-this.LSlblack));
+		return (((this.LeftLineSensor-this.LSlblack) *100)/(this.LSlwhite-this.LSlblack));
 	}
 	
 	public int getLeftLineSensorValueRaw(){

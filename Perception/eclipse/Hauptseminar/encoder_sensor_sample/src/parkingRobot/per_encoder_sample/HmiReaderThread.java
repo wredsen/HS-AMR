@@ -1,10 +1,10 @@
-package parkingRobot.hsamrCTRDemo;
+package parkingRobot.per_encoder_sample;
 
 import java.io.IOException;
 
 import parkingRobot.IMonitor;
 import parkingRobot.INxtHmi.Mode;
-import parkingRobot.hsamrCTRDemo.HmiPLT.Command;
+import parkingRobot.per_encoder_sample.HmiPLT.Command;
 
 /**
  * Thread for remote communication via Bluetooth. Hosts the HMI module of class {@code HmiPlt}, from which it was started. For 

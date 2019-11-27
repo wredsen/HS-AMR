@@ -4,149 +4,88 @@ import matplotlib.patches as mpatches
 import os
 
 dirname = os.path.dirname(__file__)               #get absulute file path
+
 # erster Wert linker Encoder, zweiter Wert rechter Encoder
-sample_value_left  = np.arange(500,dtype=float)
-sample_value_right = np.arange(500,dtype=float)
+mean_value_left = np.arange(20,dtype=float).reshape((10,2)) # pro Zeile (PWM, Drehzahl)
+mean_value_right = np.arange(20,dtype=float).reshape((10,2)) # pro Zeile (PWM, Drehzahl)
 
-mean_value_left = np.arange(12,dtype=float).reshape((6,2)) # pro Zeile (PWM, Drehzahl)
-mean_value_right = np.arange(12,dtype=float).reshape((6,2)) # pro Zeile (PWM, Drehzahl)
-
-
-for i in range(0,6):  
-     filename = os.path.join(dirname,'../LightsensorSample/surface_'+str(i)+'.txt')  #define relative path
-     sampcount_r = 0
-     sampcount_l = 0
+i = 10
+while i <= 100:
+     mean_value_left[(i//10)-1, 0] = i            #fill array with x values from index
+     mean_value_right[(i//10)-1, 0] = i    
+     filename = os.path.join(dirname,"LogDaten_mitLast/NXTData"+str(i)+".txt")       #define relative path
      with open(filename,"r") as file:                                                #open file from relative path
           if file.mode == 'r':                                                       #check if file is open as "read"
                number_of_measures = 0                                                #counter for sampeled values
                for line in enumerate(file):                                          #itterarate thru line of file 
                     if line[1].count(";") > 0:                                       #count if ";" is in the tupel line line[0] is the line number
-                         if(sampcount_r < 500):
-                              try:                                                   #exception for stirng to float conversion 
-                                                                                     #add one sample to the array (counter)
+                         try:                                                        #exception for stirng to float conversion 
+                              number_of_measures += 1                                #add one sample to the array (counter)
 
-                                   k = 1
-                                   while line[1][-k] != ";":                         #start itterate backwards to search for first ";"
-                                       k+=1
+                              k = 1
+                              while line[1][-k] != ";":                              #start itterate backwards to search for first ";"
+                                   k+=1
                                    
-                                   right_meas = float(line[1][-(k-1):])              #cast from string to float line from -(k-1) to end of line
-                                   sample_value_right[sampcount_r] = right_meas                 #save sample to array 
-                                   sampcount_r += 1
+                              right_meas = float(line[1][-(k-1):])                   #cast from string to float line from -(k-1) to end of line
+                              mean_value_right[(i//10)-1, 1] += right_meas           #save sample to array 
 
-                              except ValueError:            
-                                   print('not a valid number')
+                         except ValueError:            
+                              print('not a valid number')
 
-                         if(sampcount_l < 500):
-                              try:                                                   #exception for stirng to float conversion 
-                                   m = k+1
+                         try:                                                        #exception for stirng to float conversion 
+                              m = k+1
 
-                                   while line[1][-m] != ";":                         #start itterate backwards to search for first ";" beginning from k+1
-                                          m+=1
+                              while line[1][-m] != ";":                              #start itterate backwards to search for first ";" beginning from k+1
+                                   m+=1
 
-                                   left_meas = float(line[1][-(m-1):-(k)])           #cast from string to float line from -(m-1) to -(k-1) second sample 
-                                   sample_value_left[sampcount_l] = left_meas                   #save sample to array
-                                   sampcount_l += 1
+                              left_meas = float(line[1][-(m-1):-(k+1)])              #cast from string to float line from -(m-1) to -(k-1) second sample 
+                              mean_value_left[(i//10)-1, 1] += left_meas             #save sample to array
 
-                              except ValueError:
-                                   print('not a valid number')
-                         
+                         except ValueError:
+                              print('not a valid number')
 
-                         if (sampcount_r > 500 and sampcount_l > 500):
-                              break
-
-
-
-               #print(sample_value_left)
-               mean_value_right[i, 0] = np.mean(sample_value_right)         #calculate the mean of the sampeled values
-               mean_value_left[i, 0]  = np.mean(sample_value_left)
-               mean_value_right[i, 1] = np.std(sample_value_right)
-               mean_value_left[i, 1]  = np.std(sample_value_left)
+               mean_value_right[(i//10)-1, 1] = mean_value_right[(i//10)-1, 1] / number_of_measures      #calculate the mean of the sampeled values
+               mean_value_left[(i//10)-1, 1] = mean_value_left[(i//10)-1, 1] / number_of_measures
                
-               
-     
+     i = i+10
 
-print('schwarz hell Mittelwert   R '+str(mean_value_right[0,0]))
-print('schwarz hell Mittelwert   L '+str(mean_value_left[0,0]))
-print('schwarz hell sigma        R '+str(mean_value_right[0,1]))
-print('schwarz hell sigma        L '+str(mean_value_left[0,1]))
-print(' ')
-print('schwarz dunkel Mittelwert R '+str(mean_value_right[1,0]))
-print('schwarz dunkel Mittelwert L '+str(mean_value_left[1,0]))
-print('schwarz dunkel sigma      R '+str(mean_value_right[1,1]))
-print('schwarz dunkel sigma      L '+str(mean_value_left[1,1]))
-print(' ')
-print('grau hell Mittelwert      R '+str(mean_value_right[2,0]))
-print('grau hell Mittelwert      L '+str(mean_value_left[2,0]))
-print('grau hell sigma           R '+str(mean_value_right[2,1]))
-print('grau hell sigma           L '+str(mean_value_left[2,1]))
-print(' ')
-print('grau dunkel Mittelwert    R '+str(mean_value_right[3,0]))
-print('grau dunkel Mittelwert    L '+str(mean_value_left[3,0]))
-print('grau dunkel sigma         R '+str(mean_value_right[3,1]))
-print('grau dunkel sigma         L '+str(mean_value_left[3,1]))
-print(' ')
-print('weiß hell Mittelwert      R '+str(mean_value_right[4,0]))
-print('weiß hell Mittelwert      L '+str(mean_value_left[4,0]))
-print('weiß hell sigma           R '+str(mean_value_right[4,1]))
-print('weiß hell sigma           L '+str(mean_value_left[4,1]))
-print(' ')
-print('weiß dunkel Mittelwert    R '+str(mean_value_right[5,0]))
-print('weiß dunkel Mittelwert    L '+str(mean_value_left[5,0]))
-print('weiß dunkel sigma         R '+str(mean_value_right[5,1]))
-print('weiß dunkel sigma         L '+str(mean_value_left[5,1]))
+#print(mean_value_right[:,0])
+#print(mean_value_left[:,1])
+#print(mean_value_right[:,1])
 
 
-width=0.2
-ind= np.arange(6)
-fig = plt.figure()
-ax = fig.add_subplot(111)
+#Skaliere die RPMs:
+sample_time = 0.104 # miliseconds
+mean_value_left[:,1] = (mean_value_left[:,1]/sample_time) * (60/360) 
+mean_value_right[:,1] = (mean_value_right[:,1]/sample_time) * (60/360)           
 
+plt.plot(mean_value_left[:,1], mean_value_left[:,0],'ro')                            #plot scatter of left motor with red dots  
+plt.plot(mean_value_right[:,1], mean_value_right[:,0],'bo')                          #plot scatter of right motor with blue dots
 
-yvals=[mean_value_left[0,0],mean_value_left[1,0],mean_value_left[2,0],mean_value_left[3,0],mean_value_left[4,0],mean_value_left[5,0]]
-rects1 = ax.bar(ind,yvals,width)
-zvals=[mean_value_right[0,0],mean_value_right[1,0],mean_value_right[2,0],mean_value_right[3,0],mean_value_right[4,0],mean_value_right[5,0]]
-rects2 = ax.bar(ind+width,zvals,width)
+#claculate a fit of first degree
+fit_left = np.polyfit(mean_value_left[:, 1],mean_value_left[:, 0],1)                 
+fit_right = np.polyfit(mean_value_right[:, 1],mean_value_right[:, 0],1)
 
-ax.set_ylabel('direkter Messwert')
-ax.set_xticks(ind+width)
-ax.set_xticklabels( ('schwarz hell','schwarz dunkel', 'grau hell','grau dunkel','weiß hell', 'weiß dunkel') )
-ax.legend( (rects1[0], rects2[0]), ('links', 'rechts') )
+#print out function
+print("Left-Motor-RPM: "+str(fit_left[0])+"*PWM +"+str(fit_left[1]))                 
+print("Right-Motor-RPM: "+str(fit_right[0])+"*PWM +"+str(fit_right[1]))
 
-def autolabel(rects):
-    for rect in rects:
-        h = rect.get_height()
-        ax.text(rect.get_x()+rect.get_width()/2.,h-0.2, '%d'%int(h),
-                ha='center', va='bottom')
+#generate plottable function
+func_left = np.poly1d(fit_left)                                                     
+func_right = np.poly1d(fit_right) 
 
-autolabel(rects1)
-autolabel(rects2)
+#plot both fit functions 
+plt.plot(mean_value_left[:, 1],func_left(mean_value_left[:, 1]), 'r-')
+plt.plot(mean_value_right[:, 1],func_right(mean_value_right[:, 1]), 'b-')
 
+#label axes
+plt.xlabel("RPM [1/min]")
+plt.ylabel("PWM [%]")
 
-width=0.2
-ind= np.arange(6)
-fig = plt.figure()
-ax = fig.add_subplot(111)
-
-
-yvals=[mean_value_left[0,1],mean_value_left[1,1],mean_value_left[2,1],mean_value_left[3,1],mean_value_left[4,1],mean_value_left[5,1]]
-rects1 = ax.bar(ind,yvals,width)
-zvals=[mean_value_right[0,1],mean_value_right[1,1],mean_value_right[2,1],mean_value_right[3,1],mean_value_right[4,1],mean_value_right[5,1]]
-rects2 = ax.bar(ind+width,zvals,width)
-
-ax.set_ylabel('Zufällige Messabweichung')
-ax.set_xticks(ind+width)
-ax.set_xticklabels( ('schwarz hell','schwarz dunkel', 'grau hell','grau dunkel','weiß hell', 'weiß dunkel') )
-ax.legend( (rects1[0], rects2[0]), ('links', 'rechts') )
-
-def autolabel(rects):
-    for rect in rects:
-        h = rect.get_height()
-        ax.text(rect.get_x()+rect.get_width()/2.,h, '%f'%float(h),
-                ha='center', va='bottom')
-
-autolabel(rects1)
-autolabel(rects2)
-
-
+#label graphs
+red_patch = mpatches.Patch(color='red', label='linker M mean_value_left[(i//10)-1, 0] = i            #fill array with x values from index
+     mean_value_right[(i//10)-1, 0] = i    otor')
+blue_patch = mpatches.Patch(color='blue', label='rechter Motor')
+plt.legend(handles=[red_patch, blue_patch])                                          #show legend
 
 plt.show()

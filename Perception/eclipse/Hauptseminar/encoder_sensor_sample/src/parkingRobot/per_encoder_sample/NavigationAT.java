@@ -1,11 +1,11 @@
-package parkingRobot.hsamrCTRDemo;
+package parkingRobot.per_encoder_sample;
 
 import lejos.geom.Line;
 import lejos.robotics.navigation.Pose;
 
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
-import parkingRobot.hsamrCTRDemo.NavigationThread;
+import parkingRobot.per_encoder_sample.NavigationThread;
 import parkingRobot.IMonitor;
 
 

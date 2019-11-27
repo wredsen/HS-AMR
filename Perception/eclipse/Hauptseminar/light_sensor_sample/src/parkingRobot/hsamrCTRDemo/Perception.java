@@ -106,7 +106,7 @@ public class Perception {
 		IMonitor monitor = new Monitor();
 		
 		IPerception perception = new PerceptionPMP(leftMotor, rightMotor, monitor);
-		//perception.calibrateLineSensors();
+		perception.calibrateLineSensors();
 		
 		INavigation navigation = new NavigationAT(perception, monitor);
 		IControl    control    = new ControlRST(perception, navigation, leftMotor, rightMotor, monitor);
@@ -227,9 +227,10 @@ public class Perception {
 	protected static void showData_linesensor(IPerception perception){
 		LCD.clear();	
 		
-		LCD.drawString("left Sensor: " + perception.getLeftLineSensorValueRaw(), 0, 0);
-		LCD.drawString("right Sensor: " + perception.getRightLineSensorValueRaw(), 0, 1);
-		LCD.drawString("s front: " + perception.getFrontSensorDistance(), 0, 2);
+		LCD.drawString("left raw: " + perception.getLeftLineSensorValueRaw(), 0, 0);
+		LCD.drawString("right  raw: " + perception.getRightLineSensorValueRaw(), 0, 1);
+		LCD.drawString("left : " + perception.getLeftLineSensorValue(), 0, 2);
+		LCD.drawString("right: " + perception.getRightLineSensorValue(), 0, 3);
 		//LCD.drawString("s side: " + perception.getFrontSideSensorDistance(), 0, 3);
 		
 	}

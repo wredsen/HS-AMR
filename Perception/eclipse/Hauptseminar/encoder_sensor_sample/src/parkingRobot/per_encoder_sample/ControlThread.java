@@ -1,4 +1,4 @@
-package parkingRobot.hsamrCTRDemo;
+package parkingRobot.per_encoder_sample;
 
 import parkingRobot.IControl;
 

@@ -240,6 +240,10 @@ public class NavigationAT_Ver1 implements INavigation{
 		navThread.setPriority(Thread.MAX_PRIORITY - 1);
 		navThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		navThread.start();
+		
+		monitor.addNavigationVar("diff");
+		monitor.addNavigationVar("areaNumber");
+		monitor.addNavigationVar("cornerNumber");
 	}
 	
 	
@@ -275,12 +279,17 @@ public class NavigationAT_Ver1 implements INavigation{
 		
 		if (this.parkingSlotDetectionIsOn)
 				this.detectParkingSlot();		
-		LCD.drawString("X = "+ this.pose.getX(), 0, 3);
-		LCD.drawString("Y = "+ this.pose.getY(), 0, 4);
-		LCD.drawString("CorNum = "+ this.getCornerNumber(), 0, 1);
+		//LCD.drawString("X = "+ this.pose.getX(), 0, 3);
+		//LCD.drawString("Y = "+ this.pose.getY(), 0, 4);
+		LCD.clear();
+		LCD.drawString("Cor Num = "+ this.getCornerNumber(), 0, 2);
+		LCD.drawString("Area Num = "+ this.areaNumber, 0, 4);
 		this.calculateLocation();
 		
 		this.getCorner();
+		
+		monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);	
+		monitor.writeNavigationVar("areaNumber", "" + this.areaNumber);	
 	}
 	
 	
@@ -302,9 +311,12 @@ public class NavigationAT_Ver1 implements INavigation{
 	
 	public synchronized boolean getCorner() {
 		if (getCornerArea() == true) {
-			if (detectCorner() && (areaNumber==cornerNumber)) {
-				evaluateCornerDetection();
-				return true;
+			if (areaNumber!=cornerNumber) {
+				if (this.detectCorner()) {
+					//evaluateCornerDetection();
+					return true;
+				}
+				else return false;
 			}
 			else return false;
 		}
@@ -328,7 +340,7 @@ public class NavigationAT_Ver1 implements INavigation{
 				areaNumber = 0;
 			}
 	
-			if ((this.pose.getX()>=1.70)&&(this.pose.getY()<=0.10) && areaNumber != 2) {
+			if ((this.pose.getX()>=1.60)&&(this.pose.getY()<=0.15) && areaNumber != 2) {
 				area = true;
 				areaNumber = 1;
 			}
@@ -401,6 +413,10 @@ public class NavigationAT_Ver1 implements INavigation{
 	public boolean detectCorner() {
 		boolean corner = false;	
 		if (this.angleList.size()>=200) {
+			float diff = this.angleList.get(199)-this.angleList.get(0);			// Setting variables for the screen an monitor output
+
+			monitor.writeNavigationVar("diff", "" + diff);			// Monitor Output
+			
 			if (this.angleList.get(199)-this.angleList.get(0)>= 0.4*Math.PI) {
 				corner = true;
 				//Sound.twoBeeps();
@@ -422,35 +438,35 @@ public class NavigationAT_Ver1 implements INavigation{
 				{
 				case 0: 
 						this.pose.setLocation((float)0.00,(float)0.00);
-						areaNumber ++;
+						//areaNumber = 1;
 					break; 
 				case 1: 
 						this.pose.setLocation((float)1.80,(float)0.00);
-						areaNumber ++;
+						//areaNumber = 2;
 					break; 
 				case 2:
 						this.pose.setLocation((float)1.80,(float)0.60);	
-						areaNumber ++;
+						//areaNumber = 3;
 					break; 
 				case 3: 
 						this.pose.setLocation((float)1.50,(float)0.60);
-						areaNumber ++;
+						//areaNumber = 4;
 					break;
 				case 4:
 						this.pose.setLocation((float)1.50,(float)0.30);
-						areaNumber ++;
+						//areaNumber = 5;
 					break;
 				case 5:
 						this.pose.setLocation((float)0.30,(float)0.30);
-						areaNumber ++;
+						//areaNumber = 6;
 					break;
 				case 6:
 						this.pose.setLocation((float)0.30,(float)0.60);
-						areaNumber ++;
+						//areaNumber = 7;
 					break;
 				case 7:
 						this.pose.setLocation((float)0.00,(float)0.60);
-						areaNumber ++;
+						//areaNumber = 0;
 					break;
 				default:
 				}
@@ -582,6 +598,7 @@ public class NavigationAT_Ver1 implements INavigation{
 				    		this.pose.setHeading((float)angleResult);
 				    	}
 			     	}
+					/*
 				// Linie 2	
 					if(this.pose.getY()>0.10&&this.pose.getY()<0.50&&this.pose.getX()>1.70&&this.pose.getX()<1.90){
 						xDiff=xResult-1.8;
@@ -601,6 +618,7 @@ public class NavigationAT_Ver1 implements INavigation{
 							this.pose.setHeading((float)angleResult);
 						}
 					}
+					*/
 					/*
 				// Linie 3
 				    if(angleResult>0.9*Math.PI&&angleResult<1.1*Math.PI&&this.pose.getX()>=1.47&&this.pose.getY()>=0.45) {

@@ -145,6 +145,8 @@ public enum CurrentStatusDrive {
 		
 		monitor.startLogging();
 				
+		
+		
 		while(true) {
 			LCD.clear();
 			showData(navigation, perception);
@@ -157,6 +159,11 @@ public enum CurrentStatusDrive {
 					LCD.drawString("DRIVING",0,0);
 					//Into action
 					if(lastStatus!=currentStatus) {
+						//geradeausfahrt und drehen//
+						
+						
+						
+						
 						control.setCtrlMode(ControlMode.FAST);
 					}
 					//While action	

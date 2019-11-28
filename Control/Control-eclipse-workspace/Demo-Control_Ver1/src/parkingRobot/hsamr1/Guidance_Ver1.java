@@ -117,8 +117,6 @@ public enum CurrentStatusDrive {
 	static Line[] map = {line0, line1, line2, line3, line4, line5, line6, line7};
 	
 	
-	private static boolean turning=false;
-	
 	/**
 	 * main method of project 'ParkingRobot'
 	 * 
@@ -181,17 +179,12 @@ public enum CurrentStatusDrive {
 					
 					//State transition check DRIVE
 					lastStatusDrive = currentStatusDrive;
-					if(navigation.getCornerArea()==false || turning) {
+					if(navigation.getCornerArea()==false) {
 						currentStatusDrive=CurrentStatusDrive.FAST;
-						turning=false;
 					}
 					
-					if(navigation.getCornerArea()==true && (currentStatusDrive!=CurrentStatusDrive.TURN)) {
+					if(navigation.getCornerArea()==true) {
 						currentStatusDrive=CurrentStatusDrive.SLOW;
-					}
-					
-					if(navigation.getCornerArea()==true && navigation.getCorner()==true) {
-						currentStatusDrive=CurrentStatusDrive.TURN;
 					}
 						
 

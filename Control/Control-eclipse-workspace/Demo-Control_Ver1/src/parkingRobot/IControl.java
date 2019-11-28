@@ -17,15 +17,14 @@ public interface IControl {
 	 */
 	public enum ControlMode {
 		
-		FAST,
+
 		
-		SLOW,
-		
-		TURN(),
 		/**
 		 * folgt schwarzer Linie
 		 */
-		LINE_CTRL,
+		FAST,
+		
+		SLOW,
 		
 		/**
 		 * einparken
@@ -83,6 +82,7 @@ public interface IControl {
 	
 
 	
+	public void setDriveFor(double x, double y, double phi, double v, double omega, Pose startPose);
 	
 	/**
 	 * set the current control mode

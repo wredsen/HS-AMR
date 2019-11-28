@@ -153,34 +153,43 @@ public enum CurrentStatusDrive {
 				case DRIVING:
 					// MONITOR (example)
 //					monitor.writeGuidanceComment("Guidance_Driving");
-					//currentStatusDrive = CurrentStatusDrive.SLOW;
-			        //lastStatusDrive    = CurrentStatusDrive.TURN;
+					
 					//Into action
-					//if ( lastStatus != CurrentStatus.DRIVING ){
-					//	control.setCtrlMode(ControlMode.FAST);
-					//}
 					
 					//While action	
-					
 					switch(currentStatusDrive)
 					{
 					case FAST:
 							//Into action
 							if(lastStatusDrive!=currentStatusDrive) {
+								control.setCtrlMode(ControlMode.FAST);
 								Thread.sleep(500);
 							}
-							//While action
-							control.setCtrlMode(ControlMode.FAST);
-														
+							//While action														
 							break;
 					case SLOW:
-							control.setCtrlMode(ControlMode.SLOW);
+							if(lastStatusDrive!=currentStatusDrive) {
+								control.setCtrlMode(ControlMode.SLOW);
+							}
 							break;
 					case TURN:
-							
-							control.setCtrlMode(ControlMode.TURN);
-							Thread.sleep(100);
-							turning=true;
+							if(lastStatusDrive!=currentStatusDrive) {
+								double angle = Math.PI;
+								if (navigation.getCornerType() == true) {
+									angle = 2*Math.PI;
+									control.setVelocity(0);
+									control.setAngularVelocity(10.0);
+								}
+								else {
+									angle = -2*Math.PI;
+									control.setVelocity(0);
+									control.setAngularVelocity(-10.0);
+								}
+								control.setDestination(navigation.getPose().getHeading()+angle,	 navigation.getPose().getX(), navigation.getPose().getY());
+								control.setCtrlMode(ControlMode.TURN);
+								Thread.sleep(5000);
+								turning=true;
+							}							
 							break;
 						}
 					//State transition check DRIVE
@@ -190,11 +199,15 @@ public enum CurrentStatusDrive {
 						turning=false;
 						LCD.clear();	
 						LCD.drawString("FAST",0,0);
-					}else if(navigation.getCornerArea()==true) {
+					}
+					
+					if(navigation.getCornerArea()==true && (currentStatusDrive!=CurrentStatusDrive.TURN)) {
 						currentStatusDrive=CurrentStatusDrive.SLOW;
 						LCD.clear();	
 						LCD.drawString("SLOW",0,0);
-					}else if(navigation.getCornerArea()==true && navigation.getCorner()==true) {
+					}
+					
+					if(navigation.getCornerArea()==true && navigation.getCorner()==true) {
 						currentStatusDrive=CurrentStatusDrive.TURN;
 						LCD.clear();	
 						LCD.drawString("TURN",0,0);

@@ -17,6 +17,11 @@ public interface IControl {
 	 */
 	public enum ControlMode {
 		
+		FAST,
+		
+		SLOW,
+		
+		TURN(),
 		/**
 		 * folgt schwarzer Linie
 		 */
@@ -40,21 +45,7 @@ public interface IControl {
 		/**
 		 * NXT in Ruhe versetzen
 		 */
-		INACTIVE,
-		
-		/**
-		 * NXT Schnell fahren
-		 */
-		FAST,
-		/**
-		 * NXT langsam fahren
-		 */
-		SLOW,
-		/**
-		 * NXT drehen
-		 */
-		TURN
-		
+		INACTIVE
 	}
 	
 		

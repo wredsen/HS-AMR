@@ -332,35 +332,35 @@ public class NavigationAT_Ver1 implements INavigation{
 		boolean area = false;
 		
 		if (mapModus == 1) {
-			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
 				area = true;
 			}
 	
-			if ((this.pose.getX()>=1.60)&&(this.pose.getY()<=0.15)) {
+			if ((this.pose.getX()>=1.65)&&(this.pose.getY()<=0.15)) {
 				area = true;
 			}
 		
-			if ((this.pose.getX()>=1.60)&&(this.pose.getY()>=0.20)) {
+			if ((this.pose.getX()>=1.65)&&(this.pose.getY()>=0.45)) {
 				area = true;
 			}
 		
-			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.50)) {
+			if ((this.pose.getX()>=1.35)&&(this.pose.getX()<=1.65)&&(this.pose.getY()>=0.45)) {
 				area = true;
 			}
 		
-			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.50)) {
+			if ((this.pose.getX()>=1.35)&&(this.pose.getX()<=1.65)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.45)) {
 				area = true;
 			}
 		
-			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.50)) {
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.45)) {
 				area = true;
 			}
 		
-			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.45)) {
 				area = true;
 			}
 		
-			if ((this.pose.getX()<=0.20)&&(this.pose.getY()>=0.50)) {
+			if ((this.pose.getX()<=0.15)&&(this.pose.getY()>=0.45)) {
 				area = true;
 			}
 		}
@@ -579,7 +579,7 @@ public class NavigationAT_Ver1 implements INavigation{
 				if(!(Guidance_Ver1.getCurrentStatus() == Guidance_Ver1.CurrentStatus.INACTIVE || 
 				   Guidance_Ver1.getCurrentStatus() == Guidance_Ver1.CurrentStatus.EXIT) && (mapModus==1)){
 				//	Linie 1
-					if(this.pose.getX()>0.10&&this.pose.getX()<1.70&&this.pose.getY()<0.10) { 
+					if(this.pose.getX()>0.15&&this.pose.getX()<1.65&&this.pose.getY()<0.15) { 
 				    	          
 						    angleDiff=angleResult-0;           //Abweichung korriegieren ohne Einparken bzw Einparken?
 							if(angleDiff>0.1*Math.PI) {
@@ -606,9 +606,9 @@ public class NavigationAT_Ver1 implements INavigation{
 				    		this.pose.setHeading((float)angleResult);
 				    	}
 			     	}
-					/*
-				// Linie 2	
-					if(this.pose.getY()>0.10&&this.pose.getY()<0.50&&this.pose.getX()>1.70&&this.pose.getX()<1.90){
+				
+				//Linie 2	
+					if(this.pose.getY()>0.15 && this.pose.getY()<0.45 && this.pose.getX()>1.65 && this.pose.getX()<1.90){
 						xDiff=xResult-1.8;
 																												//Abweichung korriegieren
 						if(xDiff<=-0.005) { 	   																
@@ -626,7 +626,7 @@ public class NavigationAT_Ver1 implements INavigation{
 							this.pose.setHeading((float)angleResult);
 						}
 					}
-					*/
+					
 					/*
 				// Linie 3
 				    if(angleResult>0.9*Math.PI&&angleResult<1.1*Math.PI&&this.pose.getX()>=1.47&&this.pose.getY()>=0.45) {
@@ -668,7 +668,7 @@ public class NavigationAT_Ver1 implements INavigation{
 				    }
 				    */			    
 				// Linie 5
-					if(this.pose.getX()>0.40&&this.pose.getX()<1.40&&this.pose.getY()>0.20&&this.pose.getY()<0.4) {
+					if(this.pose.getX()>0.45 && this.pose.getX()<1.35 && this.pose.getY()>0.20 && this.pose.getY()<0.4) {
 						yDiff=yResult-0.3;                               
 																												//Abweichung korriegieren
 				    	if(yDiff<=-0.005) {
@@ -727,7 +727,7 @@ public class NavigationAT_Ver1 implements INavigation{
 					   }
 					   */					   
 				// Linie 8
-					   if(this.pose.getX()<0.1&&this.pose.getX()>-0.1&&this.pose.getY()>0.10&&this.pose.getY()<0.50) {//
+					   if(this.pose.getX()<0.1 && this.pose.getX()>-0.1 && this.pose.getY()>0.15 && this.pose.getY()<0.45) {//
 						   
 					   	   angleDiff=angleResult-1.5*Math.PI;            										//Angle Abweichung korriegieren                  
 					   	   if(angleDiff>0.1*Math.PI) {

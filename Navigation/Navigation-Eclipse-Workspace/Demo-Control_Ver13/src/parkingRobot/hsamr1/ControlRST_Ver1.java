@@ -58,9 +58,6 @@ public class ControlRST_Ver1 implements IControl {
 	INavigation navigation = null;
 	IMonitor monitor = null;
 	ControlThread_Ver1 ctrlThread = null;
-
-    int leftMotorPower = 0;
-	int rightMotorPower = 0;
 	
 	double velocity = 10.0;	// in cm/s
 	double angularVelocity = 0.10;	// in 1/s
@@ -68,6 +65,8 @@ public class ControlRST_Ver1 implements IControl {
 	Pose startPosition = new Pose();
 	Pose currentPosition = new Pose();
 	Pose destination = new Pose();
+	Pose enteringPosition = new Pose();
+	//double initialEta = 0;
 	
 	ControlMode currentCTRLMODE = null;
 	
@@ -79,9 +78,9 @@ public class ControlRST_Ver1 implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-	double rpmSampleTime = 0.014; // in seconds
-	final double wheelDiameter = 56; // in mm
-	final double wheelDistance = 150; // in mm
+	final double SAMPLETIME = 0.014; // in seconds
+	final double WHEELDIA = 56; // in mm
+	final double WHEELDISTANCE = 150; // in mm
 	
 	/**
 	 * provides the reference transfer so that the class knows its corresponding navigation object (to obtain the current 
@@ -147,7 +146,13 @@ public class ControlRST_Ver1 implements IControl {
 		this.destination.setLocation((float) x, (float) y);
 	}
 	
-
+	public void setDriveFor(double x, double y, double phi, double v, double omega, Pose enteringPosition) {
+		this.enteringPosition = enteringPosition;
+		setDestination(enteringPosition.getHeading()+phi, enteringPosition.getX() + x, enteringPosition.getY() + y);
+		setVelocity(v);
+		setAngularVelocity(omega);
+		exec_SETPOSE_ALGO();
+	}
 	
 	/**
 	 * sets current pose
@@ -190,21 +195,17 @@ public class ControlRST_Ver1 implements IControl {
 			case SLOW	:	update_LINECTRL_Parameter();
 							exec_SLOW_ALGO();
 							break;
-							
-			  case LINE_CTRL	: update_LINECTRL_Parameter();
-			                      exec_LINECTRL_ALGO();
-			                      break;
-			  case VW_CTRL		: update_VWCTRL_Parameter();
-			   					  exec_VWCTRL_ALGO();
-			   					  break; 
-			  case SETPOSE      : update_SETPOSE_Parameter();
-				  				  exec_SETPOSE_ALGO();
-			                      break;
-			  case PARK_CTRL	: update_PARKCTRL_Parameter();
-			  					  exec_PARKCTRL_ALGO();
-			  					  break;		  					  
-			  case INACTIVE 	: exec_INACTIVE();
-				                  break;
+			case VW_CTRL	:	update_VWCTRL_Parameter();
+				   				exec_VWCTRL_ALGO();
+				   				break; 
+			case SETPOSE	: 	update_SETPOSE_Parameter();
+					  			exec_SETPOSE_ALGO();
+				                break;
+			case PARK_CTRL	: update_PARKCTRL_Parameter();
+				  			  exec_PARKCTRL_ALGO();
+				  			  break;		  					  
+			case INACTIVE 	: exec_INACTIVE();
+					          break;
 		}
 
 	}
@@ -246,7 +247,7 @@ public class ControlRST_Ver1 implements IControl {
 	 * optionally one of them could be set to zero for simple test.
 	 */
     private void exec_VWCTRL_ALGO(){  
-		this.drive(this.velocity, this.angularVelocity);
+		this.drive(this.velocity, this.angularVelocity, 0);
 	}
     
 	// UNBEDINGT REWORKEN: gehackt fuer 1. Verteidigung
@@ -256,7 +257,10 @@ public class ControlRST_Ver1 implements IControl {
     double rotatingDistance = -(Math.PI/2 + rotatingOffset);	//(90 deg @ 30 deg/s)
     private void exec_SETPOSE_ALGO(){
     	
-    	PID_Ver1 omegaPID = new PID_Ver1(0, rpmSampleTime, 0.2, 0, 0.05, 2);
+    	PID_Ver1 omegaPID = new PID_Ver1(0, SAMPLETIME, 0.2, 0, 0.05, 2, false);
+    	double signX = Math.signum(this.destination.getX() - this.enteringPosition.getX());
+    	double signY = Math.signum(this.destination.getY() - this.enteringPosition.getY());
+    	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPosition.getHeading());
     	
     	this.update_SETPOSE_Parameter();
     	//LCD.clear();
@@ -268,8 +272,8 @@ public class ControlRST_Ver1 implements IControl {
     	double omega = this.angularVelocity;
     	double eta;
     	
-    	if ((Math.abs(this.destination.getX() - this.currentPosition.getX()) > 0.1 ||
-    			Math.abs(this.destination.getY() - this.currentPosition.getY()) > 0.1)
+    	if ((	signX*(this.destination.getX() - this.currentPosition.getX()) > 0.02 ||
+    			signY*(this.destination.getY() - this.currentPosition.getY()) > 0.02    )
     			&& this.velocity != 0) 
     	{
 	    	// Angle for driving to destination point
@@ -277,22 +281,22 @@ public class ControlRST_Ver1 implements IControl {
 	    	eta = angleCourse - this.currentPosition.getHeading();
 	    	omegaPID.updateDesiredValue(eta);
 	    	
-	    	if (Math.abs(eta) >  Math.toRadians(20) && this.angularVelocity != 0) // only turn
+	    	if ( (((eta >  Math.toRadians(2)) && eta > 0) || ((eta <  Math.toRadians(-2)) && eta < 0)) && this.angularVelocity != 0) // only turn
 	    	{
-	    		drive(0,this.angularVelocity);
+	    		drive(0,this.angularVelocity, 0);
 	    	}
 	  
-	    	else if (this.velocity != 0)// drive with angle regulation
+	    	else if (this.velocity != 0)// drive with angle control
 	    	{
 		    	omega = omegaPID.runControl(this.currentPosition.getHeading());
 		 
 		    	RConsole.println("[control] Fehler: " + omega);
-		    	drive(this.velocity,omega);
+		    	drive(this.velocity,omega, 0);
 	    	}
     	}
-    	else if (Math.abs(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(20) && this.angularVelocity != 0)
+    	else if (signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(2) && this.angularVelocity != 0)
     	{
-    		drive(0,this.angularVelocity);
+    		drive(0,this.angularVelocity, 0);
 	    	// Destination angle
 	    	eta = this.destination.getHeading() - this.currentPosition.getHeading();
     	}
@@ -320,22 +324,13 @@ public class ControlRST_Ver1 implements IControl {
 	 * white = 0, black = 2, grey = 1
 	 */
     private void exec_FAST_ALGO() {
-    	PID_Ver1 lineFollowPIDFast = new PID_Ver1(0, rpmSampleTime, 0.15, 0, 0.005, 999999);
-    	int BASEPOWER = 50;
+
     	leftMotor.forward();
 		rightMotor.forward();
-		
+		PID_Ver1 lineFollowPIDFast = new PID_Ver1(0, SAMPLETIME, 0.2, 0, 0.05, 999999, false);
+		double desiredVelocity = 15;
 		int lineControlFast = (int) lineFollowPIDFast.runControl(this.lineSensorLeft - this.lineSensorRight);
-		double desiredVelocity = velocity;
-		double desiredRPMLeft = desiredVelocity/(wheelDiameter*Math.PI/(10.0*60.0));
-		double desiredRPMRight = desiredVelocity/(wheelDiameter*Math.PI/(10.0*60.0)); 
-		int desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
-		int desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
-		
-		
-			
-		rightMotor.setPower(BASEPOWER + lineControlFast);
-		leftMotor.setPower(BASEPOWER - lineControlFast);
+		drive(desiredVelocity, 0, lineControlFast);
 		
 		//LCD.clear();
 		//LCD.drawString("X:" + navigation.getPose().getX(), 0, 2);
@@ -344,86 +339,19 @@ public class ControlRST_Ver1 implements IControl {
     }
     
     private void exec_SLOW_ALGO() {
-    	PID_Ver1 lineFollowPIDSlow = new PID_Ver1(0, rpmSampleTime, 0.1, 0, 0.3, 999999);
-    	int BASEPOWER = 30;
+    	
     	leftMotor.forward();
 		rightMotor.forward();
-		
+		PID_Ver1 lineFollowPIDSlow = new PID_Ver1(0, SAMPLETIME, 0.6, 0.0, 0.08, 999999, true);	// D: 0.09
+		double desiredVelocity = 6;
 		int lineControlSlow = (int) lineFollowPIDSlow.runControl(this.lineSensorLeft - this.lineSensorRight);
-		double desiredVelocity = velocity;
-		double desiredRPMLeft = desiredVelocity/(wheelDiameter*Math.PI/(10.0*60.0));
-		double desiredRPMRight = desiredVelocity/(wheelDiameter*Math.PI/(10.0*60.0)); 
-		int desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
-		int desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
-		
-		
-			
-		rightMotor.setPower(BASEPOWER + lineControlSlow);
-		leftMotor.setPower(BASEPOWER - lineControlSlow);
-		
+		drive(desiredVelocity, 0, lineControlSlow);
 		//LCD.clear();
 		//LCD.drawString("X:" + navigation.getPose().getX(), 0, 2);
 		//LCD.drawString("Y:" + navigation.getPose().getY(), 0, 3);
 		//LCD.drawString("C Num = " + this.navigation.getCornerNumber(), 0,5);		
     }
     
-    
-	private void exec_LINECTRL_ALGO(){	    
-		
-		PID_Ver1 lineFollowPIDSlow = new PID_Ver1(0, rpmSampleTime, 0.1, 0, 0.01, 999999);
-		PID_Ver1 lineFollowPIDFast = new PID_Ver1(0, rpmSampleTime, 0.15, 0, 0.005, 999999);
-		int BASEPOWER = 0;
-		leftMotor.forward();
-		rightMotor.forward();
-		
-		/*
-		Regelgröße: Lichtintensität linker und rechter Sensor
-		Regelfehler: Sollwert (0) - Istwert der Differenz beider Sensorwerte (lineSensorLeft - lineSensorRight)
-		*/
-		int lineControlSlow = (int) lineFollowPIDSlow.runControl(this.lineSensorLeft - this.lineSensorRight);
-		int lineControlFast = (int) lineFollowPIDFast.runControl(this.lineSensorLeft - this.lineSensorRight);
-		// das hier später an drehzahlregelung einzelner räder übergeben
-		
-		double desiredVelocity = velocity; 
-		
-		double desiredRPMLeft = desiredVelocity/(wheelDiameter*Math.PI/(10.0*60.0));
-		double desiredRPMRight = desiredVelocity/(wheelDiameter*Math.PI/(10.0*60.0)); 
-		int desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
-		int desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
-		
-		//LCD.clear();
-		/*
-		if (this.navigation.getCornerArea() == true) {
-			BASEPOWER = 30;
-			//LCD.drawString("CornerArea", 0, 5);
-			
-			
-			if (this.navigation.getCorner() == true) {
-				if (this.navigation.getCornerType() == true) {
-					drive(0, 2.0);
-				}
-				
-				else {
-					drive(0, -2.0);
-				}	
-				//Sound.twoBeeps();
-			}
-			else {
-				rightMotor.setPower(BASEPOWER + lineControlSlow);
-				leftMotor.setPower(BASEPOWER - lineControlSlow);
-			}	
-		}
-		else {
-			BASEPOWER = 40;
-			rightMotor.setPower(BASEPOWER + lineControlFast);
-			leftMotor.setPower(BASEPOWER - lineControlFast);
-
-		}
-		*/
-		//LCD.drawString("X:" + navigation.getPose().getX(), 0, 2);
-		//LCD.drawString("Y:" + navigation.getPose().getY(), 0, 3);
-		//LCD.drawString("C Num = " + this.navigation.getCornerNumber(), 0,5);
-	}
 	
 	private void stop(){
 		this.leftMotor.stop();
@@ -436,13 +364,13 @@ public class ControlRST_Ver1 implements IControl {
      * @param v velocity of the robot
      * @param omega angle velocity of the robot
      */
-	private void drive(double v, double omega){
+	private void drive(double v, double omega, int control){
 		//Aufgabe 3.2
 		double desiredVelocity = v; // in cm/s
 		double desiredAngularVelocity = omega; // in 1/s
 		
-	    PID_Ver1 leftRPMPID = new PID_Ver1(0, rpmSampleTime, 0.6, 0.2, 0.005, 99999); //P:0.5, I:0.3
-	    PID_Ver1 rightRPMPID = new PID_Ver1(0, rpmSampleTime, 0.7, 0.3, 0.005, 99999); //P:0.5, I:0.3
+	    PID_Ver1 leftRPMPID = new PID_Ver1(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //P:0.5, I:0.3
+	    PID_Ver1 rightRPMPID = new PID_Ver1(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //P:0.5, I:0.3
 	    
 	    int leftControlOut = 0;
 	    int rightControlOut = 0;
@@ -466,17 +394,18 @@ public class ControlRST_Ver1 implements IControl {
 		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
 		
 		/* Vorsteuerung*/
-		desiredRPMLeft = (0.5*desiredVelocity-(desiredAngularVelocity*(wheelDistance/2)/(2*10)))/((wheelDiameter/2)*Math.PI/(10.0*60.0));
-		desiredRPMRight = (0.5*desiredVelocity+(desiredAngularVelocity*(wheelDistance/2)/(2*10)))/((wheelDiameter/2)*Math.PI/(10.0*60.0)); 
-		desiredPowerLeft = (int) (0.76097 * desiredRPMLeft + 9.12246);
-		desiredPowerRight = (int) (0.71270 * desiredRPMRight + 9.0397);
+		desiredRPMLeft = (0.5*desiredVelocity-(desiredAngularVelocity*(WHEELDISTANCE/2)/(2*10)))/((WHEELDIA/2)*Math.PI/(10.0*60.0));
+		desiredRPMRight = (0.5*desiredVelocity+(desiredAngularVelocity*(WHEELDISTANCE/2)/(2*10)))/((WHEELDIA/2)*Math.PI/(10.0*60.0)); 
+		desiredPowerLeft = (int) (0.71270 * desiredRPMLeft + 9.0397);
+		desiredPowerRight = (int) (0.76097 * desiredRPMRight + 9.12246);
+		
 			
 		
 		measuredRPMLeft = ((double) leftAngle.getAngleSum() / (double) leftAngle.getDeltaT()) * 166.667; //in revelations per min
 		measuredRPMRight = ((double) rightAngle.getAngleSum() / (double) rightAngle.getDeltaT()) * 166.667; //in revelations per min
 		
-		leftRPMPID.updateDesiredValue(desiredRPMLeft);
-		rightRPMPID.updateDesiredValue(desiredRPMRight);
+		leftRPMPID.updateDesiredValue(desiredRPMLeft - control);
+		rightRPMPID.updateDesiredValue(desiredRPMRight + control);
 		
 		leftControlOut = (int) leftRPMPID.runControl(measuredRPMLeft);
 		rightControlOut = (int) rightRPMPID.runControl(measuredRPMRight);

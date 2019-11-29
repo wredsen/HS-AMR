@@ -119,7 +119,8 @@ public class PerceptionPMP implements IPerception {
 		if(this.LSlwhite-this.LSlblack == 0) {
 			return getLeftLineSensorValueRaw();	
 		}
-		return ((this.LeftLineSensor-this.LSlblack) *100/(this.LSlwhite-this.LSlblack));
+		//return ((this.LeftLineSensor-this.LSlblack) *100/(this.LSlwhite-this.LSlblack));
+		return leftLight.readValue();
 	}
 	
 	public int getLeftLineSensorValueRaw(){
@@ -134,7 +135,8 @@ public class PerceptionPMP implements IPerception {
 		if(this.LSrwhite-this.LSrblack == 0) {
 			return getRightLineSensorValueRaw();	
 		}
-		return ((this.RightLineSensor-this.LSrblack) *100/(this.LSrwhite-this.LSrblack));
+		//return ((this.RightLineSensor-this.LSrblack) *100/(this.LSrwhite-this.LSrblack));
+		return rightLight.readValue();
 	}
 	
 	public int getRightLineSensorValueRaw(){

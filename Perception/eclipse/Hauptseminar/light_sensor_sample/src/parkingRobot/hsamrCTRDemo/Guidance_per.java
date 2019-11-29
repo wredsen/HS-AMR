@@ -130,8 +130,8 @@ public class Guidance_per {
 					
 					
 					//While action				
-					monitor.writeControlVar("LeftSensor", "" + perception.getLeftLineSensorValueRaw()); //lineSensorLeft
-					monitor.writeControlVar("RightSensor", "" + perception.getRightLineSensorValueRaw()); //lineSensorRight		
+					monitor.writeControlVar("LeftSensor", "" + perception.getLeftLineSensorValue()); //lineSensorLeft
+					monitor.writeControlVar("RightSensor", "" + perception.getRightLineSensorValue()); //lineSensorRight		
 					showData_linesensor(perception);
 					
 					//State transition check

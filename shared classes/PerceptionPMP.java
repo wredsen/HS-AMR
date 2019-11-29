@@ -37,10 +37,10 @@ public class PerceptionPMP implements IPerception {
 	
 	int RightLineSensor		=	0;
 	int LeftLineSensor		=	0;
-	int LSrwhite			=	30; 
-	int LSrblack			=	30;
-	int LSlwhite			=	60; 
-	int LSlblack			=	60;
+	int LSrwhite			=	61; 
+	int LSrblack			=	34;
+	int LSlwhite			=	58; 
+	int LSlblack			=	31;
 
 
 	double UOdmometry		=	0;
@@ -156,8 +156,14 @@ public class PerceptionPMP implements IPerception {
 			updateSensors();
 		}
 		Button.ENTER.waitForPressAndRelease();
+		/*
 		this.LSrwhite = this.RightLineSensor;
 		this.LSlwhite = this.LeftLineSensor;
+		*/
+		
+		leftLight.setHigh(this.RightLineSensor);
+		rightLight.setHigh(this.LeftLineSensor);
+		
 		LCD.clear();
 		LCD.drawString("Kalibriere", 0, 0);
 		LCD.drawString("Liniensensor", 0, 1);
@@ -170,8 +176,8 @@ public class PerceptionPMP implements IPerception {
 			updateSensors();
 		}
 		Button.ENTER.waitForPressAndRelease();
-		this.LSrblack = this.RightLineSensor;
-		this.LSlblack = this.LeftLineSensor;
+		leftLight.setLow(this.RightLineSensor);
+		rightLight.setLow(this.LeftLineSensor);
 	}
 	
 	public void showSensorData() {
@@ -285,11 +291,11 @@ public class PerceptionPMP implements IPerception {
 
 	
 	private void updateLeftLightSensor() {
-		LeftLineSensor = leftLight.getLightValue();
+		LeftLineSensor = leftLight.readNormalizedValue();
 	}
 
 	private void updateRightLightSensor() {
-		RightLineSensor = rightLight.getLightValue();
+		RightLineSensor = rightLight.readNormalizedValue();
 		
 	}
 
@@ -313,6 +319,5 @@ public class PerceptionPMP implements IPerception {
 		this.navigationRightEncoder.addAngle((double)deltaPhi);		
 	}	
 }
-
 
 

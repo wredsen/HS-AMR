@@ -85,16 +85,16 @@ public class PID_Ver1 {
 			}
 		}
 		else {
-			if((desiredValue - measuredValue > AIWR) && (Math.signum(errorValue1) == Math.signum(errorValue2))) {
+			if((desiredValue - measuredValue > AIWR) && (Math.signum(errorValue0) == Math.signum(errorValue2))) {
 				controlOut = c0i*errorValue0 + c1i*errorValue1 + c2i*errorValue2 + controlOutOld;	
 			}
-			else if((desiredValue - measuredValue > AIWR) && (Math.signum(errorValue1) != Math.signum(errorValue2))) {
+			else if((desiredValue - measuredValue > AIWR) && (Math.signum(errorValue0) != Math.signum(errorValue2))) {
 				controlOut = c0id*errorValue0 + c1id*errorValue1 + c2id*errorValue2 + controlOutOld;
 			}
-			else if((desiredValue - measuredValue < AIWR) && (Math.signum(errorValue1) == Math.signum(errorValue2))) {
+			else if((desiredValue - measuredValue < AIWR) && (Math.signum(errorValue0) == Math.signum(errorValue2))) {
 				controlOut = c0*errorValue0 + c1*errorValue1 + c2*errorValue2 + controlOutOld;
 			}
-			else if((desiredValue - measuredValue < AIWR) && (Math.signum(errorValue1) != Math.signum(errorValue2))) {
+			else if((desiredValue - measuredValue < AIWR) && (Math.signum(errorValue0) != Math.signum(errorValue2))) {
 				controlOut = c0d*errorValue0 + c1d*errorValue1 + c2d*errorValue2 + controlOutOld;
 			}		
 			

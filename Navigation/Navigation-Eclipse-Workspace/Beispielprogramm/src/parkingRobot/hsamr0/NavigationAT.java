@@ -1,6 +1,7 @@
 package parkingRobot.hsamr0;
 
 import lejos.geom.Line;
+import lejos.nxt.LCD;
 import lejos.robotics.navigation.Pose;
 
 import parkingRobot.INavigation;
@@ -142,6 +143,10 @@ public class NavigationAT implements INavigation{
 		navThread.setPriority(Thread.MAX_PRIORITY - 1);
 		navThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		navThread.start();
+		
+		monitor.addNavigationVar("X");
+		monitor.addNavigationVar("Y");
+		monitor.addNavigationVar("angle");
 	}
 	
 	
@@ -171,6 +176,10 @@ public class NavigationAT implements INavigation{
 		this.calculateLocation();
 		if (this.parkingSlotDetectionIsOn)
 				this.detectParkingSlot();
+		
+		monitor.writeNavigationVar("X", "" + this.pose.getX());
+		monitor.writeNavigationVar("Y", "" + this.pose.getY());
+		monitor.writeNavigationVar("angle", "" + this.pose.getHeading());
 		
 		// MONITOR (example)
 //		monitor.writeNavigationComment("Navigation");

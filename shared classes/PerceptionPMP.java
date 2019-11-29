@@ -158,13 +158,20 @@ public class PerceptionPMP implements IPerception {
 			updateSensors();
 		}
 		Button.ENTER.waitForPressAndRelease();
+		
+		try {
+		    Thread.sleep(1000);
+		}
+		catch(InterruptedException e){
+			e.printStackTrace();
+		}
 		/*
 		this.LSrwhite = this.RightLineSensor;
 		this.LSlwhite = this.LeftLineSensor;
 		*/
 		
-		leftLight.setHigh(this.RightLineSensor);
-		rightLight.setHigh(this.LeftLineSensor);
+		leftLight.setHigh(this.LeftLineSensor);
+		rightLight.setHigh(this.RightLineSensor);
 		
 		LCD.clear();
 		LCD.drawString("Kalibriere", 0, 0);
@@ -178,8 +185,14 @@ public class PerceptionPMP implements IPerception {
 			updateSensors();
 		}
 		Button.ENTER.waitForPressAndRelease();
-		leftLight.setLow(this.RightLineSensor);
-		rightLight.setLow(this.LeftLineSensor);
+		try {
+		    Thread.sleep(1000);
+		}
+		catch(InterruptedException e){
+			e.printStackTrace();
+		}
+		leftLight.setLow(this.LeftLineSensor);
+		rightLight.setLow(this.RightLineSensor);
 	}
 	
 	public void showSensorData() {

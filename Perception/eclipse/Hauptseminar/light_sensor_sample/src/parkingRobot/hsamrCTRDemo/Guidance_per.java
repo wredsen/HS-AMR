@@ -35,7 +35,7 @@ import lejos.nxt.LCD;
  * It is important that data witch is accessed by more than one main module class thread is only handled in a
  * synchronized context to avoid inconsistent or corrupt data!
  */
-public class Perception {
+public class Guidance_per {
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -207,7 +207,7 @@ public class Perception {
 	 * @return actual state of the main finite state machine
 	 */
 	public static CurrentStatus getCurrentStatus(){
-		return Perception.currentStatus;
+		return Guidance_per.currentStatus;
 	}
 	
 	/**

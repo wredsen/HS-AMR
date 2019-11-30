@@ -3,6 +3,7 @@ package parkingRobot.hsamr1;
 import lejos.nxt.Button;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
+import lejos.robotics.navigation.Pose;
 import parkingRobot.IControl;
 import parkingRobot.IControl.*;
 import parkingRobot.hsamr1.ControlRST_Ver11;
@@ -45,7 +46,10 @@ public class Guidance_Ver11 {
 		/**
 		 * indicates that robot is following the line and maybe detecting parking slots
 		 */
-		DRIVING,
+		DRIVING1,
+		
+		
+		DRIVING2,
 		/**
 		 * indicates that robot is performing an parking maneuver
 		 */
@@ -107,8 +111,9 @@ public class Guidance_Ver11 {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
-        currentStatus = CurrentStatus.DRIVING;
+        currentStatus = CurrentStatus.DRIVING1;
         lastStatus    = CurrentStatus.EXIT;
+    
 		
 		// Generate objects
 		
@@ -129,14 +134,19 @@ public class Guidance_Ver11 {
 		while(true) {
 			//showData(navigation, perception);
 			LCD.clear();
+		    LCD.drawString("Winkel" + Math.toDegrees(navigation.getPose().getHeading()), 0, 3);
+		    LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 4);
+			LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 5);
 			
         	switch ( currentStatus )
         	{
-				case DRIVING:
+        		
+				case DRIVING1:
 					
 					
 					//Into action
-					if ( lastStatus != CurrentStatus.DRIVING ){
+					if ( lastStatus != CurrentStatus.DRIVING1 ){
+						navigation.setPose(new Pose(0, 0, 0));
 						control.setDriveFor(1.20, 0, 0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
@@ -149,7 +159,64 @@ public class Guidance_Ver11 {
 					//showData_linesensor(perception);
 					
 					//State transition check
-					currentStatus = CurrentStatus.DRIVING;
+					currentStatus = CurrentStatus.DRIVING1;
+				    lastStatus = currentStatus;
+				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
+				    	currentStatus = CurrentStatus.TURN_CCW;
+				    	Thread.sleep(500);
+				    }
+					
+				    
+					if ( Button.ENTER.isDown() ){
+	  	        		currentStatus = CurrentStatus.INACTIVE;
+						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+					}else if ( Button.ESCAPE.isDown() ){
+						currentStatus = CurrentStatus.EXIT;
+						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+					}
+				    
+					//Leave action
+					if ( currentStatus != CurrentStatus.DRIVING1 ){
+						//nothing to do here
+					}
+					break;	
+				
+				case TURN_CCW:
+					//Into action
+					if ( lastStatus != CurrentStatus.TURN_CCW ){
+						navigation.setPose(new Pose(0, 0, 0));
+						control.setDriveFor(0, 0, Math.toRadians(90), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
+						control.setCtrlMode(ControlMode.SETPOSE);
+					}
+					
+					//State transition check
+					currentStatus = CurrentStatus.TURN_CCW;
+				    lastStatus = currentStatus;
+				    if ((control.getCtrlMode() == ControlMode.INACTIVE)) {
+				    	currentStatus = CurrentStatus.DRIVING2;
+				    	Thread.sleep(500);
+				    }
+				    
+					
+					break;	
+					
+				case DRIVING2:
+					//Into action
+					if ( lastStatus != CurrentStatus.DRIVING2 ){
+						navigation.setPose(new Pose(0, 0, 0));
+						control.setDriveFor(0.3, 0, 0, 5, 0, navigation.getPose());	// 0,3m @ 5cm/s
+						control.setCtrlMode(ControlMode.SETPOSE);
+						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
+						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
+					}
+					
+					
+					//While action				
+						
+					//showData_linesensor(perception);
+					
+					//State transition check
+					currentStatus = CurrentStatus.DRIVING2;
 				    lastStatus = currentStatus;
 				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
 				    	currentStatus = CurrentStatus.TURN_CW;
@@ -166,39 +233,21 @@ public class Guidance_Ver11 {
 					}
 				    
 					//Leave action
-					if ( currentStatus != CurrentStatus.DRIVING ){
+					if ( currentStatus != CurrentStatus.DRIVING2 ){
 						//nothing to do here
 					}
 					break;	
-				
+					
 				case TURN_CW:
 					//Into action
 					if ( lastStatus != CurrentStatus.TURN_CW ){
-						control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(40), navigation.getPose()); // 90deg @ 15deg/s
+						navigation.setPose(new Pose(0, 0, 0));
+						control.setDriveFor(0, 0, Math.toRadians(-90), 0, Math.toRadians(-90), navigation.getPose()); // -90deg @ -30deg/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 					}
 					
 					//State transition check
 					currentStatus = CurrentStatus.TURN_CW;
-				    lastStatus = currentStatus;
-				    if ((control.getCtrlMode() == ControlMode.INACTIVE)) {
-				    	currentStatus = CurrentStatus.TURN_CCW;
-				    	Thread.sleep(500);
-				    }
-				    
-				    LCD.drawString("Winkel" + Math.toDegrees(navigation.getPose().getHeading()), 0, 3);
-						
-					break;
-					
-				case TURN_CCW:
-					//Into action
-					if ( lastStatus != CurrentStatus.TURN_CCW ){
-						control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
-						control.setCtrlMode(ControlMode.SETPOSE);
-					}
-					
-					//State transition check
-					currentStatus = CurrentStatus.TURN_CCW;
 				    lastStatus = currentStatus;
 				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
 				    	currentStatus = CurrentStatus.INACTIVE;
@@ -224,7 +273,7 @@ public class Guidance_Ver11 {
 					lastStatus = currentStatus;
 							
 					if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.DRIVING;
+						currentStatus = CurrentStatus.DRIVING1;
 						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;

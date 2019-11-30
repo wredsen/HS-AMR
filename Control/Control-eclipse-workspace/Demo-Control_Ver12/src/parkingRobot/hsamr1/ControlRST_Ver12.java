@@ -344,7 +344,7 @@ public class ControlRST_Ver12 implements IControl {
     	
     	leftMotor.forward();
 		rightMotor.forward();
-		PID_Ver12 lineFollowPIDSlow = new PID_Ver12(0, SAMPLETIME, 0.3, 0.0, 0.15, 999999, true);	// D: 0.09
+		PID_Ver12 lineFollowPIDSlow = new PID_Ver12(0, SAMPLETIME, 0.3, 0.0, 0.13, 999999, true);	// D: 0.09
 		double desiredVelocity = 7;
 		int lineControlSlow = (int) lineFollowPIDSlow.runControl(this.lineSensorLeft - this.lineSensorRight);
 		drive(desiredVelocity, 0, lineControlSlow);

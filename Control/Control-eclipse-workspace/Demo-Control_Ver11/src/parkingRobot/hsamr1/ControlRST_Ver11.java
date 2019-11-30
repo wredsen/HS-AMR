@@ -78,7 +78,7 @@ public class ControlRST_Ver11 implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-	final double SAMPLETIME = 0.024; // in seconds
+	final double SAMPLETIME = 0.032; // in seconds
 	final double WHEELDIA = 56; // in mm
 	final double WHEELDISTANCE = 150; // in mm
 	
@@ -344,8 +344,8 @@ public class ControlRST_Ver11 implements IControl {
     	
     	leftMotor.forward();
 		rightMotor.forward();
-		PID_Ver11 lineFollowPIDSlow = new PID_Ver11(0, SAMPLETIME, 0.6, 0.0, 0.16, 999999, true);	// D: 0.09
-		double desiredVelocity = 6;
+		PID_Ver11 lineFollowPIDSlow = new PID_Ver11(0, SAMPLETIME, 0.3, 0.0, 0.15, 999999, true);	// D: 0.09
+		double desiredVelocity = 7;
 		int lineControlSlow = (int) lineFollowPIDSlow.runControl(this.lineSensorLeft - this.lineSensorRight);
 		drive(desiredVelocity, 0, lineControlSlow);
 		//LCD.clear();
@@ -396,8 +396,8 @@ public class ControlRST_Ver11 implements IControl {
 		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
 		
 		/* Vorsteuerung*/
-		desiredRPMLeft = (0.5*desiredVelocity-(desiredAngularVelocity*(WHEELDISTANCE/2)/(2*10)))/((WHEELDIA/2)*Math.PI/(10.0*60.0));
-		desiredRPMRight = (0.5*desiredVelocity+(desiredAngularVelocity*(WHEELDISTANCE/2)/(2*10)))/((WHEELDIA/2)*Math.PI/(10.0*60.0)); 
+		desiredRPMLeft = (desiredVelocity-(desiredAngularVelocity*(WHEELDISTANCE/2)/10))/(WHEELDIA*Math.PI/(10.0*60.0));
+		desiredRPMRight = (desiredVelocity+(desiredAngularVelocity*(WHEELDISTANCE/2)/10))/(WHEELDIA*Math.PI/(10.0*60.0)); 
 		desiredPowerLeft = (int) (0.71270 * desiredRPMLeft + 9.0397);
 		desiredPowerRight = (int) (0.81097 * desiredRPMRight + 9.12246);
 		
@@ -428,8 +428,9 @@ public class ControlRST_Ver11 implements IControl {
 	}
 }
 
-/*	geändert: ThradSleeps angepasst, PID ADRW geändert, vorher e1-e2
+/*	geändert: ThreadSleeps angepasst, PID ADRW geändert, vorher e1-e2
  * 
  * TODO: 	mehr D im linefollow
  * 			Transition von Driving in TURNING kontrollieren
+ * 			Regelausgang bei drive(..,omega,control) in omega packen 
  */

@@ -25,6 +25,8 @@ public interface INavigation {
 	 */
 	public void setMap(Line[] map);
 	
+	
+	public void setPose(Pose pose);
 	/**
 	 * switches parking slot detection on or off. While a parking maneuver active parking slot detection can lead to unexpected
 	 * parking slot initializations or measurements. The detection should only be activated while the robot is in an explicit

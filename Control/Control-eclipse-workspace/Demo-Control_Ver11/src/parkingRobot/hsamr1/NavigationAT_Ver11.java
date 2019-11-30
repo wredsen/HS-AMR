@@ -113,7 +113,7 @@ public class NavigationAT_Ver11 implements INavigation{
 	/**
 	 * robot specific constant: distance between wheels
 	 */
-	static final double WHEEL_DISTANCE		= 	0.114; // only rough guess, to be measured exactly and maybe refined by experiments
+	static final double WHEEL_DISTANCE		= 	0.15; // only rough guess, to be measured exactly and maybe refined by experiments
 
 	
 	/**
@@ -171,6 +171,11 @@ public class NavigationAT_Ver11 implements INavigation{
 	public void setMap(Line[] map){
 		this.map = map;
 	}
+	
+	public void setPose(Pose pose) {
+		this.pose = pose; 
+	}
+	
 	/* (non-Javadoc)
 	 * @see parkingRobot.INavigation#setDetectionState(boolean)
 	 */

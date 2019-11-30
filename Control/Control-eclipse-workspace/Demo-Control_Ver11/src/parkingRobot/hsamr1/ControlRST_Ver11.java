@@ -258,7 +258,7 @@ public class ControlRST_Ver11 implements IControl {
 
     private void exec_SETPOSE_ALGO(){
     	
-    	PID_Ver11 omegaPID = new PID_Ver11(0, SAMPLETIME, 0.3, 0, 0.1, 2, false);
+    	PID_Ver11 omegaPID = new PID_Ver11(0, SAMPLETIME, 6, 0, 0.02, 0, false); // 0.3, 0, 0.1, 2 // 0.7
     	double signX = Math.signum(this.destination.getX() - this.enteringPosition.getX());
     	double signY = Math.signum(this.destination.getY() - this.enteringPosition.getY());
     	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPosition.getHeading());
@@ -274,34 +274,44 @@ public class ControlRST_Ver11 implements IControl {
     	double omega = this.angularVelocity;
     	double eta;
     	
-    	if ((	signX*(this.destination.getX() - this.currentPosition.getX()) > 0.01 ||
-    			signY*(this.destination.getY() - this.currentPosition.getY()) > 0.01    )
+    	if ((	signX*(this.destination.getX() - this.currentPosition.getX()) > 0.005 ||
+    			signY*(this.destination.getY() - this.currentPosition.getY()) > 0.005    )
     			&& this.velocity != 0) 
     	{
 	    	// Angle for driving to destination point
 	    	double angleCourse = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX());
+	    	// Diff-Angle
 	    	eta = angleCourse - this.currentPosition.getHeading();
 	    	omegaPID.updateDesiredValue(eta);
 	    	
+	    	
+	    	// Translate & Rotate
 	    	if ((signEta*eta >  Math.toRadians(2)) && this.angularVelocity != 0) // only turn
 	    	{
 	    		drive(0,this.angularVelocity, 0);
 	    	}
-	  
-	    	else if (this.velocity != 0)// drive with angle control
+	    	
+	    	// Translate only
+	    	else
 	    	{
+	    		// drive with angle control
 		    	omega = omegaPID.runControl(this.currentPosition.getHeading());
-		 
-		    	RConsole.println("[control] Fehler: " + omega);
 		    	drive(this.velocity,omega, 0);
+		    	LCD.clear(6);
+		    	LCD.drawString("CTR_Error:"+ omega, 0, 6);
 	    	}
     	}
+    	
+    	//	Rotate only
     	else if (signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(2) && this.angularVelocity != 0)
     	{
     		drive(0,this.angularVelocity, 0);
+    		
 	    	// Destination angle
 	    	eta = this.destination.getHeading() - this.currentPosition.getHeading();
     	}
+    	
+    	// stop
     	else {
     		this.setCtrlMode(ControlMode.INACTIVE);
     	}

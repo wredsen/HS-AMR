@@ -67,22 +67,28 @@ public interface INavigation {
 	public boolean getCorner();
 	
 	/**
-	 * Getter method for other modules to get the ID of the corner 
+	 * Getter method for other modules to get the ID of the last corner 
 	 * @return ID of the last detected corner
 	 */
-	public int getCornerNumber();
+	public int getLastCornerNumber();
 	
 	/**
-	 * Getter method for other modules to get next Corner Area the robot will reach
-	 * @return ID of the last detected corner
+	 * Getter method for other modules to get the ID of the next Corner the robot will reach
+	 * @return ID of the next corner
 	 */
-	public int getAreaNumber();
+	public int getNextCornerNumber();
 	
 	/**
 	 * Checks whether the robot is in the near of a corner or not.
 	 * @return safety: true if a corner is close, false if not
 	 */
 	public boolean getCornerArea();
+	
+	/**
+	 * 
+	 * @return corner index
+	 */
+	public int getCornerIndex();
 	
 	/**
 	 * Gives information about the Type of the Corner

@@ -198,12 +198,12 @@ public class Guidance_VS1 {
 					if ( lastStatus != CurrentStatus.INACTIVE ){
 						control.setCtrlMode(ControlMode.INACTIVE);
 						LCD.drawString("Pause!", 0, 0);
-						Thread.sleep(1000);
+						//Thread.sleep(1000);
 					}
 					
 					//While action
 					show_navigation_Data(navigation, perception);
-					
+					LCD.drawString("Pause!", 0, 0);
 					
 					//State transition check
 					lastStatus = currentStatus;
@@ -277,8 +277,9 @@ public class Guidance_VS1 {
 		LCD.drawString("Y   = "+ navigation.getPose().getY(), 0, 2);
 		LCD.drawString("phi = "+  navigation.getPose().getHeading()/Math.PI*180, 0, 3);
 		LCD.drawString("s1  = "+ perception.getFrontSensorDistance(), 0, 4);
-		LCD.drawString("cN  = "+ navigation.getCornerNumber(), 0, 5);
-		LCD.drawString("aN  = "+ navigation.getAreaNumber(), 0, 6);
+		LCD.drawString("lcn  = "+ navigation.getLastCornerNumber(), 0, 5);
+		LCD.drawString("ncn  = "+ navigation.getNextCornerNumber(), 0, 6);
+		LCD.drawString("ci   = "+ navigation.getCornerIndex(), 0, 7);
 		
 		
 	}

@@ -91,10 +91,6 @@ public class NavigationAT_Ver12 implements INavigation{
 	
 	double highLimit = -60;
 	
-	/**
-	 * holds the constant amount of light sensor values in the Linked Lists
-	 */
-	private static int amountOfValues = 200;
 	
 	/**
 	 * Linked List for right light sensor values
@@ -112,14 +108,30 @@ public class NavigationAT_Ver12 implements INavigation{
 	int leftLightSensorValue = 0;
 	
 	/**
-	 * holds the index number of the current/last corner
+	 * holds the index number of the last corner
 	 */
-	private int cornerNumber = 0;
+	private int lastCornerNumber = 0;
 	
 	/**
-	 * holds the index number of the current/last corner area
+	 * holds the index number of the next corner
 	 */
-	private int areaNumber = 0;
+	private int nextCornerNumber = 1;
+	
+	/**
+	 * holds the index number of the current corner area
+	 */
+	private int cornerIndexNumber = 0;
+	
+	/**
+	 * holds the index number of the current corner area
+	 */
+	private int fastAreaIndex = 0;
+	
+	/**
+	* save the last angle check
+	*/
+	private int lastcheck = 0;
+	
 	
 	/**
 	 * line information measured by right light sensor: 0 - beside line, 1 - on line border or gray underground, 2 - on line
@@ -242,8 +254,8 @@ public class NavigationAT_Ver12 implements INavigation{
 		navThread.start();
 		
 		monitor.addNavigationVar("diff");
-		monitor.addNavigationVar("areaNumber");
-		monitor.addNavigationVar("cornerNumber");
+		monitor.addNavigationVar("nextCornerNumber");
+		monitor.addNavigationVar("lastCornerNumber");
 	}
 	
 	
@@ -281,8 +293,18 @@ public class NavigationAT_Ver12 implements INavigation{
 		
 		this.getCorner();
 		
-		monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);	
-		monitor.writeNavigationVar("areaNumber", "" + this.areaNumber);	
+		//calculate index 
+		cornerIndexNumber = cornerIndexNumber % 8;
+		nextCornerNumber = nextCornerNumber % 8;
+		lastCornerNumber = lastCornerNumber % 8;
+		fastAreaIndex = fastAreaIndex % 4;
+		
+		//check methods to reset location
+		checkAreaIndex();
+		checkAngel();
+				
+		monitor.writeNavigationVar("cornerNumber", "" + this.nextCornerNumber);	
+		monitor.writeNavigationVar("nextCornerNumber", "" + this.lastCornerNumber);	
 	}
 	
 	
@@ -304,18 +326,24 @@ public class NavigationAT_Ver12 implements INavigation{
 	
 	public synchronized boolean getCorner() {
 		
-		if (getCornerArea() == true) {
-			if (this.detectCorner()) {
-				cornerNumber++;
+		//check if in corner area and if it is a new area
+		if (getCornerArea() == true && cornerIndexNumber == nextCornerNumber) {
 				
-				if(cornerNumber == areaNumber) {
+			    //special condition for corner 4
+				if(cornerIndexNumber == 4 && this.getPose().getHeading()>=2.8 && this.getPose().getHeading() <= 3.5) {
+					lastCornerNumber++;
+				}
+			
+				//normal condition with sharp sensor
+				if(detectCorner() && cornerIndexNumber != 4) lastCornerNumber++;
+				
+				//override pose depend on current position
+				if(lastCornerNumber == nextCornerNumber) {
 					evaluateCornerDetection();
-					LCD.drawString("ecke erkannt", 0, 6);
 					Sound.beep();
 				
 				return true;
 				}
-			}
 			else return false;
 		}
 		
@@ -328,10 +356,10 @@ public class NavigationAT_Ver12 implements INavigation{
 	 */
 	public boolean detectCorner() {
 		
-		if (perception.getFrontSensorDistance() < 21 && perception.getFrontSensorDistance() > 16 && cornerNumber != 4) {
+		if (perception.getFrontSensorDistance() < 19 && lastCornerNumber != 4) {
 			return true;
 		}
-		else if(perception.getFrontSensorDistance() < 53 && perception.getFrontSensorDistance() > 48 && cornerNumber == 5){
+		else if(perception.getFrontSensorDistance() < 53 && nextCornerNumber == 5){
 			return true;
 		}
 		else {
@@ -339,12 +367,16 @@ public class NavigationAT_Ver12 implements INavigation{
 		}
 	}
 	
-	public synchronized int getCornerNumber() {
-		return cornerNumber;
+	public synchronized int getLastCornerNumber() {
+		return lastCornerNumber;
 	}
 	
-	public synchronized int getAreaNumber() {
-		return areaNumber;
+	public synchronized int getNextCornerNumber() {
+		return nextCornerNumber;
+	}
+	
+	public synchronized int getCornerIndex() {
+		return cornerIndexNumber;
 	}
 	
 	public synchronized boolean getCornerType() {
@@ -355,46 +387,108 @@ public class NavigationAT_Ver12 implements INavigation{
 		boolean area = true;
 		
 		if (mapModus == 1) {
-			if ((this.pose.getX()>=0.10)&&(this.pose.getX()<=1.7)&&(this.pose.getY()<=0.10)) {								
+			if ((this.pose.getX()>=0.10)&&(this.pose.getX()<=1.7)&&(this.pose.getY()<=0.10)) {	
+				fastAreaIndex = 0;
+				area = false;
+			}
+			
+			if ((this.pose.getX()>=1.7)&&(this.pose.getY()>=0.10)&&(this.pose.getY()<=0.50)) {
+				fastAreaIndex = 1;
 				area = false;
 			}
 	
-			if ((this.pose.getX()>=0.4)&&(this.pose.getX()<=1.3)&&(this.pose.getY()<=0.35)) {
+			if ((this.pose.getX()>=0.4)&&(this.pose.getX()<=1.3)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.30)) {
+				fastAreaIndex = 2;
+				area = false;
+			}
+			
+			if ((this.pose.getX()>=0)&&(this.pose.getX()<=0.1)&&(this.pose.getY()>=0.10)&&(this.pose.getY()<=0.50)) {
+				fastAreaIndex = 3;
 				area = false;
 			}
 		}
 		
-		if (mapModus == 2) {
-			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
-				area = true;
-			}
-	
-			if ((this.pose.getX()>=0.60)&&(this.pose.getY()<=0.10)) {
-				area = true;
-			}
 		
-			if ((this.pose.getX()>=0.67)&&(this.pose.getY()>=0.45)) {
-				area = true;
-			}
-		
-			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.45)) {
-				area = true;
-			}
-		
-			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.45)) {
-				area = true;
-			}
-		
-			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.20)&&(this.pose.getY()<=0.45)) {
-				area = true;
-			}
-		}
 		
 		return area;
 	}
 	
-	// Private methods	
+		// Private methods	
+
+	/**
+	*define the cornerIndexNumber for current pose
+	*/
+	private void checkAreaIndex() {
+		
+		if (mapModus == 1) {
+			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10) && cornerIndexNumber != 1) {								
+				cornerIndexNumber = 0;
+			}
 	
+			if ((this.pose.getX()>=1.60)&&(this.pose.getY()<=0.15) && cornerIndexNumber != 2) {
+				cornerIndexNumber = 1;
+			}
+		
+			if ((this.pose.getX()>=1.60)&&(this.pose.getY()>=0.20) && cornerIndexNumber != 3) {
+				cornerIndexNumber = 2;
+			}
+		
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.50) && cornerIndexNumber != 4) {
+				cornerIndexNumber = 3;
+			}
+		
+			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.50) && cornerIndexNumber != 5) {
+				cornerIndexNumber = 4;
+			}
+		
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.50) && cornerIndexNumber != 6) {
+				cornerIndexNumber = 5;
+			}
+		
+			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50) && cornerIndexNumber != 7) {
+				cornerIndexNumber = 6;
+			}
+		
+			if ((this.pose.getX()<=0.20)&&(this.pose.getY()>=0.50) && cornerIndexNumber != 0) {
+				cornerIndexNumber = 7;
+			}
+		}
+		
+	}
+	/**
+	*reset the Angle on the beginning of each fast section
+	*/ 
+	private void checkAngel() {
+		
+		
+		if(lastcheck != fastAreaIndex){
+		
+			//long straight
+		    if (fastAreaIndex == 0) {	
+				this.pose.setHeading((float) (0));
+				lastcheck = 0;
+			}
+	
+		    //shortest straight
+			if (fastAreaIndex == 1) {
+				this.pose.setHeading((float) (0.50*Math.PI));
+				lastcheck = 1;
+			}
+			
+			//short straight
+			if (fastAreaIndex == 2) {
+				this.pose.setHeading((float)(Math.PI));
+				lastcheck = 2;
+			}
+			
+			//shortest straight
+			if (fastAreaIndex == 3) {
+				this.pose.setHeading((float) (1.50*Math.PI));
+				lastcheck = 3;
+			}
+		
+		}
+	}
 	
 	
 	
@@ -403,53 +497,51 @@ public class NavigationAT_Ver12 implements INavigation{
 	 */
 	private void evaluateCornerDetection() {
 		if (mapModus==1) {	
-			switch(cornerNumber)
+			switch(lastCornerNumber)
 				{
 				case 0: 
 						this.pose.setLocation((float)0.00,(float)0.00);
-						this.pose.setHeading((float)0.00);
-						areaNumber = 1;
+						nextCornerNumber = 1;
 					break; 
 				case 1: 
 						this.pose.setLocation((float)1.80,(float)0.00);
-						this.pose.setHeading((float) (0.50*Math.PI));
-						areaNumber = 2;
+						nextCornerNumber = 2;
 					break; 
 				case 2:
 						this.pose.setLocation((float)1.80,(float)0.60);	
-						this.pose.setHeading((float) (Math.PI));
-						areaNumber = 3;
+						
+						nextCornerNumber = 3;
 					break; 
 				case 3: 
 						this.pose.setLocation((float)1.50,(float)0.60);
-						this.pose.setHeading((float) (1.50*Math.PI));
-						areaNumber = 4;
+						
+						nextCornerNumber = 4;
 					break;
 				case 4:
 						this.pose.setLocation((float)1.50,(float)0.30);
-						this.pose.setHeading((float) (Math.PI));
-						areaNumber = 5;
+						
+						nextCornerNumber = 5;
 					break;
 				case 5:
 						this.pose.setLocation((float)0.30,(float)0.30);
-						this.pose.setHeading((float) (0.50*Math.PI));
-						areaNumber = 6;
+						
+						nextCornerNumber = 6;
 					break;
 				case 6:
 						this.pose.setLocation((float)0.30,(float)0.60);
-						this.pose.setHeading((float) (Math.PI));
-						areaNumber = 7;
+						
+						nextCornerNumber = 7;
 					break;
 				case 7:
 						this.pose.setLocation((float)0.00,(float)0.60);
-						this.pose.setHeading((float) (1.50*Math.PI));
-						areaNumber = 0;
+						
+						nextCornerNumber = 0;
 					break;
 				default:
 				}
 		}
 		if (mapModus==2) {
-			switch(this.getCornerNumber())
+			switch(this.getLastCornerNumber())
 			{
 				case 0: 
 						this.pose.setLocation((float)0.00,(float)0.00);

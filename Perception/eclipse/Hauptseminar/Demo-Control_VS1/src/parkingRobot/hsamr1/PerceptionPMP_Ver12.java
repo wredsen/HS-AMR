@@ -1,4 +1,4 @@
-package parkingRobot.hsamrCTRDemo;
+package parkingRobot.hsamr1;
 
 
 //import lejos.nxt.LCD;
@@ -12,7 +12,7 @@ import lejos.nxt.NXTMotor;
 import lejos.nxt.SensorPort;
 
 import parkingRobot.IPerception;
-import parkingRobot.hsamrCTRDemo.PerceptionThread;
+import parkingRobot.hsamr1.PerceptionThread_Ver12;
 import parkingRobot.IMonitor;
 import lejos.nxt.comm.*;
 
@@ -24,7 +24,7 @@ import lejos.nxt.comm.*;
  * 
  * @author PMP
  */
-public class PerceptionPMP implements IPerception {
+public class PerceptionPMP_Ver12 implements IPerception {
 	NXTMotor motorLeft      = null;
 	NXTMotor motorRight     = null;
 	IMonitor monitor = null;
@@ -65,7 +65,7 @@ public class PerceptionPMP implements IPerception {
 	byte[] sendBuffer = {23};
 	int readBytes = 0;
 	
-	PerceptionThread perThread = new PerceptionThread(this);
+	PerceptionThread_Ver12 perThread = new PerceptionThread_Ver12(this);
 
 	/**
 	 * Creates a new {@code PerceptionPMP} module. 
@@ -76,7 +76,7 @@ public class PerceptionPMP implements IPerception {
 	 * @param motorRight reference to the right {@link NXTMotor}-Object
 	 * @param monitor reference to main module Monitor class object
 	 */
-	public PerceptionPMP(NXTMotor motorLeft, NXTMotor motorRight, IMonitor monitor){
+	public PerceptionPMP_Ver12(NXTMotor motorLeft, NXTMotor motorRight, IMonitor monitor){
 		this.motorLeft  = motorLeft;
 		this.motorRight = motorRight;
 		this.monitor = monitor;
@@ -165,7 +165,10 @@ public class PerceptionPMP implements IPerception {
 		catch(InterruptedException e){
 			e.printStackTrace();
 		}
-	
+		/*
+		this.LSrwhite = this.RightLineSensor;
+		this.LSlwhite = this.LeftLineSensor;
+		*/
 		
 		leftLight.setHigh(this.LeftLineSensor);
 		rightLight.setHigh(this.RightLineSensor);

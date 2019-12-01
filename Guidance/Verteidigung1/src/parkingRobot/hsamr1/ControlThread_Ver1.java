@@ -34,7 +34,7 @@ public class ControlThread_Ver1 extends Thread {
         while(true){
         	try{
             	control.exec_CTRL_ALGO();
-	            Thread.sleep(50);
+	            Thread.sleep(20);
         	} catch(InterruptedException ie){	        		
         	}
         }

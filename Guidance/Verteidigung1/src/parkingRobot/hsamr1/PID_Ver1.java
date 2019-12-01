@@ -8,7 +8,8 @@ public class PID_Ver1 {
 	double Kr = 0;
 	double Ki = 0;
 	double Kd = 0;
-	double arw = 99999999;	//Anti-Reset-Windup
+	double AIWR = 99999999;	//Anti-I-Reset-Windup
+	boolean ADWR = false;	//Anti-D-Reset-Windup	
 	
 	double errorValue0 = 0; 
 	double errorValue1 = 0;	//e[k-1]
@@ -22,12 +23,20 @@ public class PID_Ver1 {
 	double c1 = 0;
 	double c2 = 0;
 	
-	double c0w = 0;
-	double c1w = 0;
-	double c2w = 0;
+	double c0i = 0;
+	double c1i = 0;
+	double c2i = 0;
+	
+	double c0d = 0;
+	double c1d = 0;
+	double c2d = 0;
+	
+	double c0id = 0;
+	double c1id = 0;
+	double c2id = 0;
 
 	
-	public PID_Ver1(double desiredValue, double samplePeriod, double Kr, double Ki, double Kd, double arw) {
+	public PID_Ver1(double desiredValue, double samplePeriod, double Kr, double Ki, double Kd, double AIWR, boolean ADWR) {
 		this.desiredValue = desiredValue;
 		this.samplePeriod = samplePeriod;
 		
@@ -35,17 +44,27 @@ public class PID_Ver1 {
 		this.Ki = Ki;
 		this.Kd = Kd;
 		
-		this.arw = arw;
+		this.AIWR = AIWR;
 		
-		// kein Windup
+		// kein Windup/
 		c0 = Kr*(1+(samplePeriod*Ki/2)+(Kd/samplePeriod));
 		c1 = Kr*(-1+(samplePeriod*Ki/2)-2*(Kd/samplePeriod));
 		c2 = Kr*(Kd/samplePeriod);
 		
-		// Windup
-		c0w = Kr*(1+(Kd/samplePeriod));
-		c1w = Kr*(-1-2*(Kd/samplePeriod));
-		c2w = Kr*(Kd/samplePeriod);
+		// I-Windup-Reset
+		c0i = Kr*(1+(Kd/samplePeriod));
+		c1i = Kr*(-1-2*(Kd/samplePeriod));
+		c2i = Kr*(Kd/samplePeriod);
+		
+		// D-Windup-Reset
+		c0d = Kr*(1+(samplePeriod*Ki/2));
+		c1d = Kr*(-1+(samplePeriod*Ki/2));
+		c2d = 0;
+		
+		// I & D -Windup-Reset
+		c0id = Kr;
+		c1id = -1*Kr;
+		c2id = 0;
 		
 	}
 	
@@ -56,12 +75,28 @@ public class PID_Ver1 {
 		errorValue0 = desiredValue - measuredValue;
 		controlOutOld = controlOut;
 		
-		// ARW-Massnahme: noch nicht perfekt
-		if(desiredValue - measuredValue > arw) {
-			controlOut = c0w*errorValue0 + c1w*errorValue1 + c2w*errorValue2 + controlOutOld;	
+		// AIWR-Massnahme: noch nicht perfekt
+		if(ADWR == false) {
+			if(desiredValue - measuredValue > AIWR) {
+				controlOut = c0i*errorValue0 + c1i*errorValue1 + c2i*errorValue2 + controlOutOld;	
+			}
+			else {
+				controlOut = c0*errorValue0 + c1*errorValue1 + c2*errorValue2 + controlOutOld;
+			}
 		}
 		else {
-			controlOut = c0*errorValue0 + c1*errorValue1 + c2*errorValue2 + controlOutOld;		
+			if((desiredValue - measuredValue > AIWR) && (Math.signum(errorValue0) == Math.signum(errorValue2))) {
+				controlOut = c0i*errorValue0 + c1i*errorValue1 + c2i*errorValue2 + controlOutOld;	
+			}
+			else if((desiredValue - measuredValue > AIWR) && (Math.signum(errorValue0) != Math.signum(errorValue2))) {
+				controlOut = c0id*errorValue0 + c1id*errorValue1 + c2id*errorValue2 + controlOutOld;
+			}
+			else if((desiredValue - measuredValue < AIWR) && (Math.signum(errorValue0) == Math.signum(errorValue2))) {
+				controlOut = c0*errorValue0 + c1*errorValue1 + c2*errorValue2 + controlOutOld;
+			}
+			else if((desiredValue - measuredValue < AIWR) && (Math.signum(errorValue0) != Math.signum(errorValue2))) {
+				controlOut = c0d*errorValue0 + c1d*errorValue1 + c2d*errorValue2 + controlOutOld;
+			}		
 			
 		}
 		return controlOut;

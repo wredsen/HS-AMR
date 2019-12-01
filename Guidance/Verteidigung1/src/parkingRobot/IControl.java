@@ -1,6 +1,7 @@
 package parkingRobot;
 
 import lejos.robotics.navigation.Pose;
+import parkingRobot.IControl.ControlMode;
 
 /**
  * interface for the main module 'Control', providing methods for executing the algorithms to
@@ -17,15 +18,14 @@ public interface IControl {
 	 */
 	public enum ControlMode {
 		
-		FAST,
+
 		
-		SLOW,
-		
-		TURN(),
 		/**
 		 * folgt schwarzer Linie
 		 */
-		LINE_CTRL,
+		FAST,
+		
+		SLOW,
 		
 		/**
 		 * einparken
@@ -83,6 +83,7 @@ public interface IControl {
 	
 
 	
+	public void setDriveFor(double x, double y, double phi, double v, double omega, Pose startPose);
 	
 	/**
 	 * set the current control mode
@@ -90,6 +91,8 @@ public interface IControl {
 	 * @param ctrl_mode parameter for control mode which is defined by Guidance 
 	 */
 	public void setCtrlMode(ControlMode ctrl_mode);
+	
+	public ControlMode getCtrlMode();
 	
 	/**
 	 * set start time

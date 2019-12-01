@@ -89,8 +89,8 @@ fit_left = np.polyfit(mean_value_left[:, 3],mean_value_left[:, 0],1)
 fit_right = np.polyfit(mean_value_right[:, 3],mean_value_right[:, 0],1)
 
 #print out function
-print("Left-Motor-RPM: "+str(fit_left[0])+"*PWM +"+str(fit_left[1]))                 
-print("Right-Motor-RPM: "+str(fit_right[0])+"*PWM +"+str(fit_right[1]))
+print("Left-Motor-PWM: "+str(fit_left[0])+"*rpm +"+str(fit_left[1]))                 
+print("Right-Motor-PWM: "+str(fit_right[0])+"*rpm +"+str(fit_right[1]))
 
 #generate plottable function
 func_left = np.poly1d(fit_left)                                                     

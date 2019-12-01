@@ -114,12 +114,9 @@ public class PerceptionPMP_Ver12 implements IPerception {
 	}
 	
 	public int getLeftLineSensorValue(){
-		//the next line gives bin output, remove in the next version
-		//return ((this.LeftLineSensor-this.LSlblack)/(this.LSlwhite-this.LSlblack))*100;
 		if(this.LSlwhite-this.LSlblack == 0) {
-			return getLeftLineSensorValueRaw();	
+			return leftLight.readNormalizedValue();	
 		}
-		//return ((this.LeftLineSensor-this.LSlblack) *100/(this.LSlwhite-this.LSlblack));
 		return leftLight.readValue();
 	}
 	
@@ -130,12 +127,9 @@ public class PerceptionPMP_Ver12 implements IPerception {
 	}
 	
 	public int getRightLineSensorValue(){
-		//the next line gives bin output, remove in the next version
-		//return ((this.RightLineSensor-this.LSrblack)/(this.LSrwhite-this.LSrblack))*100;
 		if(this.LSrwhite-this.LSrblack == 0) {
-			return getRightLineSensorValueRaw();	
+			return rightLight.readNormalizedValue();
 		}
-		//return ((this.RightLineSensor-this.LSrblack) *100/(this.LSrwhite-this.LSrblack));
 		return rightLight.readValue();
 	}
 	
@@ -311,7 +305,6 @@ public class PerceptionPMP_Ver12 implements IPerception {
 
 	private void updateRightLightSensor() {
 		RightLineSensor = rightLight.readNormalizedValue();
-		
 	}
 
 	private void updateLeftEncoderAngle(){

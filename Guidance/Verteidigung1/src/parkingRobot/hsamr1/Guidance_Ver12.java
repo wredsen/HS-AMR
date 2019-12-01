@@ -5,10 +5,6 @@ import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
 import parkingRobot.IControl;
 import parkingRobot.IControl.*;
-import parkingRobot.hsamr1.ControlRST_Ver1;
-import parkingRobot.hsamr1.HmiPLT_Ver1;
-import parkingRobot.hsamr1.NavigationAT_Ver1;
-import parkingRobot.hsamr1.PerceptionPMP_Ver1;
 import parkingRobot.INxtHmi;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
@@ -16,6 +12,13 @@ import parkingRobot.IMonitor;
 
 import lejos.geom.Line;
 import lejos.nxt.LCD;
+
+import parkingRobot.hsamr1.ControlRST_Ver12;
+import parkingRobot.hsamr1.HmiPLT_Ver12;
+import parkingRobot.hsamr1.NavigationAT_Ver12;
+import parkingRobot.hsamr1.PerceptionPMP_Ver12;
+import parkingRobot.hsamr1.Guidance_Ver12.CurrentStatus;
+import parkingRobot.hsamr1.Guidance_Ver12.CurrentStatusDrive;
 
 
 /**
@@ -35,7 +38,7 @@ import lejos.nxt.LCD;
  * It is important that data witch is accessed by more than one main module class thread is only handled in a
  * synchronized context to avoid inconsistent or corrupt data!
  */
-public class Guidance_Ver1 {
+public class Guidance_Ver12 {
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -50,24 +53,29 @@ public class Guidance_Ver1 {
 		 * indicates that robot is performing an parking maneuver
 		 */
 		INACTIVE,
-		
-		
-		TURN_CW,
-		
-		
-		TURN_CCW,
-		
-		
-		LINE_FOLLOW_FAST,
-		
-		
-		LINE_FOLLOW_SLOW,
 		/**
 		 * indicates that shutdown of main program has initiated
 		 */
 		EXIT
 	}
-	
+	/**
+	 * states for the sub finite state machine.
+	 */
+		
+public enum CurrentStatusDrive {
+		/**
+		 * indicates that robot is following the line and maybe detecting parking slots
+		 */
+		FAST,
+		/**
+		 * indicates that robot is performing an parking
+		 */
+		SLOW,
+		/**
+		 * indicates that shutdown of main program has initiated
+		 */
+		TURN
+	}
 	
 	/**
 	 * state in which the main finite state machine is running at the moment
@@ -78,6 +86,15 @@ public class Guidance_Ver1 {
 	 */
 	protected static CurrentStatus lastStatus		= CurrentStatus.INACTIVE;
 	
+	
+	/**
+	 * state in which the main finite state machine is running at the moment
+	 */
+	protected static CurrentStatusDrive currentStatusDrive 	= CurrentStatusDrive.SLOW;
+	/**
+	 * state in which the main finite state machine was running before entering the actual state
+	 */
+	protected static CurrentStatusDrive lastStatusDrive		= CurrentStatusDrive.SLOW;
 	
 	/**
 	 * one line of the map of the robot course. The course consists of a closed chain of straight lines.
@@ -100,6 +117,8 @@ public class Guidance_Ver1 {
 	static Line[] map = {line0, line1, line2, line3, line4, line5, line6, line7};
 	
 	
+	private static boolean turning=false;
+	
 	/**
 	 * main method of project 'ParkingRobot'
 	 * 
@@ -107,7 +126,7 @@ public class Guidance_Ver1 {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
-        currentStatus = CurrentStatus.DRIVING;
+        currentStatus = CurrentStatus.INACTIVE;
         lastStatus    = CurrentStatus.EXIT;
 		
 		// Generate objects
@@ -115,132 +134,96 @@ public class Guidance_Ver1 {
 		NXTMotor leftMotor  = new NXTMotor(MotorPort.B);
 		NXTMotor rightMotor = new NXTMotor(MotorPort.C);
 		
-		IMonitor monitor = new Monitor_Ver1();
+		IMonitor monitor = new Monitor_Ver12();
 		
-		IPerception perception = new PerceptionPMP_Ver1(leftMotor, rightMotor, monitor);
-		//perception.calibrateLineSensors();
+		IPerception perception = new PerceptionPMP_Ver12(leftMotor, rightMotor, monitor);
+		perception.calibrateLineSensors();
 		
-		INavigation navigation = new NavigationAT_Ver1(perception, monitor);
-		IControl    control    = new ControlRST_Ver1(perception, navigation, leftMotor, rightMotor, monitor);
-		//INxtHmi  	hmi        = new HmiPLT(perception, navigation, control, monitor);
+		INavigation navigation = new NavigationAT_Ver12(perception, monitor);
+		IControl    control    = new ControlRST_Ver12(perception, navigation, leftMotor, rightMotor, monitor);
+		INxtHmi  	hmi        = new HmiPLT_Ver12(perception, navigation, control, monitor);
 		
 		monitor.startLogging();
 				
 		while(true) {
-			//showData(navigation, perception);
-			
-			
+			LCD.clear();
+			showData(navigation, perception);
         	switch ( currentStatus )
         	{
 				case DRIVING:
-					
-					
+					// MONITOR (example)
+//					monitor.writeGuidanceComment("Guidance_Driving");
+						
+					//LCD.drawString("DRIVING",0,0);
 					//Into action
-					if ( lastStatus != CurrentStatus.DRIVING ){
-						control.setDriveFor(1.20, 0, 0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
-						control.setCtrlMode(ControlMode.SETPOSE);
-						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
-						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
+					if(lastStatus!=currentStatus) {
+						if(navigation.getCornerArea()==true) {
+							control.setCtrlMode(ControlMode.SLOW);
+						}
+						else {
+							control.setCtrlMode(ControlMode.FAST);
+						}
+						navigation.setDetectionState(true);
+					}
+					//While action	
+					switch(currentStatusDrive)
+					{
+					case SLOW:
+						//LCD.drawString("SLOW",0,1);
+							if(lastStatusDrive!=currentStatusDrive) {
+								control.setCtrlMode(ControlMode.SLOW);
+							}
+							break;
+							
+					case FAST:
+							//Into action
+						//LCD.drawString("FAST",0,1);
+							if(lastStatusDrive!=currentStatusDrive) {
+								control.setCtrlMode(ControlMode.FAST);		
+							}
+							//While action														
+							break;					
+			}
+					
+					//State transition check DRIVE
+					lastStatusDrive = currentStatusDrive;
+					if(navigation.getCornerArea()==false || turning) {
+						currentStatusDrive=CurrentStatusDrive.FAST;						
+						turning=false;
 					}
 					
-					
-					//While action				
-						
-					//showData_linesensor(perception);
-					
+					if(navigation.getCornerArea()==true && (currentStatusDrive!=CurrentStatusDrive.TURN)) {
+						currentStatusDrive=CurrentStatusDrive.SLOW;
+					}
+					/*
+					if(navigation.getCornerArea()==true && navigation.getCorner()==true) {
+						currentStatusDrive=CurrentStatusDrive.TURN;
+					}
+					*/	
+
 					//State transition check
-					currentStatus = CurrentStatus.DRIVING;
-				    lastStatus = currentStatus;
-				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
-				    	currentStatus = CurrentStatus.TURN_CW;
-				    	Thread.sleep(500);
-				    }
-					
-				    
-					if ( Button.ENTER.isDown() ){
-	  	        		currentStatus = CurrentStatus.INACTIVE;
+					lastStatus = currentStatus;
+					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
+						currentStatus = CurrentStatus.INACTIVE;
+					}else if ( Button.ENTER.isDown() ){
+						currentStatus = CurrentStatus.INACTIVE;
 						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;
 						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
+						currentStatus = CurrentStatus.EXIT;
 					}
-				    
+					
 					//Leave action
 					if ( currentStatus != CurrentStatus.DRIVING ){
-						//nothing to do here
+						navigation.setDetectionState(false);
 					}
-					break;	
-				
-				case TURN_CW:
-					//Into action
-					if ( lastStatus != CurrentStatus.TURN_CW ){
-						control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
-						control.setCtrlMode(ControlMode.SETPOSE);
-					}
-					
-					//State transition check
-					currentStatus = CurrentStatus.TURN_CW;
-				    lastStatus = currentStatus;
-				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
-				    	currentStatus = CurrentStatus.TURN_CCW;
-				    	Thread.sleep(500);
-				    }
-						
-					break;
-					
-				case TURN_CCW:
-					//Into action
-					if ( lastStatus != CurrentStatus.TURN_CCW ){
-						control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
-						control.setCtrlMode(ControlMode.SETPOSE);
-					}
-					
-					//State transition check
-					currentStatus = CurrentStatus.TURN_CCW;
-				    lastStatus = currentStatus;
-				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
-				    	currentStatus = CurrentStatus.INACTIVE;
-				    }
-						
-					break;
-					
-				case LINE_FOLLOW_FAST:
-					//Into action
-					if ( lastStatus != CurrentStatus.LINE_FOLLOW_FAST ){
-						control.setCtrlMode(ControlMode.FAST);
-					}
-					
-					//State transition check
-					if (navigation.getCornerArea()==false) {
-						currentStatus = CurrentStatus.LINE_FOLLOW_FAST;
-					}
-					else {
-						currentStatus = CurrentStatus.LINE_FOLLOW_SLOW;
-					}
-					break;
-
-				case LINE_FOLLOW_SLOW:
-					//Into action
-					if ( lastStatus != CurrentStatus.LINE_FOLLOW_SLOW ){
-						control.setCtrlMode(ControlMode.SLOW);
-					}
-					
-					//State transition check
-					if (navigation.getCornerArea()==false) {
-						currentStatus = CurrentStatus.LINE_FOLLOW_FAST;
-					}
-					else {
-						currentStatus = CurrentStatus.LINE_FOLLOW_SLOW;
-					}
-					break;
-					
+					break;				
 				case INACTIVE:
-					
 					//Into action
 					if ( lastStatus != CurrentStatus.INACTIVE ){
 						control.setCtrlMode(ControlMode.INACTIVE);
-						LCD.clear();
-						LCD.drawString("Pause!", 0, 0);
 					}
 					
 					//While action
@@ -248,26 +231,27 @@ public class Guidance_Ver1 {
 						//nothing to do here
 					}
 					
-					
 					//State transition check
 					lastStatus = currentStatus;
-							
-					if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.LINE_FOLLOW_FAST;
+					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
+						currentStatus = CurrentStatus.DRIVING;						
+					}else if ( Button.ENTER.isDown() ){
+						currentStatus = CurrentStatus.DRIVING;
 						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;
 						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
+						currentStatus = CurrentStatus.EXIT;
 					}
 					
 					//Leave action
 					if ( currentStatus != CurrentStatus.INACTIVE ){
 						//nothing to do here
-					}
-									
+					}					
 					break;
 				case EXIT:
-				
+					hmi.disconnect();
 					/** NOTE: RESERVED FOR FUTURE DEVELOPMENT (PLEASE DO NOT CHANGE)
 					// monitor.sendOfflineLog();
 					*/
@@ -278,7 +262,7 @@ public class Guidance_Ver1 {
 				break;
         	}
         		
-        	Thread.sleep(50);        	
+        	Thread.sleep(100);        	
 		}
 	}
 	
@@ -289,7 +273,7 @@ public class Guidance_Ver1 {
 	 * @return actual state of the main finite state machine
 	 */
 	public static CurrentStatus getCurrentStatus(){
-		return Guidance_Ver1.currentStatus;
+		return Guidance_Ver12.currentStatus;
 	}
 	
 	/**
@@ -297,22 +281,22 @@ public class Guidance_Ver1 {
 	 * 
 	 * @param navigation reference to the navigation class for getting pose information
 	 */
-	protected static void showData(INavigation navigation, IPerception perception){
-		LCD.clear();	
+	protected static void showData(INavigation navigation, IPerception perception){	
 		
 		LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 0);
 		LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 1);
 		LCD.drawString("Phi (grd): " + (navigation.getPose().getHeading()/Math.PI*180), 0, 2);
 		
+//		perception.showSensorData();
+		
+//    	if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
+//			LCD.drawString("HMI Mode SCOUT", 0, 3);
+//		}else if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
+//			LCD.drawString("HMI Mode PAUSE", 0, 3);
+//		}else{
+//			LCD.drawString("HMI Mode UNKNOWN", 0, 3);
+//		}
 	}
 	
-	protected static void showData_linesensor(IPerception perception){
-		LCD.clear();	
 		
-		LCD.drawString("left Sensor: " + perception.getLeftLineSensorValueRaw(), 0, 0);
-		LCD.drawString("right Sensor: " + perception.getRightLineSensorValueRaw(), 0, 1);
-		LCD.drawString("s front: " + perception.getFrontSensorDistance(), 0, 2);
-		//LCD.drawString("s side: " + perception.getFrontSideSensorDistance(), 0, 3);
-		
-	}
 }

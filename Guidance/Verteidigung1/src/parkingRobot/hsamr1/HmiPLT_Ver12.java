@@ -20,7 +20,7 @@ import lejos.nxt.comm.Bluetooth;
  * @author PLT
  *
  */
-public class HmiPLT_Ver1 implements INxtHmi{
+public class HmiPLT_Ver12 implements INxtHmi{
 
 	// Perception module (currently unused)
 	IPerception perception;
@@ -96,7 +96,7 @@ public class HmiPLT_Ver1 implements INxtHmi{
 	 * @param control reference to instantiated control module
 	 * @param monitor reference to instantiated monitor module
 	 */
-	public HmiPLT_Ver1 (IPerception perception, INavigation navigation, IControl control, IMonitor monitor) {
+	public HmiPLT_Ver12 (IPerception perception, INavigation navigation, IControl control, IMonitor monitor) {
 		this.perception = perception;
 		this.navigation = navigation;
 		this.control = control;
@@ -104,9 +104,9 @@ public class HmiPLT_Ver1 implements INxtHmi{
 		
 		// Changed from original version!
 		// separate Thread running the input operations of this module. 
-		HmiReaderThread_Ver1 hmiReaderThread = new HmiReaderThread_Ver1(this, monitor);
+		HmiReaderThread_Ver12 hmiReaderThread = new HmiReaderThread_Ver12(this, monitor);
 		// separate Thread running the output operations of this module. 
-		HmiSenderThread_Ver1 hmiSenderThread = new HmiSenderThread_Ver1(this, monitor);
+		HmiSenderThread_Ver12 hmiSenderThread = new HmiSenderThread_Ver12(this, monitor);
 		
 		// Start connect mode (waiting to receive connection request from remote)
 		connect();

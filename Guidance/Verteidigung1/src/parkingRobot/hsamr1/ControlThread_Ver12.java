@@ -1,20 +1,30 @@
 package parkingRobot.hsamr1;
 
-import parkingRobot.IMonitor;
+import parkingRobot.IControl;
 
 /**
- * thread started by the 'Monitor' class for background calculating. For simplification each main module class has its own
+ * thread started by the 'Control' class for background calculating. For simplification each main module class has its own
  * calculation thread calculate all relevant algorithms independent from the other modules. In case of shared data access with
  * other main module classes synchronized access must be guaranteed.
- *
+ * 
  */
-public class MonitorThread_Ver1 extends Thread {
+public class ControlThread_Ver12 extends Thread {
+    
+	/**
+	 * 
+	 */
+	IControl control;
 	
-	IMonitor monitor;
 	
-	MonitorThread_Ver1(IMonitor monitor) {
-		this.monitor = monitor;
-	}
+	/**
+	 * 
+	 * 
+	 * @param perception
+	 */
+	ControlThread_Ver12(IControl control){
+    	this.control = control;
+    }
+	
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Thread#run()
@@ -23,8 +33,8 @@ public class MonitorThread_Ver1 extends Thread {
     public void run() {
         while(true){
         	try{
-            	monitor.run();
-	            Thread.sleep(1);
+            	control.exec_CTRL_ALGO();
+	            Thread.sleep(20);
         	} catch(InterruptedException ie){	        		
         	}
         }

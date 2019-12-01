@@ -18,7 +18,7 @@ import parkingRobot.IMonitor;
  * @author IfA
  *
  */
-public class Monitor_Ver1 implements IMonitor {
+public class Monitor_Ver12 implements IMonitor {
 	
 	
 	// -------------------- Start: USER INPUTS --------------------
@@ -29,7 +29,7 @@ public class Monitor_Ver1 implements IMonitor {
 	static final int TO_COLLECT = 1; // number of log entries that have to be collected AT LEAST before sending
 	int collectCount = 0; // current number of collected log entries
 	
-	MonitorThread_Ver1 monThread = null;
+	MonitorThread_Ver12 monThread = null;
 	NXTDataLogger dlogger = new NXTDataLogger();
 	boolean loggingStarted = false; // boolean that controls whether log entries can be written
 	int startTime; // start time in order to calculate time stamps
@@ -54,7 +54,7 @@ public class Monitor_Ver1 implements IMonitor {
 	/**
 	 * Creates a new Monitor module
 	 */
-	public Monitor_Ver1() {
+	public Monitor_Ver12() {
 		// check mode
 		if(MODE == monitorMode.LOGGING_OFF) {
 			return;
@@ -71,7 +71,7 @@ public class Monitor_Ver1 implements IMonitor {
 			connect();
 		}
 		// create and start monitor thread
-		this.monThread = new MonitorThread_Ver1(this);
+		this.monThread = new MonitorThread_Ver12(this);
 		monThread.setPriority(Thread.MAX_PRIORITY - 2);
 		monThread.setDaemon(true);
 		monThread.start();

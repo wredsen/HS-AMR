@@ -82,13 +82,13 @@ public interface INavigation {
 	 * Gives information about the Type of the current / last corner
 	 * @return true --> detected corner is a left Corner
 	 */
-	public boolean getLeftCorner();
+	//public boolean getLeftCorner();
 	
 	/**
 	 * Gives information about the Type of the current / last corner
 	 * @return true --> detected corner is a right Corner
 	 */
-	public boolean getRightCorner();
+	//ublic boolean getRightCorner();
 	
 	// Subclasses
 	

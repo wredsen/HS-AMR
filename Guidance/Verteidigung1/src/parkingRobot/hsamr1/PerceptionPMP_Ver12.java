@@ -12,7 +12,7 @@ import lejos.nxt.NXTMotor;
 import lejos.nxt.SensorPort;
 
 import parkingRobot.IPerception;
-import parkingRobot.hsamr1.PerceptionThread_Ver1;
+import parkingRobot.hsamr1.PerceptionThread_Ver12;
 import parkingRobot.IMonitor;
 import lejos.nxt.comm.*;
 
@@ -24,7 +24,7 @@ import lejos.nxt.comm.*;
  * 
  * @author PMP
  */
-public class PerceptionPMP_Ver1 implements IPerception {
+public class PerceptionPMP_Ver12 implements IPerception {
 	NXTMotor motorLeft      = null;
 	NXTMotor motorRight     = null;
 	IMonitor monitor = null;
@@ -37,10 +37,10 @@ public class PerceptionPMP_Ver1 implements IPerception {
 	
 	int RightLineSensor		=	0;
 	int LeftLineSensor		=	0;
-	int LSrwhite			=	30; 
-	int LSrblack			=	30;
-	int LSlwhite			=	60; 
-	int LSlblack			=	60;
+	int LSrwhite			=	61; 
+	int LSrblack			=	34;
+	int LSlwhite			=	58; 
+	int LSlblack			=	31;
 
 
 	double UOdmometry		=	0;
@@ -65,7 +65,7 @@ public class PerceptionPMP_Ver1 implements IPerception {
 	byte[] sendBuffer = {23};
 	int readBytes = 0;
 	
-	PerceptionThread_Ver1 perThread = new PerceptionThread_Ver1(this);
+	PerceptionThread_Ver12 perThread = new PerceptionThread_Ver12(this);
 
 	/**
 	 * Creates a new {@code PerceptionPMP} module. 
@@ -76,7 +76,7 @@ public class PerceptionPMP_Ver1 implements IPerception {
 	 * @param motorRight reference to the right {@link NXTMotor}-Object
 	 * @param monitor reference to main module Monitor class object
 	 */
-	public PerceptionPMP_Ver1(NXTMotor motorLeft, NXTMotor motorRight, IMonitor monitor){
+	public PerceptionPMP_Ver12(NXTMotor motorLeft, NXTMotor motorRight, IMonitor monitor){
 		this.motorLeft  = motorLeft;
 		this.motorRight = motorRight;
 		this.monitor = monitor;
@@ -119,7 +119,8 @@ public class PerceptionPMP_Ver1 implements IPerception {
 		if(this.LSlwhite-this.LSlblack == 0) {
 			return getLeftLineSensorValueRaw();	
 		}
-		return ((this.LeftLineSensor-this.LSlblack) *100/(this.LSlwhite-this.LSlblack));
+		//return ((this.LeftLineSensor-this.LSlblack) *100/(this.LSlwhite-this.LSlblack));
+		return leftLight.readValue();
 	}
 	
 	public int getLeftLineSensorValueRaw(){
@@ -134,7 +135,8 @@ public class PerceptionPMP_Ver1 implements IPerception {
 		if(this.LSrwhite-this.LSrblack == 0) {
 			return getRightLineSensorValueRaw();	
 		}
-		return ((this.RightLineSensor-this.LSrblack) *100/(this.LSrwhite-this.LSrblack));
+		//return ((this.RightLineSensor-this.LSrblack) *100/(this.LSrwhite-this.LSrblack));
+		return rightLight.readValue();
 	}
 	
 	public int getRightLineSensorValueRaw(){
@@ -156,8 +158,21 @@ public class PerceptionPMP_Ver1 implements IPerception {
 			updateSensors();
 		}
 		Button.ENTER.waitForPressAndRelease();
+		
+		try {
+		    Thread.sleep(1000);
+		}
+		catch(InterruptedException e){
+			e.printStackTrace();
+		}
+		/*
 		this.LSrwhite = this.RightLineSensor;
 		this.LSlwhite = this.LeftLineSensor;
+		*/
+		
+		leftLight.setHigh(this.LeftLineSensor);
+		rightLight.setHigh(this.RightLineSensor);
+		
 		LCD.clear();
 		LCD.drawString("Kalibriere", 0, 0);
 		LCD.drawString("Liniensensor", 0, 1);
@@ -170,8 +185,14 @@ public class PerceptionPMP_Ver1 implements IPerception {
 			updateSensors();
 		}
 		Button.ENTER.waitForPressAndRelease();
-		this.LSrblack = this.RightLineSensor;
-		this.LSlblack = this.LeftLineSensor;
+		try {
+		    Thread.sleep(1000);
+		}
+		catch(InterruptedException e){
+			e.printStackTrace();
+		}
+		leftLight.setLow(this.LeftLineSensor);
+		rightLight.setLow(this.RightLineSensor);
 	}
 	
 	public void showSensorData() {
@@ -285,11 +306,11 @@ public class PerceptionPMP_Ver1 implements IPerception {
 
 	
 	private void updateLeftLightSensor() {
-		LeftLineSensor = leftLight.getLightValue();
+		LeftLineSensor = leftLight.readNormalizedValue();
 	}
 
 	private void updateRightLightSensor() {
-		RightLineSensor = rightLight.getLightValue();
+		RightLineSensor = rightLight.readNormalizedValue();
 		
 	}
 

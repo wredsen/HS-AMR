@@ -1,14 +1,17 @@
 package parkingRobot.hsamr1;
 
 import lejos.geom.Line;
+import lejos.geom.Point;
 import lejos.nxt.LCD;
 import lejos.nxt.Sound;
 import lejos.robotics.navigation.Pose;
 
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
-import parkingRobot.hsamr1.NavigationThread_Ver1;
-import parkingRobot.hsamr1.Guidance_Ver1;
+import parkingRobot.INavigation.ParkingSlot;
+import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
+import parkingRobot.hsamr1.NavigationThread_Ver12;
+import parkingRobot.hsamr1.Guidance_Ver12;
 import parkingRobot.IMonitor;
 
 import java.util.*;
@@ -24,11 +27,48 @@ import java.util.*;
  * 
  * @author IfA
  */
-public class NavigationAT_Ver1 implements INavigation{
+public class NavigationAT_Ver12 implements INavigation{
 	
-	int mapModus = 1; 	// 1 for real map  / and 2 for small test-map
+	////////////////////////////////////////////////////////////	Variabeln fuer Parklueckenerkennung
+	boolean findslotin1=false;
+	double xRealeFrontPositionParkplatz=0;
+	double yRealeFrontPositionParkplatz=0;
+	double xRealeBackPositionParkplatz=0;
+	double yRealeBackPositionParkplatz=0;
 	
-	////////////////////////////////////////////////////////////	Variabeln für Lokalisierungsauswertung
+	int parkID=0;                                                       //Startwerte fur ParklueckenDetektion
+	ArrayList<ParkingSlot>slotList=new ArrayList<ParkingSlot>();       //private Methode
+	Point backBoundaryPositionA=null;
+	Point backBoundaryPositionB=null;
+	Point frontBoundaryPositionA=null;
+	Point frontBoundaryPositionB=null;
+	Point backBoundaryPosition=null;
+	Point frontBoundaryPosition=null;
+	
+	boolean Long=false;
+	boolean EinparkenSignal=false;
+	
+	int measurementQuality=0;                                                //measurementQuality  Variable
+	double BackboundaryZeit=0;                                          //Variablen fuer QualitaetsBewertung
+	double FrontboundaryZeit=0;
+	double Ecke1Zeit=0;
+	double Ecke2Zeit=0;
+	double Ecke4Zeit=0;
+	double Ecke5Zeit=0;
+	double tSum=0;
+	
+	double Gut=0;
+	double Bad=0;
+	
+	double frontpark=0;
+	double backpark=0;
+	
+	double parkingslotlong=0;
+	INavigation.ParkingSlot[] Slots=null;  
+	////////////////////////////////////////////////////////////
+	int mapModus = 1; 	// 1 for real, big map and 2 for small test-map
+	
+	////////////////////////////////////////////////////////////	Variabeln fuer Lokalisierungsauswertung
 	double angleDiff = 0;													
 	
 	double yDiff = 0;
@@ -54,17 +94,12 @@ public class NavigationAT_Ver1 implements INavigation{
 	/**
 	 * holds the constant amount of light sensor values in the Linked Lists
 	 */
-	private static int amountOfValues = 2;
+	private static int amountOfValues = 200;
 	
 	/**
 	 * Linked List for right light sensor values
 	 */
-	LinkedList<Integer> rightLightSensorList = new LinkedList<Integer>();
-	
-	/**
-	 * Linked List for left light sensor values
-	 */
-	LinkedList<Integer> leftLightSensorList = new LinkedList<Integer>();
+	LinkedList<Float> angleList = new LinkedList<Float>();	
 	
 	/**
 	 * color information measured by right light sensor: 0% --> black , 100% --> white
@@ -77,19 +112,14 @@ public class NavigationAT_Ver1 implements INavigation{
 	int leftLightSensorValue = 0;
 	
 	/**
-	 * indicates whether there is a right corner or not
-	 */
-	boolean rightCorner = false;
-	
-	/**
-	 * indicates whether there is a right corner or not
-	 */
-	boolean leftCorner = false;
-	
-	/**
 	 * holds the index number of the current/last corner
 	 */
 	private int cornerNumber = 0;
+	
+	/**
+	 * holds the index number of the current/last corner area
+	 */
+	private int areaNumber = 0;
 	
 	/**
 	 * line information measured by right light sensor: 0 - beside line, 1 - on line border or gray underground, 2 - on line
@@ -163,7 +193,7 @@ public class NavigationAT_Ver1 implements INavigation{
 	/**
 	 * robot specific constant: distance between wheels
 	 */
-	static final double WHEEL_DISTANCE		= 	0.114; // only rough guess, to be measured exactly and maybe refined by experiments
+	static final double WHEEL_DISTANCE		= 	0.15; // only rough guess, to be measured exactly and maybe refined by experiments
 
 	
 	/**
@@ -190,7 +220,7 @@ public class NavigationAT_Ver1 implements INavigation{
 	/**
 	 * thread started by the 'Navigation' class for background calculating
 	 */
-	NavigationThread_Ver1 navThread = new NavigationThread_Ver1(this);
+	NavigationThread_Ver12 navThread = new NavigationThread_Ver12(this);
 
 	
 	/**
@@ -200,7 +230,7 @@ public class NavigationAT_Ver1 implements INavigation{
 	 * @param perception corresponding main module Perception class object
 	 * @param monitor corresponding main module Monitor class object
 	 */
-	public NavigationAT_Ver1(IPerception perception, IMonitor monitor){
+	public NavigationAT_Ver12(IPerception perception, IMonitor monitor){
 		this.perception   = perception;
 		this.monitor = monitor;
 		this.encoderLeft  = perception.getNavigationLeftEncoder();
@@ -211,11 +241,9 @@ public class NavigationAT_Ver1 implements INavigation{
 		navThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		navThread.start();
 		
-		
-		monitor.addNavigationVar("testvariable1");
-		monitor.addNavigationVar("testvariable2");
-		//monitor.addNavigationVar("cornerNumber");
-		
+		monitor.addNavigationVar("diff");
+		monitor.addNavigationVar("areaNumber");
+		monitor.addNavigationVar("cornerNumber");
 	}
 	
 	
@@ -243,18 +271,25 @@ public class NavigationAT_Ver1 implements INavigation{
 	public synchronized void updateNavigation(){	
 		this.updateSensors();
 		
-		rightLightSensorList.add(rightLightSensorValue);		// adds the current light sensor Values to the lists
-		leftLightSensorList.add(leftLightSensorValue);
+		angleList.add(this.pose.getHeading());		// adds the angle Value to the list
 		
-		if (rightLightSensorList.size()>amountOfValues) {					// deletes old, unnecessary value from lists
-			rightLightSensorList.remove(0);
-			leftLightSensorList.remove(0);
+		if (angleList.size()>amountOfValues) {					// deletes old, unnecessary value from list
+			angleList.remove(0);
 		}
 		
 		if (this.parkingSlotDetectionIsOn)
 				this.detectParkingSlot();		
-		
+		//LCD.drawString("X = "+ this.pose.getX(), 0, 3);
+		//LCD.drawString("Y = "+ this.pose.getY(), 0, 4);
+		//LCD.clear();
+		//LCD.drawString("Cor Num = "+ this.getCornerNumber(), 0, 2);
+		//LCD.drawString("Area Num = "+ this.areaNumber, 0, 4);
 		this.calculateLocation();
+		
+		this.getCorner();
+		
+		monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);	
+		monitor.writeNavigationVar("areaNumber", "" + this.areaNumber);	
 	}
 	
 	
@@ -275,172 +310,77 @@ public class NavigationAT_Ver1 implements INavigation{
 	
 	
 	public synchronized boolean getCorner() {
-		boolean c = false;
 		if (getCornerArea() == true) {
-			c = detectCorner();
-			if (c==true) {
-				evaluateCornerDetection();
+			if (areaNumber!=cornerNumber) {
+				if (this.detectCorner()) {
+					//evaluateCornerDetection();
+					return true;
+				}
+				else return false;
 			}
-			return c;
+			else return false;
 		}
-		else {
-			return false;
-		}
+		else return false;
 	}
 	
-	public synchronized boolean getLeftCorner() {
-		return leftCorner;
+	public synchronized int getCornerNumber() {
+		return cornerNumber;
 	}
-	
-	public synchronized boolean getRightCorner() {
-		return rightCorner;
-	}
-	
 	
 	public synchronized boolean getCornerType() {
-		
-		if (mapModus == 1) {
-			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
-				return true;
-			}
-	
-			if ((this.pose.getX()>=0.65)&&(this.pose.getY()<=0.10)) {
-				return true;
-			}
-		
-			if ((this.pose.getX()>=1.65)&&(this.pose.getY()>=0.45)) {
-				return true;
-			}
-		
-			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.45)) {
-				return true;
-			}
-		
-			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
-				return false;
-			}
-		
-			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
-				return false;
-			}
-		
-			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
-				return true;
-			}
-		
-			if ((this.pose.getX()<=0.1)&&(this.pose.getY()>=0.50)) {
-				return true;
-			}
-		}
-		
-		if (mapModus == 2) {
-			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
-				return true;
-			}
-	
-			if ((this.pose.getX()>=0.60)&&(this.pose.getY()<=0.10)) {
-				return true;
-			}
-		
-			if ((this.pose.getX()>=0.60)&&(this.pose.getY()>=0.45)) {
-				return true;
-			}
-		
-			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.45)) {
-				return true;
-			}
-		
-			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.45)) {
-				return false;
-			}
-		
-			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.20)&&(this.pose.getY()<=0.45)) {
-				return true;
-			}
-		}
 		return false;
 	}
 	
 	public synchronized boolean getCornerArea() {
-		boolean safety = false;
-		rightCorner = false;
-		leftCorner = false;
+		boolean area = true;
 		
 		if (mapModus == 1) {
-			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10)) {								
-				safety = true;
-				leftCorner = true;
+			if ((this.pose.getX()>=0.10)&&(this.pose.getX()<=1.65)&&(this.pose.getY()<=0.10)) {								
+				area = false;
 			}
-	
-			if ((this.pose.getX()>=1.70)&&(this.pose.getY()<=0.10)) {
-				safety = true;
-				leftCorner = true;
+			
+			
+			if ((this.pose.getX()>=1.70)&&(this.pose.getY()<=0.40)&&(this.pose.getY()>=0.15)) {								
+				area = false;
 			}
-		
-			if ((this.pose.getX()>=1.70)&&(this.pose.getY()>=0.40)) {
-				safety = true;
-				leftCorner = true;
+			
+			
+			if ((this.pose.getX()>=0.5)&&(this.pose.getX()<=1.3)&&(this.pose.getY()<=0.35)) {
+				area = false;
 			}
-		
-			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.70)&&(this.pose.getY()>=0.40)) {
-				safety = true;
-				leftCorner = true;
-			}
-		
-			if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.70)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.40)) {
-				safety = true;
-				rightCorner = true;
-			}
-		
-			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.4)) {
-				safety = true;
-				rightCorner = true;
-			}
-		
-			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50)) {
-				safety = true;
-				leftCorner = true;
-			}
-		
-			if ((this.pose.getX()<=0.1)&&(this.pose.getY()>=0.50)) {
-				safety = true;
-				leftCorner = true;
+			
+			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.40)&&(this.pose.getY()>=0.15)) {								
+				area = false;
 			}
 		}
 		
 		if (mapModus == 2) {
 			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
-				safety = true;
-				leftCorner = true;
+				area = true;
 			}
 	
 			if ((this.pose.getX()>=0.60)&&(this.pose.getY()<=0.10)) {
-				safety = true;
-				leftCorner = true;
+				area = true;
 			}
 		
-			if ((this.pose.getX()>=0.60)&&(this.pose.getY()>=0.45)) {
-				safety = true;
-				leftCorner = true;
+			if ((this.pose.getX()>=0.67)&&(this.pose.getY()>=0.45)) {
+				area = true;
 			}
 		
 			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.45)) {
-				safety = true;
-				leftCorner = true;
+				area = true;
 			}
 		
 			if ((this.pose.getX()>=0.35)&&(this.pose.getX()<=0.60)&&(this.pose.getY()>=0.2)&&(this.pose.getY()<=0.45)) {
-				safety = true;
-				rightCorner = true;
+				area = true;
 			}
 		
 			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.20)&&(this.pose.getY()<=0.45)) {
-				safety = true;
-				leftCorner = true;
+				area = true;
 			}
 		}
 		
-		return safety;
+		return area;
 	}
 	
 	// Private methods	
@@ -449,17 +389,21 @@ public class NavigationAT_Ver1 implements INavigation{
 	 * detects corner, determines type of corner and returns boolean value: corner detected --> true ; no corner detected --> false
 	 */
 	public boolean detectCorner() {
-		boolean corner = false;
-		rightCorner = false;
-		leftCorner = false;
-		if (rightLightSensorList.size()>=2) {
-			if (((rightLightSensorList.get(1)-rightLightSensorList.get(0)>=70)||(leftLightSensorList.get(1)-leftLightSensorList.get(0)>=70))) {
+		boolean corner = false;	
+		if (this.angleList.size()>=200) {
+			float diff = this.angleList.get(199)-this.angleList.get(0);			// Setting variables for the screen an monitor output
+
+			monitor.writeNavigationVar("diff", "" + diff);			// Monitor Output
+			
+			if (this.angleList.get(199)-this.angleList.get(0)>= 0.4*Math.PI) {
 				corner = true;
-				Sound.twoBeeps();
+				//Sound.twoBeeps();
 				cornerNumber++;
+				cornerNumber = cornerNumber%8;
+				this.evaluateCornerDetection();
 			}	
 		}
-		return corner;	
+		return corner;
 	}
 	
 	
@@ -467,50 +411,69 @@ public class NavigationAT_Ver1 implements INavigation{
 	 *  evaluates the corner and overwrites the pose if the measured values are meaningful
 	 */
 	private void evaluateCornerDetection() {
+		if (mapModus==1) {	
 			switch(cornerNumber)
-			{
-				case '0': 
-					if (leftCorner=true) {
+				{
+				case 0: 
 						this.pose.setLocation((float)0.00,(float)0.00);
-					}
+						//areaNumber = 1;
 					break; 
-				case '1': 
-					if (leftCorner=true) {
+				case 1: 
 						this.pose.setLocation((float)1.80,(float)0.00);
-					}
+						//areaNumber = 2;
 					break; 
-				case '2':
-					if(leftCorner=true) {
+				case 2:
 						this.pose.setLocation((float)1.80,(float)0.60);	
-					}
+						//areaNumber = 3;
 					break; 
-				case '3': 
-					if(leftCorner=true) {
-						this.pose.setLocation((float)1.50,(float)0.60);	
-					}
+				case 3: 
+						this.pose.setLocation((float)1.50,(float)0.60);
+						//areaNumber = 4;
 					break;
-				case '4':
-					if(rightCorner=true) {
-						this.pose.setLocation((float)1.50,(float)0.30);	
-					}
+				case 4:
+						this.pose.setLocation((float)1.50,(float)0.30);
+						//areaNumber = 5;
 					break;
-				case '5':
-					if(rightCorner=true) {
-						this.pose.setLocation((float)0.30,(float)0.30);	
-					}
+				case 5:
+						this.pose.setLocation((float)0.30,(float)0.30);
+						//areaNumber = 6;
 					break;
-				case '6':
-					if(leftCorner=true) {
-						this.pose.setLocation((float)0.30,(float)0.60);	
-					}
+				case 6:
+						this.pose.setLocation((float)0.30,(float)0.60);
+						//areaNumber = 7;
 					break;
-				case '7':
-					if(leftCorner=true) {
-						this.pose.setLocation((float)0.00,(float)0.60);	
-					}
+				case 7:
+						this.pose.setLocation((float)0.00,(float)0.60);
+						//areaNumber = 0;
 					break;
 				default:
-			}		
+				}
+		}
+		if (mapModus==2) {
+			switch(this.getCornerNumber())
+			{
+				case 0: 
+						this.pose.setLocation((float)0.00,(float)0.00);
+					break; 
+				case 1:
+						Sound.twoBeeps();
+						this.pose.setLocation((float)0.75,(float)0.00);
+					break; 
+				case 2:
+						this.pose.setLocation((float)0.75,(float)0.60);	
+					break; 
+				case 3: 
+						this.pose.setLocation((float)0.45,(float)0.60);	
+					break;
+				case 4:
+						this.pose.setLocation((float)0.45,(float)0.30);	
+					break;
+				case 5:
+						this.pose.setLocation((float)0.00,(float)0.30);		
+					break;
+				default:
+			}
+		}
 	}
 	
 	
@@ -576,17 +539,17 @@ public class NavigationAT_Ver1 implements INavigation{
 			}
 			
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	Lokalisierungsauswertung
-			
+		
 			if(angleResult>=2*Math.PI) {
 				 angleResult= angleResult-2*Math.PI;
 				 //xResult=xResult+0.09;
 				
 				}
 				
-				if(!(Guidance_Ver1.getCurrentStatus() == Guidance_Ver1.CurrentStatus.INACTIVE || 
-				   Guidance_Ver1.getCurrentStatus() == Guidance_Ver1.CurrentStatus.EXIT)){
+				if(!(Guidance_Ver12.getCurrentStatus() == Guidance_Ver12.CurrentStatus.INACTIVE || 
+				   Guidance_Ver12.getCurrentStatus() == Guidance_Ver12.CurrentStatus.EXIT) && (mapModus==1)){
 				//	Linie 1
-					if(this.pose.getX()>=0.05&&this.pose.getX()<=1.75&&this.pose.getY()<0.10) { 
+					if(this.pose.getX()>0.10&&this.pose.getX()<1.70&&this.pose.getY()<0.10) { 
 				    	          
 						    angleDiff=angleResult-0;           //Abweichung korriegieren ohne Einparken bzw Einparken?
 							if(angleDiff>0.1*Math.PI) {
@@ -613,8 +576,9 @@ public class NavigationAT_Ver1 implements INavigation{
 				    		this.pose.setHeading((float)angleResult);
 				    	}
 			     	}
+					/*
 				// Linie 2	
-					if(angleResult>0.3*Math.PI&&angleResult<0.9*Math.PI&&this.pose.getX()>=1.75&&this.pose.getX()<=1.83){
+					if(this.pose.getY()>0.10&&this.pose.getY()<0.50&&this.pose.getX()>1.70&&this.pose.getX()<1.90){
 						xDiff=xResult-1.8;
 																												//Abweichung korriegieren
 						if(xDiff<=-0.005) { 	   																
@@ -632,6 +596,8 @@ public class NavigationAT_Ver1 implements INavigation{
 							this.pose.setHeading((float)angleResult);
 						}
 					}
+					*/
+					/*
 				// Linie 3
 				    if(angleResult>0.9*Math.PI&&angleResult<1.1*Math.PI&&this.pose.getX()>=1.47&&this.pose.getY()>=0.45) {
 				    	yDiff=yResult-0.6;
@@ -669,9 +635,10 @@ public class NavigationAT_Ver1 implements INavigation{
 				    		this.pose.setLocation((float)xResult,(float)yResult);                            
 				    	    this.pose.setHeading((float)angleResult);
 				    	}		   
-				    }				    
+				    }
+				    */			    
 				// Linie 5
-					if(angleResult>0.9*Math.PI&&angleResult<1.1*Math.PI&&this.pose.getX()>=0.3&&this.pose.getX()<1.47&&this.pose.getY()<0.4) {
+					if(this.pose.getX()>0.40&&this.pose.getX()<1.40&&this.pose.getY()>0.20&&this.pose.getY()<0.4) {
 						yDiff=yResult-0.3;                               
 																												//Abweichung korriegieren
 				    	if(yDiff<=-0.005) {
@@ -689,6 +656,7 @@ public class NavigationAT_Ver1 implements INavigation{
 				    	this.pose.setHeading((float)angleResult); 	
 						}
 					}
+					/*
 				// Linie 6
 					   if(angleResult>0.4*Math.PI&&angleResult<0.8*Math.PI&&this.pose.getX()>=0.25&&this.pose.getX()<=0.35) {    
 							  xDiff=xResult-0.3;
@@ -726,9 +694,10 @@ public class NavigationAT_Ver1 implements INavigation{
 						   		this.pose.setLocation((float)xResult,(float)yResult);                            
 						   		this.pose.setHeading((float)angleResult);
 						   	}	 
-					   }					   
+					   }
+					   */					   
 				// Linie 8
-					   if(this.pose.getX()<=0.1&&this.pose.getX()>=-0.1&&angleResult>=1.4*Math.PI&&angleResult<=1.6*Math.PI) {//
+					   if(this.pose.getX()<0.1&&this.pose.getX()>-0.1&&this.pose.getY()>0.10&&this.pose.getY()<0.50) {//
 						   
 					   	   angleDiff=angleResult-1.5*Math.PI;            										//Angle Abweichung korriegieren                  
 					   	   if(angleDiff>0.1*Math.PI) {
@@ -752,7 +721,7 @@ public class NavigationAT_Ver1 implements INavigation{
 					       this.pose.setHeading((float)angleResult);
 					   }					   
 				}
-			
+	
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
 			
 		this.pose.setLocation((float)xResult, (float)yResult);
@@ -762,7 +731,205 @@ public class NavigationAT_Ver1 implements INavigation{
 	/**
 	 * detects parking slots and manage them by initializing new slots, re-characterizing old slots or merge old and detected slots. 
 	 */
+
 	private void detectParkingSlot(){
-		return; // has to be implemented by students
+		
+		if((this.frontSideSensorDistance>45)&&(findslotin1==false)) {                          //BackboundaryPosition
+			
+			
+			if((this.pose.getY()<0.15)&&(this.pose.getHeading() < 0.25*Math.PI)&&(this.pose.getHeading()> -0.2*Math.PI))    //Parklucken Linie1 
+			{
+				xRealeBackPositionParkplatz=this.pose.getX()+0.035-0.0565;
+				yRealeBackPositionParkplatz=this.pose.getY();
+					
+				backBoundaryPosition=new Point((float)xRealeBackPositionParkplatz,(float)yRealeBackPositionParkplatz);
+				findslotin1=true;
+				BackboundaryZeit=tSum;
+				Sound.twoBeeps();
+			}
+			if(this.pose.getX()>1.75 &&(this.pose.getHeading() < 0.6*Math.PI)&&(this.pose.getHeading()> 0.4*Math.PI))     //Parklucken Linie2
+			{
+				
+				xRealeBackPositionParkplatz=this.pose.getX();
+				yRealeBackPositionParkplatz=this.pose.getY()+0.035-0.0565;
+					
+				backBoundaryPosition=new Point((float)xRealeBackPositionParkplatz,(float)yRealeBackPositionParkplatz);
+				findslotin1=true;
+				BackboundaryZeit=tSum;
+				Sound.twoBeeps();
+			}
+			if((this.pose.getX()<=1.28)&&(this.pose.getX()>=0.45)&&(this.pose.getY()>=0.25)&&(this.pose.getHeading() < 1.1*Math.PI)&&(this.pose.getHeading()> 0.9*Math.PI))     //Parklucken  Linie 5
+			{
+				
+				xRealeBackPositionParkplatz=this.pose.getX()-0.035+0.0565;
+				yRealeBackPositionParkplatz=this.pose.getY();	
+					
+				backBoundaryPosition=new Point((float)xRealeBackPositionParkplatz,(float)yRealeBackPositionParkplatz);
+				findslotin1=true;
+				BackboundaryZeit=tSum;
+				Sound.twoBeeps();
+			}
+			
+		}
+		
+		if ((findslotin1==true)&&(this.frontSideSensorDistance<15))         //frontBoundaryPosition
+		
+		{
+			if((this.pose.getHeading() < 0.25*Math.PI)&&(this.pose.getHeading()> -0.2*Math.PI)&&(this.pose.getY()<0.15))    //Parklucken Linie1
+			{
+				xRealeFrontPositionParkplatz=this.pose.getX()+0.035-0.0565;
+				yRealeFrontPositionParkplatz=this.pose.getY();
+				
+				frontBoundaryPosition= new Point((float)xRealeFrontPositionParkplatz,(float)yRealeFrontPositionParkplatz);
+				FrontboundaryZeit=tSum;
+				findslotin1=false;
+				Long=true;	
+				measurementQuality=(int)(100-(FrontboundaryZeit+BackboundaryZeit)*100/2*Ecke1Zeit);               //Parklucken measurementQualitat
+				Sound.beep();
+			}
+			if(this.pose.getX()>1.75&&(this.pose.getHeading() < 0.6*Math.PI)&&(this.pose.getHeading()> 0.4*Math.PI))     //Parklucken Linie2
+			{
+				
+				xRealeFrontPositionParkplatz=this.pose.getX();
+				yRealeFrontPositionParkplatz=this.pose.getY()+0.035-0.0565;
+				
+				frontBoundaryPosition= new Point((float)xRealeFrontPositionParkplatz,(float)yRealeFrontPositionParkplatz);
+				FrontboundaryZeit=tSum;
+				findslotin1=false;
+				Long=true;
+				measurementQuality=(int)(100-(FrontboundaryZeit+BackboundaryZeit-2*Ecke1Zeit)*100/2*(Ecke2Zeit-Ecke1Zeit));       //Parklucken measurementQualitat
+				Sound.beep();
+			}
+			if((this.pose.getX()<=1.28)&&(this.pose.getX()>=0.45)&&(this.pose.getY()>=0.25)&&(this.pose.getY()>=0.25)&&(this.pose.getHeading() < 1.1*Math.PI)&&(this.pose.getHeading()> 0.9*Math.PI))    //Parklucken  Linie 5
+			{
+				
+				xRealeFrontPositionParkplatz=this.pose.getX()-0.035+0.0565;
+				yRealeFrontPositionParkplatz=this.pose.getY();	
+				
+				frontBoundaryPosition= new Point((float)xRealeFrontPositionParkplatz,(float)yRealeFrontPositionParkplatz);
+				FrontboundaryZeit=tSum;
+				findslotin1=false;
+				Long=true;
+				measurementQuality=(int)(100-(FrontboundaryZeit+BackboundaryZeit-2*Ecke4Zeit)*100/2*(Ecke5Zeit-Ecke4Zeit));       //Parklucken measurementQualitat
+				Sound.beep();
+			}
+			}
+			
+		if(slotList.size() > 0) {
+			boolean parkplatzVorhanden = false;
+			if(this.pose.getX()>1.75&&(this.pose.getHeading() < 0.6*Math.PI)) 
+			{
+				for(int i =0; i<slotList.size();i++) {
+					ParkingSlot parkingSlot = slotList.get(i);
+					double xBackAktuell = this.backBoundaryPosition.getX(); //Speichert aktuell gemessenen X-Wert der Backboundary
+					double yBackAktuell = this.backBoundaryPosition.getY(); //Speichert aktuell gemessenen Y-Wert der Backboundary
+					double xFrontAktuell = this.frontBoundaryPosition.getX(); //Speichert aktuell gemessenen X-Wert der frontBoundaryPosition
+					double yFrontAktuell = this.frontBoundaryPosition.getY(); //Speichert aktuell gemessenen Y-Wert der frontBoundaryPosition
+					
+					double xBackListe = parkingSlot.getBackBoundaryPosition().getX(); //Speichert den X-Wert vom Parkplatz in der Datenbank
+					double yBackListe = parkingSlot.getBackBoundaryPosition().getY(); //Speichert den Y-Wert vom Parkplatz in der Datenbank
+					double xFrontListe = parkingSlot.getFrontBoundaryPosition().getX(); //Speichert den X-Wert vom Parkplatz in der Datenbank
+					double yFrontListe = parkingSlot.getFrontBoundaryPosition().getY(); //Speichert den Y-Wert vom Parkplatz in der Datenbank
+					
+					if(((xBackAktuell - 0.02) <= xBackListe) && (xBackListe <= (xBackAktuell + 0.02))){
+						//parkplatzVorhanden = true;
+					}
+					
+					if(((yBackAktuell - 0.01) <= yBackListe) && (yBackListe <= (yBackAktuell + 0.01))){
+						parkplatzVorhanden = true;
+					}
+					
+					if(((xFrontAktuell - 0.01) <= xFrontListe) && (xFrontListe <= (xFrontAktuell + 0.01))){
+						//parkplatzVorhanden = true;
+					}
+					
+					if(((yFrontAktuell - 0.01) <= yFrontListe) && (yFrontListe <= (yFrontAktuell + 0.01))){
+						parkplatzVorhanden = true;
+					}
+					
+				}
+			}else {
+			for(int i =0; i<slotList.size();i++) {
+				ParkingSlot parkingSlot = slotList.get(i);
+				double xBackAktuell = this.backBoundaryPosition.getX(); //Speichert aktuell gemessenen X-Wert der Backboundary
+				double yBackAktuell = this.backBoundaryPosition.getY(); //Speichert aktuell gemessenen Y-Wert der Backboundary
+				double xFrontAktuell = this.frontBoundaryPosition.getX(); //Speichert aktuell gemessenen X-Wert der frontBoundaryPosition
+				double yFrontAktuell = this.frontBoundaryPosition.getY(); //Speichert aktuell gemessenen Y-Wert der frontBoundaryPosition
+				
+				double xBackListe = parkingSlot.getBackBoundaryPosition().getX(); //Speichert den X-Wert vom Parkplatz in der Datenbank
+				double yBackListe = parkingSlot.getBackBoundaryPosition().getY(); //Speichert den Y-Wert vom Parkplatz in der Datenbank
+				double xFrontListe = parkingSlot.getFrontBoundaryPosition().getX(); //Speichert den X-Wert vom Parkplatz in der Datenbank
+				double yFrontListe = parkingSlot.getFrontBoundaryPosition().getY(); //Speichert den Y-Wert vom Parkplatz in der Datenbank
+				
+				if(((xBackAktuell - 0.02) <= xBackListe) && (xBackListe <= (xBackAktuell + 0.02))){
+					parkplatzVorhanden = true;
+				}
+				
+				if(((yBackAktuell - 0.02) <= yBackListe) && (yBackListe <= (yBackAktuell + 0.02))){
+					//parkplatzVorhanden = true;
+				}
+				
+				if(((xFrontAktuell - 0.02) <= xFrontListe) && (xFrontListe <= (xFrontAktuell + 0.02))){
+					parkplatzVorhanden = true;
+				}
+				
+				if(((yFrontAktuell - 0.02) <= yFrontListe) && (yFrontListe <= (yFrontAktuell + 0.02))){
+				//	parkplatzVorhanden = true;
+				}
+			}
+				
+				if(parkplatzVorhanden == false) {
+					parkplatzHinzufuegen();
+				}
+			}
+		}
+		else {
+			//einfach Parkplatz hinzufuegen
+			parkplatzHinzufuegen();
+		}
+	}
+	
+	void parkplatzHinzufuegen() {
+		
+		if(Long==true) {
+			
+			frontpark=Math.abs(this.frontBoundaryPosition.getX())+Math.abs(this.frontBoundaryPosition.getY());
+			backpark=Math.abs(this.backBoundaryPosition.getX())+Math.abs(this.frontBoundaryPosition.getY());
+			parkingslotlong=frontpark-backpark;                                //Parkluckenlange
+			parkID++;
+			
+			if(parkingslotlong<0) {
+				parkingslotlong=-parkingslotlong;
+			}
+			if(parkingslotlong>=0.45) {                                       //ParkluckenBewertung
+				ParkingSlotStatus status=ParkingSlotStatus.SUITABLE_FOR_PARKING;	
+				ParkingSlot parkingSlots=new ParkingSlot(parkID,frontBoundaryPosition,backBoundaryPosition,status,measurementQuality);
+				slotList.add(parkingSlots);                                    //Datenbank  
+				
+				Slots = new ParkingSlot[slotList.size()];
+				for (int i=0;i<slotList.size();i++) {
+					Slots[i] = slotList.get(i);
+				}
+			
+				Gut=1;
+				Bad=0;
+			}
+			
+			if(parkingslotlong<0.45) {                                    //ParkluckenBewertung
+				ParkingSlotStatus status=ParkingSlotStatus.NOT_SUITABLE_FOR_PARKING;
+				ParkingSlot parkingSlots=new ParkingSlot(parkID,frontBoundaryPosition,backBoundaryPosition,status,measurementQuality);
+				slotList.add(parkingSlots);                                //Datenbank
+				
+				Slots = new ParkingSlot[slotList.size()];                      
+				for (int i=0;i<slotList.size();i++) {
+					Slots[i] = slotList.get(i);
+				}
+			
+				Bad=1;
+				Gut=0;
+			}
+				
+			Long = false;
+		}
 	}
 }

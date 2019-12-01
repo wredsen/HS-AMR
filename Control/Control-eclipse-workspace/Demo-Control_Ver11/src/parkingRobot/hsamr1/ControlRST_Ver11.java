@@ -258,7 +258,7 @@ public class ControlRST_Ver11 implements IControl {
 
     private void exec_SETPOSE_ALGO(){
     	
-    	PID_Ver11 omegaPID = new PID_Ver11(0, SAMPLETIME, 6, 0, 0.02, 0, false); // 0.3, 0, 0.1, 2 // 0.7
+    	PID_Ver11 omegaPID = new PID_Ver11(0, SAMPLETIME, 6, 0, 0.01, 0, false); // 0.3, 0, 0.1, 2 // 0.7
     	double signX = Math.signum(this.destination.getX() - this.enteringPosition.getX());
     	double signY = Math.signum(this.destination.getY() - this.enteringPosition.getY());
     	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPosition.getHeading());
@@ -286,7 +286,7 @@ public class ControlRST_Ver11 implements IControl {
 	    	
 	    	
 	    	// Translate & Rotate
-	    	if ((signEta*eta >  Math.toRadians(2)) && this.angularVelocity != 0) // only turn
+	    	if ((signEta*eta >  Math.toRadians(5)) && this.angularVelocity != 0) // only turn
 	    	{
 	    		drive(0,this.angularVelocity, 0);
 	    	}
@@ -303,7 +303,7 @@ public class ControlRST_Ver11 implements IControl {
     	}
     	
     	//	Rotate only
-    	else if (signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(2) && this.angularVelocity != 0)
+    	else if (signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(5) && this.angularVelocity != 0)
     	{
     		drive(0,this.angularVelocity, 0);
     		
@@ -354,7 +354,7 @@ public class ControlRST_Ver11 implements IControl {
     	
     	leftMotor.forward();
 		rightMotor.forward();
-		PID_Ver11 lineFollowPIDSlow = new PID_Ver11(0, SAMPLETIME, 0.3, 0.0, 0.15, 999999, true);	// D: 0.09
+		PID_Ver11 lineFollowPIDSlow = new PID_Ver11(0, SAMPLETIME, 0.3, 0.0, 0.13, 999999, true);	// D: 0.09
 		double desiredVelocity = 7;
 		int lineControlSlow = (int) lineFollowPIDSlow.runControl(this.lineSensorLeft - this.lineSensorRight);
 		drive(desiredVelocity, 0, lineControlSlow);
@@ -381,8 +381,8 @@ public class ControlRST_Ver11 implements IControl {
 		double desiredVelocity = v; // in cm/s
 		double desiredAngularVelocity = omega; // in 1/s
 		
-	    PID_Ver11 leftRPMPID = new PID_Ver11(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //P:0.5, I:0.3
-	    PID_Ver11 rightRPMPID = new PID_Ver11(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //P:0.5, I:0.3
+	    PID_Ver11 leftRPMPID = new PID_Ver11(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //0.6, 0.2, 0.005
+	    PID_Ver11 rightRPMPID = new PID_Ver11(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //0.6, 0.2, 0.005
 	    
 	    int leftControlOut = 0;
 	    int rightControlOut = 0;

@@ -90,11 +90,11 @@ public enum CurrentStatusDrive {
 	/**
 	 * state in which the main finite state machine is running at the moment
 	 */
-	protected static CurrentStatusDrive currentStatusDrive 	= CurrentStatusDrive.FAST;
+	protected static CurrentStatusDrive currentStatusDrive 	= CurrentStatusDrive.SLOW;
 	/**
 	 * state in which the main finite state machine was running before entering the actual state
 	 */
-	protected static CurrentStatusDrive lastStatusDrive		= CurrentStatusDrive.FAST;
+	protected static CurrentStatusDrive lastStatusDrive		= CurrentStatusDrive.SLOW;
 	
 	/**
 	 * one line of the map of the robot course. The course consists of a closed chain of straight lines.
@@ -157,11 +157,18 @@ public enum CurrentStatusDrive {
 					//LCD.drawString("DRIVING",0,0);
 					//Into action
 					if(lastStatus!=currentStatus) {
-						control.setCtrlMode(ControlMode.FAST);
+						control.setCtrlMode(ControlMode.SLOW);
 					}
 					//While action	
 					switch(currentStatusDrive)
 					{
+					case SLOW:
+						//LCD.drawString("SLOW",0,1);
+							if(lastStatusDrive!=currentStatusDrive) {
+								control.setCtrlMode(ControlMode.SLOW);
+							}
+							break;
+							
 					case FAST:
 							//Into action
 						//LCD.drawString("FAST",0,1);
@@ -169,13 +176,7 @@ public enum CurrentStatusDrive {
 								control.setCtrlMode(ControlMode.FAST);		
 							}
 							//While action														
-							break;
-					case SLOW:
-						//LCD.drawString("SLOW",0,1);
-							if(lastStatusDrive!=currentStatusDrive) {
-								control.setCtrlMode(ControlMode.SLOW);
-							}
-							break;
+							break;					
 			}
 					
 					//State transition check DRIVE

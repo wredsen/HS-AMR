@@ -193,7 +193,7 @@ public class NavigationAT_Ver12 implements INavigation{
 	/**
 	 * robot specific constant: distance between wheels
 	 */
-	static final double WHEEL_DISTANCE		= 	0.114; // only rough guess, to be measured exactly and maybe refined by experiments
+	static final double WHEEL_DISTANCE		= 	0.15; // only rough guess, to be measured exactly and maybe refined by experiments
 
 	
 	/**
@@ -335,11 +335,21 @@ public class NavigationAT_Ver12 implements INavigation{
 		boolean area = true;
 		
 		if (mapModus == 1) {
-			if ((this.pose.getX()>=0.10)&&(this.pose.getX()<=1.7)&&(this.pose.getY()<=0.10)) {								
+			if ((this.pose.getX()>=0.10)&&(this.pose.getX()<=1.65)&&(this.pose.getY()<=0.10)) {								
 				area = false;
 			}
-	
-			if ((this.pose.getX()>=0.4)&&(this.pose.getX()<=1.3)&&(this.pose.getY()<=0.35)) {
+			
+			
+			if ((this.pose.getX()>=1.70)&&(this.pose.getY()<=0.40)&&(this.pose.getY()>=0.15)) {								
+				area = false;
+			}
+			
+			
+			if ((this.pose.getX()>=0.5)&&(this.pose.getX()<=1.3)&&(this.pose.getY()<=0.35)) {
+				area = false;
+			}
+			
+			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.40)&&(this.pose.getY()>=0.15)) {								
 				area = false;
 			}
 		}

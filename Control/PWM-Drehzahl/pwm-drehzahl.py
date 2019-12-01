@@ -26,15 +26,15 @@ while i <= 100:
                               k = 1
                               while line[1][-k] != ";":
                                    k+=1
-                              right_meas = float(line[1][-(k-1):])
-                              mean_value_right[(i//10)-1, 1] += right_meas
+                              left_meas = float(line[1][-(k-1):])
+                              mean_value_left[(i//10)-1, 1] += left_meas
 
                               try: 
                                    m = k+1
                                    while line[1][-m] != ";":
                                         m+=1
-                                   left_meas = float(line[1][-(m-1):-(k+1)])
-                                   mean_value_left[(i//10)-1, 1] += left_meas
+                                   right_meas = float(line[1][-(m-1):-(k+1)])
+                                   mean_value_right[(i//10)-1, 1] += right_meas
                               except IndexError:
                                    print('m greater array')
 

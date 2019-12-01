@@ -253,12 +253,10 @@ public class ControlRST_Ver12 implements IControl {
     private void exec_VWCTRL_ALGO(){  
 		this.drive(this.velocity, this.angularVelocity, 0);
 	}
-    
-	// UNBEDINGT REWORKEN: gehackt fuer 1. Verteidigung
 
     private void exec_SETPOSE_ALGO(){
-    	
-    	PID_Ver12 omegaPID = new PID_Ver12(0, SAMPLETIME, 0.3, 0, 0.1, 2, false);
+
+    	PID_Ver12 omegaPID = new PID_Ver12(0, SAMPLETIME, 7, 0, 0.01, 0, false); // 0.3, 0, 0.1, 2 // 0.7
     	double signX = Math.signum(this.destination.getX() - this.enteringPosition.getX());
     	double signY = Math.signum(this.destination.getY() - this.enteringPosition.getY());
     	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPosition.getHeading());
@@ -274,39 +272,34 @@ public class ControlRST_Ver12 implements IControl {
     	double omega = this.angularVelocity;
     	double eta;
     	
-    	if ((	signX*(this.destination.getX() - this.currentPosition.getX()) > 0.01 ||
-    			signY*(this.destination.getY() - this.currentPosition.getY()) > 0.01    )
+    	if ((	signX*(this.destination.getX() - this.currentPosition.getX()) > 0.005 ||
+    			signY*(this.destination.getY() - this.currentPosition.getY()) > 0.005    )
     			&& this.velocity != 0) 
     	{
 	    	// Angle for driving to destination point
 	    	double angleCourse = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX());
+	    	// Diff-Angle
 	    	eta = angleCourse - this.currentPosition.getHeading();
 	    	omegaPID.updateDesiredValue(eta);
 	    	
+	    	
+	    	// Translate & Rotate
 	    	if ((signEta*eta >  Math.toRadians(2)) && this.angularVelocity != 0) // only turn
 	    	{
 	    		drive(0,this.angularVelocity, 0);
 	    	}
-	  
-	    	else if (this.velocity != 0)// drive with angle control
+	    	
+	    	// Translate only
+	    	else
 	    	{
+	    		// drive with angle control
 		    	omega = omegaPID.runControl(this.currentPosition.getHeading());
-		 
-		    	RConsole.println("[control] Fehler: " + omega);
 		    	drive(this.velocity,omega, 0);
+		    	LCD.clear(6);
+		    	LCD.drawString("CTR_Error:"+ omega, 0, 6);
 	    	}
     	}
-    	else if (signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(2) && this.angularVelocity != 0)
-    	{
-    		drive(0,this.angularVelocity, 0);
-	    	// Destination angle
-	    	eta = this.destination.getHeading() - this.currentPosition.getHeading();
-    	}
-    	else {
-    		this.setCtrlMode(ControlMode.INACTIVE);
-    	}
-    	
-	}
+    }
 	
 	/**
 	 * PARKING along the generated path
@@ -330,7 +323,7 @@ public class ControlRST_Ver12 implements IControl {
     	leftMotor.forward();
 		rightMotor.forward();
 		PID_Ver12 lineFollowPIDFast = new PID_Ver12(0, SAMPLETIME, 0.2, 0, 0.05, 999999, false);
-		double desiredVelocity = 15;
+		double desiredVelocity = 20;
 		int lineControlFast = (int) lineFollowPIDFast.runControl(this.lineSensorLeft - this.lineSensorRight);
 		drive(desiredVelocity, 0, lineControlFast);
 		
@@ -430,7 +423,7 @@ public class ControlRST_Ver12 implements IControl {
 
 /*	geändert: ThreadSleeps angepasst, PID ADRW geändert, vorher e1-e2
  * 
- * TODO: 	mehr D im linefollow
+ * TODO: 
  * 			Transition von Driving in TURNING kontrollieren
  * 			Regelausgang bei drive(..,omega,control) in omega packen 
  */

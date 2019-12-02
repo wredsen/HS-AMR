@@ -79,12 +79,12 @@ public class ControlRST_Kin2 implements IControl {
     double currentDistance = 0.0;
     double Distance = 0.0;
     
-	double rpmSampleTime = 0.054; // in seconds
+	double rpmSampleTime = 0.032; // in seconds
 	final double wheelRadius = 56; // in mm
 	
 	PID_Kin2 lineFollowPID = new PID_Kin2(0, rpmSampleTime, 0.2, 0, 0.1, 999999);
     PID_Kin2 leftRPMPID = new PID_Kin2(0, rpmSampleTime, 0.6, 0.2, 0.005, 99999); //P:0.5, I:0.3
-    PID_Kin2 rightRPMPID = new PID_Kin2(0, rpmSampleTime, 0.7, 0.3, 0.005, 99999); //P:0.5, I:0.3
+    PID_Kin2 rightRPMPID = new PID_Kin2(0, rpmSampleTime, 0.6, 0.2, 0.005, 99999); //P:0.5, I:0.3
     
     int leftControlOut = 0;
     int rightControlOut = 0;
@@ -299,8 +299,8 @@ public class ControlRST_Kin2 implements IControl {
 			desiredRPMRight = desiredRPMLeft;
 			
 			// Vorsteuerung 
-			desiredPowerLeft = (int) (0.66242 * desiredRPMLeft + 11.86405);
-			desiredPowerRight = (int) (0.70069 * desiredRPMRight + 15.155);
+			desiredPowerLeft = (int) (0.72762 * desiredRPMLeft + 8.61696);
+			desiredPowerRight = (int) (0.77850 * desiredRPMRight + 8.40402);
 		}
 		
 		/* Steuerung der Rotatorischen Geschwindigkeit */
@@ -326,8 +326,8 @@ public class ControlRST_Kin2 implements IControl {
 		leftControlOut = (int) leftRPMPID.runControl(measuredRPMLeft);
 		rightControlOut = (int) rightRPMPID.runControl(measuredRPMRight);
 		
-		leftMotor.setPower(leftControlOut);
-		rightMotor.setPower(rightControlOut);
+		leftMotor.setPower(30+leftControlOut);
+		rightMotor.setPower(30+rightControlOut);
 		
 		LCD.clear();
 		LCD.drawString("DesRPMLeft:"+desiredRPMLeft, 0, 1);

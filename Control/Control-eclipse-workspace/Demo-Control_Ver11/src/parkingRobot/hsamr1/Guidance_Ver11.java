@@ -111,7 +111,7 @@ public class Guidance_Ver11 {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
-        currentStatus = CurrentStatus.DRIVING1;
+        currentStatus = CurrentStatus.INACTIVE;
         lastStatus    = CurrentStatus.EXIT;
     
 		

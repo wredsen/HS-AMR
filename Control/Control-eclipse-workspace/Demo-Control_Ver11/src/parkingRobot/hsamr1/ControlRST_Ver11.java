@@ -408,8 +408,8 @@ public class ControlRST_Ver11 implements IControl {
 		/* Vorsteuerung*/
 		desiredRPMLeft = (desiredVelocity-(desiredAngularVelocity*(WHEELDISTANCE/2)/10))/(WHEELDIA*Math.PI/(10.0*60.0));
 		desiredRPMRight = (desiredVelocity+(desiredAngularVelocity*(WHEELDISTANCE/2)/10))/(WHEELDIA*Math.PI/(10.0*60.0)); 
-		desiredPowerLeft = (int) (0.71270 * desiredRPMLeft + 9.0397);
-		desiredPowerRight = (int) (0.81097 * desiredRPMRight + 9.12246);
+		desiredPowerLeft = (int) (0.72762 * desiredRPMLeft + 8.61696);
+		desiredPowerRight = (int) (0.77850 * desiredRPMRight + 8.40402);
 		
 			
 		

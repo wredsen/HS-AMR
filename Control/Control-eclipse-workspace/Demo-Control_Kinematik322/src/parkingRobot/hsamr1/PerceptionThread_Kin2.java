@@ -33,7 +33,7 @@ public class PerceptionThread_Kin2 extends Thread {
         while(true){
         	try{
             	perception.updateSensors();
-	            Thread.sleep(50);
+	            Thread.sleep(20);
         	} catch(InterruptedException ie){	        		
         	}
         }

@@ -349,7 +349,7 @@ public class NavigationAT_Ver12 implements INavigation{
 				area = false;
 			}
 			
-			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.40)&&(this.pose.getY()>=0.15)) {								
+			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.35)&&(this.pose.getY()>=0.15)) {								
 				area = false;
 			}
 		}

@@ -10,8 +10,8 @@ import parkingRobot.INavigation;
 import parkingRobot.IPerception;
 import parkingRobot.INavigation.ParkingSlot;
 import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
-import parkingRobot.hsamr1.NavigationThread_Ver1;
-import parkingRobot.hsamr1.Guidance_Ver1;
+import parkingRobot.hsamr1.NavigationThread_Ver12;
+import parkingRobot.hsamr1.Guidance_Ver12;
 import parkingRobot.IMonitor;
 
 import java.util.*;
@@ -27,7 +27,7 @@ import java.util.*;
  * 
  * @author IfA
  */
-public class NavigationAT_Ver1 implements INavigation{
+public class NavigationAT_Ver12 implements INavigation{
 	
 	////////////////////////////////////////////////////////////	Variabeln fuer Parklueckenerkennung
 	boolean findslotin1=false;
@@ -192,7 +192,7 @@ public class NavigationAT_Ver1 implements INavigation{
 	/**
 	 * robot specific constant: distance between wheels
 	 */
-	static final double WHEEL_DISTANCE		= 	0.114; // only rough guess, to be measured exactly and maybe refined by experiments
+	static final double WHEEL_DISTANCE		= 	0.15; // only rough guess, to be measured exactly and maybe refined by experiments
 
 	
 	/**
@@ -219,7 +219,7 @@ public class NavigationAT_Ver1 implements INavigation{
 	/**
 	 * thread started by the 'Navigation' class for background calculating
 	 */
-	NavigationThread_Ver1 navThread = new NavigationThread_Ver1(this);
+	NavigationThread_Ver12 navThread = new NavigationThread_Ver12(this);
 
 	
 	/**
@@ -229,7 +229,7 @@ public class NavigationAT_Ver1 implements INavigation{
 	 * @param perception corresponding main module Perception class object
 	 * @param monitor corresponding main module Monitor class object
 	 */
-	public NavigationAT_Ver1(IPerception perception, IMonitor monitor){
+	public NavigationAT_Ver12(IPerception perception, IMonitor monitor){
 		this.perception   = perception;
 		this.monitor = monitor;
 		this.encoderLeft  = perception.getNavigationLeftEncoder();
@@ -240,10 +240,9 @@ public class NavigationAT_Ver1 implements INavigation{
 		navThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		navThread.start();
 		
+		monitor.addNavigationVar("diff");
+		monitor.addNavigationVar("areaNumber");
 		monitor.addNavigationVar("cornerNumber");
-		monitor.addNavigationVar("X");
-		monitor.addNavigationVar("Y");
-		monitor.addNavigationVar("angle");
 	}
 	
 	
@@ -279,22 +278,17 @@ public class NavigationAT_Ver1 implements INavigation{
 		
 		if (this.parkingSlotDetectionIsOn)
 				this.detectParkingSlot();		
+		//LCD.drawString("X = "+ this.pose.getX(), 0, 3);
+		//LCD.drawString("Y = "+ this.pose.getY(), 0, 4);
+		//LCD.clear();
+		//LCD.drawString("Cor Num = "+ this.getCornerNumber(), 0, 2);
+		//LCD.drawString("Area Num = "+ this.areaNumber, 0, 4);
 		this.calculateLocation();
+		
 		this.getCorner();
 		
-		LCD.clear();
-		LCD.drawString("Area = "+ this.getCornerArea(), 0, 1);
-		LCD.drawString("Cor Num = "+ this.getCornerNumber(), 0, 2);
-		LCD.drawString("X = "+ this.pose.getX(), 0, 3);
-		LCD.drawString("Y = "+ this.pose.getY(), 0, 4);
-		
-		monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);
-		monitor.writeNavigationVar("X", "" + this.pose.getX());
-		monitor.writeNavigationVar("Y", "" + this.pose.getY());
-		monitor.writeNavigationVar("angle", "" + this.pose.getHeading());
-		
-			
-		//monitor.writeNavigationVar("areaNumber", "" + this.areaNumber);	
+		monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);	
+		monitor.writeNavigationVar("areaNumber", "" + this.areaNumber);	
 	}
 	
 	
@@ -310,14 +304,17 @@ public class NavigationAT_Ver1 implements INavigation{
 	 * @see parkingRobot.INavigation#getParkingSlots()
 	 */
 	public synchronized ParkingSlot[] getParkingSlots() {
-		return null;
+		return Slots;
 	}
 	
+	public synchronized int getParkingslotsAmount() {
+		return Slots.length;
+	}
 	
 	public synchronized boolean getCorner() {
 		if (getCornerArea() == true) {
 			if (detectCorner()) {
-				evaluateCornerDetection();
+				//evaluateCornerDetection();
 				return true;
 			}
 			else return false;
@@ -334,39 +331,25 @@ public class NavigationAT_Ver1 implements INavigation{
 	}
 	
 	public synchronized boolean getCornerArea() {
-		boolean area = false;
+		boolean area = true;
 		
 		if (mapModus == 1) {
-			if ((this.pose.getX()<=0.15)&&(this.pose.getY()<=0.15)) {								
-				area = true;
+			if ((this.pose.getX()>=0.10)&&(this.pose.getX()<=1.60)&&(this.pose.getY()<=0.10)) {								
+				area = false;
 			}
-	
-			if ((this.pose.getX()>=1.65)&&(this.pose.getY()<=0.15)) {
-				area = true;
+			
+			
+			if ((this.pose.getX()>=1.70)&&(this.pose.getY()<=0.40)&&(this.pose.getY()>=0.15)) {								
+				area = false;
 			}
-		
-			if ((this.pose.getX()>=1.65)&&(this.pose.getY()>=0.40)) {
-				area = true;
+			
+			
+			if ((this.pose.getX()>=0.55)&&(this.pose.getX()<=1.3)&&(this.pose.getY()<=0.35)) {
+				area = false;
 			}
-		
-			if ((this.pose.getX()>=1.30)&&(this.pose.getX()<=1.65)&&(this.pose.getY()>=0.40)) {
-				area = true;
-			}
-		
-			if ((this.pose.getX()>=1.35)&&(this.pose.getX()<=1.65)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.45)) {
-				area = true;
-			}
-		
-			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.45)) {
-				area = true;
-			}
-		
-			if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.45)) {
-				area = true;
-			}
-		
-			if ((this.pose.getX()<=0.15)&&(this.pose.getY()>=0.45)) {
-				area = true;
+			
+			if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.40)&&(this.pose.getY()>=0.20)) {								
+				area = false;
 			}
 		}
 		
@@ -409,9 +392,9 @@ public class NavigationAT_Ver1 implements INavigation{
 		if (this.angleList.size()>=amountOfValues) {
 			double newFirstValue = angleList.get(0);
 			double newSecondValue = angleList.get((amountOfValues-1));
-			if (Math.abs(newFirstValue - oldFirstValue) >= 0.3*Math.PI) {
-				if (Math.abs(newSecondValue - oldFirstValue) >=0.3*Math.PI) {
-					if (Math.abs(newSecondValue-newFirstValue) >= 0.4*Math.PI) {
+			if (Math.abs(newFirstValue - oldFirstValue) >= 0.27*Math.PI) {
+				if (Math.abs(newSecondValue - oldSecondValue) >=0.27*Math.PI) {
+					if (Math.abs(newSecondValue-newFirstValue) >= 0.34*Math.PI) {
 					oldFirstValue = newFirstValue;
 					oldSecondValue = newSecondValue;
 					cornerNumber++;
@@ -436,58 +419,34 @@ public class NavigationAT_Ver1 implements INavigation{
 				case 0: 
 						this.pose.setLocation((float)0.00,(float)0.00);
 						this.pose.setHeading((float)0.00);
-						//monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);
-						//monitor.writeNavigationVar("X", "" + this.pose.getX());
-						//monitor.writeNavigationVar("Y", "" + this.pose.getY());
 					break; 
 				case 1: 
 						this.pose.setLocation((float)1.80,(float)0.00);
 						this.pose.setHeading((float) (0.50*Math.PI));
-						//monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);
-						//monitor.writeNavigationVar("X", "" + this.pose.getX());
-						//monitor.writeNavigationVar("Y", "" + this.pose.getY());
 					break; 
 				case 2:
 						this.pose.setLocation((float)1.80,(float)0.60);
 						this.pose.setHeading((float) (Math.PI));
-						//monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);
-						//monitor.writeNavigationVar("X", "" + this.pose.getX());
-						//monitor.writeNavigationVar("Y", "" + this.pose.getY());
 					break; 
 				case 3: 
 						this.pose.setLocation((float)1.50,(float)0.60);
 						this.pose.setHeading((float) (1.50*Math.PI));
-						//monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);
-						//monitor.writeNavigationVar("X", "" + this.pose.getX());
-						//monitor.writeNavigationVar("Y", "" + this.pose.getY());
 					break;
 				case 4:
 						this.pose.setLocation((float)1.50,(float)0.30);
 						this.pose.setHeading((float) (Math.PI));
-						//monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);
-						//monitor.writeNavigationVar("X", "" + this.pose.getX());
-						//monitor.writeNavigationVar("Y", "" + this.pose.getY());
 					break;
 				case 5:
 						this.pose.setLocation((float)0.30,(float)0.30);
 						this.pose.setHeading((float) (0.50*Math.PI));
-						//monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);
-						//monitor.writeNavigationVar("X", "" + this.pose.getX());
-						//monitor.writeNavigationVar("Y", "" + this.pose.getY());
 					break;
 				case 6:
 						this.pose.setLocation((float)0.30,(float)0.60);
 						this.pose.setHeading((float) (Math.PI));
-						//monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);
-						//monitor.writeNavigationVar("X", "" + this.pose.getX());
-						//monitor.writeNavigationVar("Y", "" + this.pose.getY());
 					break;
 				case 7:
 						this.pose.setLocation((float)0.00,(float)0.60);
 						this.pose.setHeading((float) (1.50*Math.PI));
-						//monitor.writeNavigationVar("cornerNumber", "" + this.cornerNumber);
-						//monitor.writeNavigationVar("X", "" + this.pose.getX());
-						//monitor.writeNavigationVar("Y", "" + this.pose.getY());
 					break;
 				default:
 				}
@@ -518,7 +477,6 @@ public class NavigationAT_Ver1 implements INavigation{
 			}
 		}
 	}
-	
 	
 	/**
 	 * calls the perception methods for obtaining actual measurement data and writes the data into members
@@ -582,27 +540,25 @@ public class NavigationAT_Ver1 implements INavigation{
 			}
 			
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	Lokalisierungsauswertung
-			
+		
 			if(angleResult>=2*Math.PI) {
 				 angleResult= angleResult-2*Math.PI;
 				 //xResult=xResult+0.09;
 				
 				}
 				
-				if(!(Guidance_Ver1.getCurrentStatus() == Guidance_Ver1.CurrentStatus.INACTIVE || 
-				   Guidance_Ver1.getCurrentStatus() == Guidance_Ver1.CurrentStatus.EXIT) && (mapModus==1)){
+				if(!(Guidance_Ver12.getCurrentStatus() == Guidance_Ver12.CurrentStatus.INACTIVE || 
+				   Guidance_Ver12.getCurrentStatus() == Guidance_Ver12.CurrentStatus.EXIT) && (mapModus==1)){
 				//	Linie 1
-					if(this.pose.getX()>0.15&&this.pose.getX()<1.65&&this.pose.getY()<0.15) { 
+					if(this.pose.getX()>0.10&&this.pose.getX()<1.70&&this.pose.getY()<0.10) { 
 				    	          
 						    angleDiff=angleResult-0;           //Abweichung korriegieren ohne Einparken bzw Einparken?
-							if(angleDiff>0.05*Math.PI) {
+							if(angleDiff>0.1*Math.PI) {
 					    		   angleResult=0;
-					    		   this.pose.setHeading((float)angleResult);
 					    	}
 							
 							if(angleDiff<-0.05*Math.PI) {
 					    		   angleResult=0;
-					    		   this.pose.setHeading((float)angleResult);
 							}
 							
 						yDiff=yResult-0;  																		//Abweichung korriegieren
@@ -621,10 +577,11 @@ public class NavigationAT_Ver1 implements INavigation{
 				    		this.pose.setHeading((float)angleResult);
 				    	}
 			     	}
-				
-				//Linie 2	
-					if(this.pose.getY()>0.15 && this.pose.getY()<0.45 && this.pose.getX()>1.65 && this.pose.getX()<1.90){
-					    
+					
+				// Linie 2	
+					if(this.pose.getY()>0.10&&this.pose.getY()<0.50&&this.pose.getX()>1.70&&this.pose.getX()<1.90){
+						xDiff=xResult-1.8;
+																												//Abweichung korriegieren
 						angleDiff=angleResult-0.5*Math.PI;           
 						if(angleDiff>0.05*Math.PI) {
 				    		   angleResult=0.5*Math.PI;
@@ -635,8 +592,6 @@ public class NavigationAT_Ver1 implements INavigation{
 				    		   angleResult=0.5*Math.PI;
 				    		   this.pose.setHeading((float)angleResult);
 						}
-						
-						xDiff=xResult-1.8;																						//Abweichung korriegieren
 						if(xDiff<=-0.005) { 	   																
 							xResult=1.8; 	   		
 							this.pose.setLocation((float)xResult,(float)yResult);                         
@@ -651,52 +606,9 @@ public class NavigationAT_Ver1 implements INavigation{
 							this.pose.setLocation((float)xResult,(float)yResult);                            
 							this.pose.setHeading((float)angleResult);
 						}
-					}
-					
-				/*	
-				// Linie 3
-				    if(angleResult>0.9*Math.PI&&angleResult<1.1*Math.PI&&this.pose.getX()>=1.47&&this.pose.getY()>=0.45) {
-				    	yDiff=yResult-0.6;
-				    																							//Abweichung korriegieren
-				    	if(yDiff>=0.01) {
-				    		yResult=0.6;
-				    	   this.pose.setLocation((float)xResult,(float)yResult);                         
-				    	   this.pose.setHeading((float)angleResult);
-				    	} 	
-				    	if(yDiff<=-0.01) {
-				    		yResult=0.6;
-					   	    this.pose.setLocation((float)xResult,(float)yResult);                          
-					       	this.pose.setHeading((float)angleResult);
-					   	}
-					    else {                                                									//direkt ausgeben
-						    this.pose.setLocation((float)xResult,(float)yResult);                            
-						    this.pose.setHeading((float)angleResult);
-						}	
-				    }				
-				// Linie 4
-				    if(angleResult>=1.4*Math.PI&&angleResult<1.6*Math.PI&&this.pose.getX()>=1.48&&this.pose.getX()<=1.53) {
-				    	xDiff=xResult-1.5;
-				    																							//Abweichung korriegieren
-				    	if(xDiff>=0.01) {
-				    		xResult=1.5;
-				    		this.pose.setLocation((float)xResult,(float)yResult);                         
-				    	    this.pose.setHeading((float)angleResult);  
-				    	}
-				    	if(xDiff<=-0.01) {
-				    	   	xResult=1.5;
-				    	   	this.pose.setLocation((float)xResult,(float)yResult);                         
-				    	    this.pose.setHeading((float)angleResult);
-				    	}
-				    	else {                                                									//direkt ausgeben
-				    		this.pose.setLocation((float)xResult,(float)yResult);                            
-				    	    this.pose.setHeading((float)angleResult);
-				    	}		   
-				    }
-				    
-				*/	
+					}		    
 				// Linie 5
-					if(this.pose.getX()>0.45 && this.pose.getX()<1.35 && this.pose.getY()>0.20 && this.pose.getY()<0.4) {
-						
+					if(this.pose.getX()>0.40&&this.pose.getX()<1.40&&this.pose.getY()>0.20&&this.pose.getY()<0.4) {
 						angleDiff=angleResult-Math.PI;           
 						if(angleDiff>0.05*Math.PI) {
 				    		   angleResult=Math.PI;
@@ -708,8 +620,8 @@ public class NavigationAT_Ver1 implements INavigation{
 				    		   this.pose.setHeading((float)angleResult);
 						}
 						
-						yDiff=yResult-0.3;                               
-						if(yDiff<=-0.005) {
+						yDiff=yResult-0.3;                               																						//Abweichung korriegieren
+				    	if(yDiff<=-0.005) {
 				    		yResult=0.3;
 					   	    this.pose.setLocation((float)xResult,(float)yResult);                          
 					       	this.pose.setHeading((float)angleResult);	
@@ -723,50 +635,9 @@ public class NavigationAT_Ver1 implements INavigation{
 				    	this.pose.setLocation((float)xResult,(float)yResult);                            
 				    	this.pose.setHeading((float)angleResult); 	
 						}
-					}
-					
-				/*	
-				// Linie 6
-					   if(angleResult>0.4*Math.PI&&angleResult<0.8*Math.PI&&this.pose.getX()>=0.25&&this.pose.getX()<=0.35) {    
-							  xDiff=xResult-0.3;
-							  																					//Abweichung korriegieren
-						   	if(xDiff>=0.01) {
-						   		xResult=0.3;
-						   		this.pose.setLocation((float)xResult,(float)yResult);                         
-						       	this.pose.setHeading((float)angleResult);
-						   	}
-						   	if(xDiff<=-0.01) {
-						   		xResult=0.3;
-						   		this.pose.setLocation((float)xResult,(float)yResult);                         
-						       	this.pose.setHeading((float)angleResult);
-						   	}
-						   	else {                                                								//direkt ausgeben
-						       	this.pose.setLocation((float)xResult,(float)yResult);                            
-						       	this.pose.setHeading((float)angleResult);
-						    }		
-					   }
-				// Linie 7
-					   if(angleResult>0.9*Math.PI&&angleResult<1.1*Math.PI&&this.pose.getX()>0.05&&this.pose.getX()<=0.3) {
-						   yDiff=yResult-0.6;                               
-						   																						//Abweichung korriegieren
-						   	if(yDiff>=0.01) {
-					   	   		yResult=0.6;
-					   	   		this.pose.setLocation((float)xResult,(float)yResult);                         
-					   	   		this.pose.setHeading((float)angleResult);
-					   		} 	
-						   	if(yDiff<=-0.01) {
-						   		yResult=0.6;
-						   		this.pose.setLocation((float)xResult,(float)yResult);                          
-						   		this.pose.setHeading((float)angleResult);	
-						   	}
-						   	else {                                                								//direkt ausgeben
-						   		this.pose.setLocation((float)xResult,(float)yResult);                            
-						   		this.pose.setHeading((float)angleResult);
-						   	}	 
-					   }
-				*/	   					   
+					}  
 				// Linie 8
-					   if(this.pose.getX()<0.1 && this.pose.getX()>-0.1 && this.pose.getY()>0.15 && this.pose.getY()<0.45) {//
+					   if(this.pose.getX()<0.1&&this.pose.getX()>-0.1&&this.pose.getY()>0.10&&this.pose.getY()<0.50) {//
 						   
 							angleDiff=angleResult-1.5*Math.PI;           
 							if(angleDiff>0.05*Math.PI) {
@@ -777,8 +648,8 @@ public class NavigationAT_Ver1 implements INavigation{
 							if(angleDiff<-0.05*Math.PI) {
 					    		   angleResult=1.5*Math.PI;
 					    		   this.pose.setHeading((float)angleResult);
-							} 	
-						       
+							}
+							
 					   	   xDiff=xResult-0;
 						   if(xDiff>=0.01) {                                    								//Abweichung korriegieren
 							   xResult=0;
@@ -796,6 +667,7 @@ public class NavigationAT_Ver1 implements INavigation{
 					       this.pose.setHeading((float)angleResult);
 					   }					   
 				}
+	
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
 			
 		this.pose.setLocation((float)xResult, (float)yResult);
@@ -809,39 +681,39 @@ public class NavigationAT_Ver1 implements INavigation{
 	private void detectParkingSlot(){
 		
 		if((this.frontSideSensorDistance>45)&&(findslotin1==false)) {                          //BackboundaryPosition
-			
+
 			
 			if((this.pose.getY()<0.15)&&(this.pose.getHeading() < 0.25*Math.PI)&&(this.pose.getHeading()> -0.2*Math.PI))    //Parklucken Linie1 
 			{
-				xRealeBackPositionParkplatz=this.pose.getX()+0.035-0.0565;
+				xRealeBackPositionParkplatz=this.pose.getX()+0.035-0.0565;  // Offset durch Position des Sensors --> Messung: + 5cm --> Muss noch getestet werden
 				yRealeBackPositionParkplatz=this.pose.getY();
 					
 				backBoundaryPosition=new Point((float)xRealeBackPositionParkplatz,(float)yRealeBackPositionParkplatz);
 				findslotin1=true;
 				BackboundaryZeit=tSum;
-				Sound.twoBeeps();
+				//Sound.twoBeeps();
 			}
 			if(this.pose.getX()>1.75 &&(this.pose.getHeading() < 0.6*Math.PI)&&(this.pose.getHeading()> 0.4*Math.PI))     //Parklucken Linie2
 			{
 				
 				xRealeBackPositionParkplatz=this.pose.getX();
-				yRealeBackPositionParkplatz=this.pose.getY()+0.035-0.0565;
+				yRealeBackPositionParkplatz=this.pose.getY()+0.035-0.0565;		// Offset durch Position des Sensors --> Messung: + 5cm --> Muss noch getestet werden
 					
 				backBoundaryPosition=new Point((float)xRealeBackPositionParkplatz,(float)yRealeBackPositionParkplatz);
 				findslotin1=true;
 				BackboundaryZeit=tSum;
-				Sound.twoBeeps();
+				//Sound.twoBeeps();
 			}
 			if((this.pose.getX()<=1.28)&&(this.pose.getX()>=0.45)&&(this.pose.getY()>=0.25)&&(this.pose.getHeading() < 1.1*Math.PI)&&(this.pose.getHeading()> 0.9*Math.PI))     //Parklucken  Linie 5
 			{
 				
-				xRealeBackPositionParkplatz=this.pose.getX()-0.035+0.0565;
+				xRealeBackPositionParkplatz=this.pose.getX()-0.035+0.0565;		// Offset durch Position des Sensors --> Messung: - 5cm --> Muss noch getestet werden
 				yRealeBackPositionParkplatz=this.pose.getY();	
 					
 				backBoundaryPosition=new Point((float)xRealeBackPositionParkplatz,(float)yRealeBackPositionParkplatz);
 				findslotin1=true;
 				BackboundaryZeit=tSum;
-				Sound.twoBeeps();
+				//Sound.twoBeeps();
 			}
 			
 		}
@@ -859,7 +731,7 @@ public class NavigationAT_Ver1 implements INavigation{
 				findslotin1=false;
 				Long=true;	
 				measurementQuality=(int)(100-(FrontboundaryZeit+BackboundaryZeit)*100/2*Ecke1Zeit);               //Parklucken measurementQualitat
-				Sound.beep();
+				//Sound.beep();
 			}
 			if(this.pose.getX()>1.75&&(this.pose.getHeading() < 0.6*Math.PI)&&(this.pose.getHeading()> 0.4*Math.PI))     //Parklucken Linie2
 			{
@@ -872,7 +744,7 @@ public class NavigationAT_Ver1 implements INavigation{
 				findslotin1=false;
 				Long=true;
 				measurementQuality=(int)(100-(FrontboundaryZeit+BackboundaryZeit-2*Ecke1Zeit)*100/2*(Ecke2Zeit-Ecke1Zeit));       //Parklucken measurementQualitat
-				Sound.beep();
+				//Sound.beep();
 			}
 			if((this.pose.getX()<=1.28)&&(this.pose.getX()>=0.45)&&(this.pose.getY()>=0.25)&&(this.pose.getY()>=0.25)&&(this.pose.getHeading() < 1.1*Math.PI)&&(this.pose.getHeading()> 0.9*Math.PI))    //Parklucken  Linie 5
 			{
@@ -885,7 +757,7 @@ public class NavigationAT_Ver1 implements INavigation{
 				findslotin1=false;
 				Long=true;
 				measurementQuality=(int)(100-(FrontboundaryZeit+BackboundaryZeit-2*Ecke4Zeit)*100/2*(Ecke5Zeit-Ecke4Zeit));       //Parklucken measurementQualitat
-				Sound.beep();
+				//Sound.beep();
 			}
 			}
 			
@@ -909,7 +781,7 @@ public class NavigationAT_Ver1 implements INavigation{
 						//parkplatzVorhanden = true;
 					}
 					
-					if(((yBackAktuell - 0.01) <= yBackListe) && (yBackListe <= (yBackAktuell + 0.01))){
+					if(((yBackAktuell - 0.04) <= yBackListe) && (yBackListe <= (yBackAktuell + 0.04))){
 						parkplatzVorhanden = true;
 					}
 					
@@ -917,12 +789,13 @@ public class NavigationAT_Ver1 implements INavigation{
 						//parkplatzVorhanden = true;
 					}
 					
-					if(((yFrontAktuell - 0.01) <= yFrontListe) && (yFrontListe <= (yFrontAktuell + 0.01))){
+					if(((yFrontAktuell - 0.04) <= yFrontListe) && (yFrontListe <= (yFrontAktuell + 0.04))){
 						parkplatzVorhanden = true;
 					}
 					
 				}
-			}else {
+			}
+			else {
 			for(int i =0; i<slotList.size();i++) {
 				ParkingSlot parkingSlot = slotList.get(i);
 				double xBackAktuell = this.backBoundaryPosition.getX(); //Speichert aktuell gemessenen X-Wert der Backboundary
@@ -935,7 +808,7 @@ public class NavigationAT_Ver1 implements INavigation{
 				double xFrontListe = parkingSlot.getFrontBoundaryPosition().getX(); //Speichert den X-Wert vom Parkplatz in der Datenbank
 				double yFrontListe = parkingSlot.getFrontBoundaryPosition().getY(); //Speichert den Y-Wert vom Parkplatz in der Datenbank
 				
-				if(((xBackAktuell - 0.02) <= xBackListe) && (xBackListe <= (xBackAktuell + 0.02))){
+				if(((xBackAktuell - 0.04) <= xBackListe) && (xBackListe <= (xBackAktuell + 0.04))){
 					parkplatzVorhanden = true;
 				}
 				
@@ -943,7 +816,7 @@ public class NavigationAT_Ver1 implements INavigation{
 					//parkplatzVorhanden = true;
 				}
 				
-				if(((xFrontAktuell - 0.02) <= xFrontListe) && (xFrontListe <= (xFrontAktuell + 0.02))){
+				if(((xFrontAktuell - 0.04) <= xFrontListe) && (xFrontListe <= (xFrontAktuell + 0.04))){
 					parkplatzVorhanden = true;
 				}
 				

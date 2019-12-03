@@ -5,15 +5,15 @@ import os
 
 dirname = os.path.dirname(__file__)               #get absulute file path
 # erster Wert linker Encoder, zweiter Wert rechter Encoder
-sample_value_left  = np.arange(500,dtype=float)
-sample_value_right = np.arange(500,dtype=float)
+sample_value_left  = np.arange(200,dtype=float)
+sample_value_right = np.arange(200,dtype=float)
 
 mean_value_left = np.arange(12,dtype=float).reshape((6,2)) # pro Zeile (PWM, Drehzahl)
 mean_value_right = np.arange(12,dtype=float).reshape((6,2)) # pro Zeile (PWM, Drehzahl)
 
 
 for i in range(0,6):  
-     filename = os.path.join(dirname,'../LightsensorSample/surface_'+str(i)+'.txt')  #define relative path
+     filename = os.path.join(dirname,'../LightsensorSample/sample richtige Kalibrierung//s_'+str(i)+'.txt')  #define relative path
      sampcount_r = 0
      sampcount_l = 0
      with open(filename,"r") as file:                                                #open file from relative path
@@ -21,7 +21,7 @@ for i in range(0,6):
                number_of_measures = 0                                                #counter for sampeled values
                for line in enumerate(file):                                          #itterarate thru line of file 
                     if line[1].count(";") > 0:                                       #count if ";" is in the tupel line line[0] is the line number
-                         if(sampcount_r < 500):
+                         if(sampcount_r < 200):
                               try:                                                   #exception for stirng to float conversion 
                                                                                      #add one sample to the array (counter)
 
@@ -36,7 +36,7 @@ for i in range(0,6):
                               except ValueError:            
                                    print('not a valid number')
 
-                         if(sampcount_l < 500):
+                         if(sampcount_l < 200):
                               try:                                                   #exception for stirng to float conversion 
                                    m = k+1
 
@@ -51,7 +51,7 @@ for i in range(0,6):
                                    print('not a valid number')
                          
 
-                         if (sampcount_r > 500 and sampcount_l > 500):
+                         if (sampcount_r > 200 and sampcount_l > 200):
                               break
 
 
@@ -107,7 +107,7 @@ rects1 = ax.bar(ind,yvals,width)
 zvals=[mean_value_right[0,0],mean_value_right[1,0],mean_value_right[2,0],mean_value_right[3,0],mean_value_right[4,0],mean_value_right[5,0]]
 rects2 = ax.bar(ind+width,zvals,width)
 
-ax.set_ylabel('direkter Messwert')
+ax.set_ylabel('Helligkeit in [%]')
 ax.set_xticks(ind+width)
 ax.set_xticklabels( ('schwarz hell','schwarz dunkel', 'grau hell','grau dunkel','weiß hell', 'weiß dunkel') )
 ax.legend( (rects1[0], rects2[0]), ('links', 'rechts') )
@@ -141,7 +141,7 @@ ax.legend( (rects1[0], rects2[0]), ('links', 'rechts') )
 def autolabel(rects):
     for rect in rects:
         h = rect.get_height()
-        ax.text(rect.get_x()+rect.get_width()/2.,h, '%f'%float(h),
+        ax.text(rect.get_x()+rect.get_width()/2.,h, '%.2f'%float(h),
                 ha='center', va='bottom')
 
 autolabel(rects1)

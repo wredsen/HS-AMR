@@ -195,7 +195,7 @@ public class Guidence_per {
 				break;
         	}
         		
-        	Thread.sleep(10);        	
+        	Thread.sleep(100);        	
 		}
 	}
 	

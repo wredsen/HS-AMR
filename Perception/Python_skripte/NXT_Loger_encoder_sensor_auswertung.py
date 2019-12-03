@@ -27,30 +27,30 @@ while i <= 100:
                number_of_measures = 0                                                #counter for sampeled values
                for line in enumerate(file):                                          #itterarate thru line of file 
                     if line[1].count(";") > 0:                                       #count if ";" is in the tupel line line[0] is the line number
-                         if(sampcount_r < 40):
+                         if(sampcount_l < 40):
                               try:                                                   #exception for stirng to float conversion 
 
                                    k = 1
                                    while line[1][-k] != ";":                         #start itterate backwards to search for first ";"
                                        k+=1
                                    
-                                   right_meas = float(line[1][-(k-1):])              #cast from string to float line from -(k-1) to end of line
-                                   sample_value_right[sampcount_r] = right_meas      #save sample to array 
-                                   sampcount_r += 1                                  #increment sample count
+                                   left_meas = float(line[1][-(k-1):])              #cast from string to float line from -(k-1) to end of line
+                                   sample_value_left[sampcount_l] = left_meas      #save sample to array 
+                                   sampcount_l += 1                                  #increment sample count
 
                               except ValueError:            
                                    print('not a valid number')
 
-                         if(sampcount_l < 40):
+                         if(sampcount_r < 40):
                               try:                                                   #exception for stirng to float conversion 
                                    m = k+1
 
                                    while line[1][-m] != ";":                         #start itterate backwards to search for first ";" beginning from k+1
                                           m+=1
 
-                                   left_meas = float(line[1][-(m-1):-(k)])           #cast from string to float line from -(m-1) to -(k-1) second sample 
-                                   sample_value_left[sampcount_l] = left_meas        #save sample to array
-                                   sampcount_l += 1                                  #increment sample count
+                                   right_meas = float(line[1][-(m-1):-(k)])           #cast from string to float line from -(m-1) to -(k-1) second sample 
+                                   sample_value_right[sampcount_r] = right_meas        #save sample to array
+                                   sampcount_r += 1                                  #increment sample count
 
                               except ValueError:
                                    print('not a valid number')

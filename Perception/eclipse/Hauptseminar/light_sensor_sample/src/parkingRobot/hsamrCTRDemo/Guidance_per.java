@@ -106,7 +106,7 @@ public class Guidance_per {
 		IMonitor monitor = new Monitor();
 		
 		IPerception perception = new PerceptionPMP(leftMotor, rightMotor, monitor);
-		perception.calibrateLineSensors();
+		//perception.calibrateLineSensors();
 		
 		INavigation navigation = new NavigationAT(perception, monitor);
 		IControl    control    = new ControlRST(perception, navigation, leftMotor, rightMotor, monitor);
@@ -115,7 +115,7 @@ public class Guidance_per {
 		monitor.startLogging();
 				
 		while(true) {
-			//showData(navigation, perception);
+			//showData_sharp(perception);
 			
 			
         	switch ( currentStatus )
@@ -125,14 +125,15 @@ public class Guidance_per {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING ){
-						control.setCtrlMode(ControlMode.INACTIVE);
+						control.setCtrlMode(ControlMode.LINE_CTRL);
 					}
 					
 					
 					//While action				
-					monitor.writeControlVar("LeftSensor", "" + perception.getLeftLineSensorValue()); //lineSensorLeft
-					monitor.writeControlVar("RightSensor", "" + perception.getRightLineSensorValue()); //lineSensorRight		
+					//monitor.writeControlVar("LeftSensor", "" + perception.getFrontSensorDistance()); //lineSensorLeft
+					//monitor.writeControlVar("RightSensor", "" + perception.getRightLineSensorValue()); //lineSensorRight		
 					showData_linesensor(perception);
+					//monitor.writeControlVar("s1", "" + perception.getFrontSensorDistance());
 					
 					//State transition check
 					currentStatus = CurrentStatus.DRIVING;
@@ -157,14 +158,14 @@ public class Guidance_per {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.INACTIVE ){
-						control.setCtrlMode(ControlMode.INACTIVE);
+						control.setCtrlMode(ControlMode.LINE_CTRL);
 						LCD.clear();
 						LCD.drawString("Pause!", 0, 0);
 					}
 					
 					//While action
 					{
-						//nothing to do here
+						monitor.writeControlVar("s1", "" + perception.getFrontSensorDistance());
 					}
 					
 					//State transition check
@@ -231,7 +232,16 @@ public class Guidance_per {
 		LCD.drawString("right  raw: " + perception.getRightLineSensorValueRaw(), 0, 1);
 		LCD.drawString("left : " + perception.getLeftLineSensorValue(), 0, 2);
 		LCD.drawString("right: " + perception.getRightLineSensorValue(), 0, 3);
+		LCD.drawString("left raw: " + perception.getBackSensorDistance(), 0, 4);
 		//LCD.drawString("s side: " + perception.getFrontSideSensorDistance(), 0, 3);
+		
+	}
+	
+	protected static void showData_sharp(IPerception perception){
+		LCD.clear();	
+		
+		LCD.drawString("left raw: " + perception.getFrontSensorDistance(), 0, 1);
+		
 		
 	}
 }

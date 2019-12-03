@@ -101,8 +101,9 @@ public class ControlRST implements IControl {
 		this.lineSensorLeft  		= perception.getLeftLineSensor();
 		
 		// MONITOR (example)
-		monitor.addControlVar("RightSensor");
 		monitor.addControlVar("LeftSensor");
+		monitor.addControlVar("RightSensor");
+		
 		
 		this.ctrlThread = new ControlThread(this);
 		
@@ -255,13 +256,10 @@ public class ControlRST implements IControl {
     
 	private void exec_LINECTRL_ALGO(){
 		
-		// MONITOR (example) this.lineSensorRight		= perception.getRightLineSensor();
+		//MONITOR (example) this.lineSensorRight		= perception.getRightLineSensor();
 		monitor.writeControlVar("LeftSensor", "" + this.encoderLeft.getEncoderMeasurement().getAngleSum()); //encoder SensorLeft
 		monitor.writeControlVar("RightSensor", "" + this.encoderRight.getEncoderMeasurement().getAngleSum()); //encoder SensorRight
 		this.showData_linesensor();
-		leftMotor.setPower(20);
-		rightMotor.setPower(20);
-		
 	}
 	
 	private void stop(){
@@ -273,7 +271,7 @@ public class ControlRST implements IControl {
 		LCD.clear();	
 		
 		LCD.drawString("left S: " + this.encoderLeft.getEncoderMeasurement().getAngleSum(), 0, 0);
-		LCD.drawString("right S: " + this.encoderRight.getEncoderMeasurement().getAngleSum(), 0, 1);
+		LCD.drawString("right S: " +this.perception.getFrontSensorDistance(), 0, 1);
 		
 		
 	}

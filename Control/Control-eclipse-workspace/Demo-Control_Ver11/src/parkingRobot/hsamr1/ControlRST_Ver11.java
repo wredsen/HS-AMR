@@ -258,7 +258,7 @@ public class ControlRST_Ver11 implements IControl {
 
     private void exec_SETPOSE_ALGO(){
     	
-    	PID_Ver11 omegaPID = new PID_Ver11(0, SAMPLETIME, 6, 0, 0.01, 0, false); // 0.3, 0, 0.1, 2 // 0.7
+    	PID_Ver11 omegaPID = new PID_Ver11(0, SAMPLETIME, 12, 0, 0.01, 0, false); // 0.3, 0, 0.1, 2 // 0.7
     	double signX = Math.signum(this.destination.getX() - this.enteringPosition.getX());
     	double signY = Math.signum(this.destination.getY() - this.enteringPosition.getY());
     	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPosition.getHeading());
@@ -282,10 +282,10 @@ public class ControlRST_Ver11 implements IControl {
 	    	double angleCourse = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX());
 	    	// Diff-Angle
 	    	eta = angleCourse - this.currentPosition.getHeading();
-	    	omegaPID.updateDesiredValue(eta);
+	    	omegaPID.updateDesiredValue(angleCourse);
 	    	
 	    	
-	    	// Translate & Rotate
+	    	// First Rotate
 	    	if ((signEta*eta >  Math.toRadians(5)) && this.angularVelocity != 0) // only turn
 	    	{
 	    		drive(0,this.angularVelocity, 0);
@@ -306,9 +306,6 @@ public class ControlRST_Ver11 implements IControl {
     	else if (signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(5) && this.angularVelocity != 0)
     	{
     		drive(0,this.angularVelocity, 0);
-    		
-	    	// Destination angle
-	    	eta = this.destination.getHeading() - this.currentPosition.getHeading();
     	}
     	
     	// stop

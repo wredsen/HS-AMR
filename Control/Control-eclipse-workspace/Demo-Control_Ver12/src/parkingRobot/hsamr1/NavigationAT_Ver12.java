@@ -11,7 +11,7 @@ import parkingRobot.IPerception;
 import parkingRobot.INavigation.ParkingSlot;
 import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
 import parkingRobot.hsamr1.NavigationThread_Ver12;
-import parkingRobot.hsamr1.Guidance_Ver12;
+import parkingRobot.hsamr1.CTR_D2;
 import parkingRobot.IMonitor;
 
 import java.util.*;
@@ -546,8 +546,8 @@ public class NavigationAT_Ver12 implements INavigation{
 				
 				}
 				
-				if(!(Guidance_Ver12.getCurrentStatus() == Guidance_Ver12.CurrentStatus.INACTIVE || 
-				   Guidance_Ver12.getCurrentStatus() == Guidance_Ver12.CurrentStatus.EXIT) && (mapModus==1)){
+				if(!(CTR_D2.getCurrentStatus() == CTR_D2.CurrentStatus.INACTIVE || 
+				   CTR_D2.getCurrentStatus() == CTR_D2.CurrentStatus.EXIT) && (mapModus==1)){
 				//	Linie 1
 					if(this.pose.getX()>0.10&&this.pose.getX()<1.70&&this.pose.getY()<0.10) { 
 				    	          

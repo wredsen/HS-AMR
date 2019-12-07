@@ -36,7 +36,7 @@ import lejos.nxt.LCD;
  * It is important that data witch is accessed by more than one main module class thread is only handled in a
  * synchronized context to avoid inconsistent or corrupt data!
  */
-public class Guidance_Ver11 {
+public class CTR_D1 {
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -146,7 +146,6 @@ public class Guidance_Ver11 {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING1 ){
-						navigation.setPose(new Pose(0, 0, 0));
 						control.setDriveFor(1.20, 0, 0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
@@ -184,7 +183,6 @@ public class Guidance_Ver11 {
 				case TURN_CCW:
 					//Into action
 					if ( lastStatus != CurrentStatus.TURN_CCW ){
-						navigation.setPose(new Pose(0, 0, 0));
 						control.setDriveFor(0, 0, Math.toRadians(90), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 					}
@@ -203,8 +201,7 @@ public class Guidance_Ver11 {
 				case DRIVING2:
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING2 ){
-						navigation.setPose(new Pose(0, 0, 0));
-						control.setDriveFor(0.3, 0, 0, 5, 0, navigation.getPose());	// 0,3m @ 5cm/s
+						control.setDriveFor(0, 0.3, 0, 5, 0, navigation.getPose());	// 0,3m @ 5cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
 						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
@@ -241,7 +238,6 @@ public class Guidance_Ver11 {
 				case TURN_CW:
 					//Into action
 					if ( lastStatus != CurrentStatus.TURN_CW ){
-						navigation.setPose(new Pose(0, 0, 0));
 						control.setDriveFor(0, 0, Math.toRadians(-90), 0, Math.toRadians(-90), navigation.getPose()); // -90deg @ -30deg/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 					}
@@ -309,7 +305,7 @@ public class Guidance_Ver11 {
 	 * @return actual state of the main finite state machine
 	 */
 	public static CurrentStatus getCurrentStatus(){
-		return Guidance_Ver11.currentStatus;
+		return CTR_D1.currentStatus;
 	}
 	
 	/**

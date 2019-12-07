@@ -17,8 +17,8 @@ import parkingRobot.hsamr1.ControlRST_Ver12;
 import parkingRobot.hsamr1.HmiPLT_Ver12;
 import parkingRobot.hsamr1.NavigationAT_Ver12;
 import parkingRobot.hsamr1.PerceptionPMP_Ver12;
-import parkingRobot.hsamr1.Guidance_Ver12.CurrentStatus;
-import parkingRobot.hsamr1.Guidance_Ver12.CurrentStatusDrive;
+import parkingRobot.hsamr1.CTR_D2.CurrentStatus;
+import parkingRobot.hsamr1.CTR_D2.CurrentStatusDrive;
 
 
 /**
@@ -38,7 +38,7 @@ import parkingRobot.hsamr1.Guidance_Ver12.CurrentStatusDrive;
  * It is important that data witch is accessed by more than one main module class thread is only handled in a
  * synchronized context to avoid inconsistent or corrupt data!
  */
-public class Guidance_Ver12 {
+public class CTR_D2 {
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -267,7 +267,7 @@ public enum CurrentStatusDrive {
 	 * @return actual state of the main finite state machine
 	 */
 	public static CurrentStatus getCurrentStatus(){
-		return Guidance_Ver12.currentStatus;
+		return CTR_D2.currentStatus;
 	}
 	
 	/**

@@ -41,7 +41,7 @@ public class NavigationThread_Ver11 extends Thread {
             	// A good seep time trade off is necessary:
             	// To less limit the CPU time of other threads,
             	// to much makes the increment errors to big and the navigation slow            	
-            	Thread.sleep(30);
+            	Thread.sleep(20);
             	
         	} catch(InterruptedException ie){	        		
         	}

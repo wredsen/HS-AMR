@@ -163,8 +163,13 @@ public enum CurrentStatusPark {
 	
 	
 	private static boolean turning=false;
+	private static boolean anfahrt=false;
+	private static boolean correct=false;
 	private static int parkplatz;
-	static double[] parameter; 
+	static double[] parameter;
+	static Point anfahrort;  
+	static Point p2;
+	private static double differenz=0;
 	/**
 	 * main method of project 'ParkingRobot'
 	 * 
@@ -251,7 +256,7 @@ public enum CurrentStatusPark {
 
 					//State transition check
 					lastStatus = currentStatus;
-					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
+					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE &&(anfahrt!=true) ){
 						currentStatus = CurrentStatus.INACTIVE;
 					}else if ( Button.ENTER.isDown() ){
 						currentStatus = CurrentStatus.INACTIVE;
@@ -261,9 +266,13 @@ public enum CurrentStatusPark {
 						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
 					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
 						currentStatus = CurrentStatus.EXIT;
-					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS){ //ausgewählter Parkplatz
-						currentStatus = CurrentStatus.PARK_THIS;	
-					}	
+					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS &&(anfahrt!=true)){ //ausgewählter Parkplatz
+						currentStatus = CurrentStatus.PARK_THIS;
+					//Anfahrt Parklücke -> wenn in der Nähe, dann Wechsel in den Einparkvorgang	
+					}else if (anfahrt==true && (Math.abs(navigation.getPose().getX()-anfahrort.getX())<0.05) && (Math.abs(navigation.getPose().getY()-anfahrort.getY())<0.05)) {
+						currentStatus = CurrentStatus.PARK_THIS;
+						currentStatusPark = CurrentStatusPark.REACHED_SLOT;
+					}
 					
 					//Leave action
 					if ( currentStatus != CurrentStatus.DRIVING ){
@@ -339,6 +348,9 @@ public enum CurrentStatusPark {
 					//
 					break;
 				////////////////////////////////////////////////////////////////////////////////////////
+					/*
+					 *TODO -> Unterscheidung ob 0°,90°,180°-Parklücke -> Polynom unterschiedlich berechnen  
+					 */
 				case PARK_THIS:
 					//
 					//Into action
@@ -346,30 +358,71 @@ public enum CurrentStatusPark {
 					parkplatz =hmi.getSelectedParkingSlot();
 					//abfrage wo beginn ende -> jeweilige angepasste Anpassung vom Start wert
 					ParkingSlot[] parkingslots= navigation.getParkingSlots();
-					Point p1=parkingslots[parkplatz].getBackBoundaryPosition(); //start
-					Point p2=parkingslots[parkplatz].getFrontBoundaryPosition();//ende 
-					
-					parameter=calcLGS(p1.x, (p2.x-0.1), p1.y, (p2.y-26));
-					
+					anfahrort=parkingslots[parkplatz].getBackBoundaryPosition(); //start
+					p2=parkingslots[parkplatz].getFrontBoundaryPosition();//ende 
 					}
 					//While action
 					switch(currentStatusPark) {
 					
 						case TO_SLOT:
-							
+							anfahrt=true;
+							currentStatus = CurrentStatus.DRIVING;
 							break;
 						////////////////////////////////	
 						case REACHED_SLOT:
+							//Into-action
+							if( lastStatusPark != CurrentStatusPark.REACHED_SLOT ) {
+								parameter=calcLGS(navigation.getPose().getX(), (p2.x-0.1), navigation.getPose().getY(), (p2.y-26));
+								control.setCtrlMode(ControlMode.PFADFOLGER);
+							}
+							//While-action
+							if(control.getCtrlMode()==ControlMode.INACTIVE) {
+								currentStatusPark=CurrentStatusPark.IN_SLOT;
+							}
 							break;
 						////////////////////////////////
 						case IN_SLOT:
+							differenz=perception.getBackSensorDistance()-perception.getFrontSensorDistance(); //Richtige Sensoren?
+							if(Math.abs(differenz)>0.05) {
+								currentStatusPark=CurrentStatusPark.CORRECT;
+							}else correct=true;
 							break;
 						////////////////////////////////	
 						case CORRECT:
+							//Into-action
+							if( lastStatusPark != CurrentStatusPark.CORRECT ) {
+								if(Math.signum(differenz)<0) {//negative differenz -> zu weit links -> vorwärtsfahren
+									if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(5))){//wenn Winkel 90°
+										control.setDriveFor(navigation.getPose().getX(), navigation.getPose().getY()-differenz, navigation.getPose().getHeading(), 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setCtrlMode(ControlMode.SETPOSE);
+									}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(5))){ //wenn Winkel 0° 
+										control.setDriveFor(navigation.getPose().getX()-differenz, navigation.getPose().getY(), navigation.getPose().getHeading(), 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setCtrlMode(ControlMode.SETPOSE);
+									}else {//Winkel 180°
+										control.setDriveFor(navigation.getPose().getX()+differenz, navigation.getPose().getY(), navigation.getPose().getHeading(), 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setCtrlMode(ControlMode.SETPOSE);
+									}		
+								}else {//positive differenz -> zu weit rechts -> rückwärtsfahren
+									if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(5))){//wenn Winkel 90°
+										control.setDriveFor(navigation.getPose().getX(), navigation.getPose().getY()-differenz, navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setCtrlMode(ControlMode.SETPOSE);
+									}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(5))){ //wenn Winkel 0° 
+										control.setDriveFor(navigation.getPose().getX()-differenz, navigation.getPose().getY(), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setCtrlMode(ControlMode.SETPOSE);
+									}else {//Winkel 180°
+										control.setDriveFor(navigation.getPose().getX()+differenz, navigation.getPose().getY(), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setCtrlMode(ControlMode.SETPOSE);
+									}	
+								}
+							}	
+							//while-action
+							if(control.getCtrlMode()==ControlMode.INACTIVE) {
+								currentStatusPark=CurrentStatusPark.IN_SLOT;
+							}
 							break;
 						///////////////////////////////
 					}
-					//Funktionsparameter in v,w umwandeln
+						//wenn abstand nach vorne etwa abstand nach hinten -> correct=true
 					
 					//State transition check
 					lastStatus = currentStatus;
@@ -383,10 +436,10 @@ public enum CurrentStatusPark {
 						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
 					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
 						currentStatus = CurrentStatus.EXIT;
-					}else if (control.getCtrlMode() == ControlMode.INACTIVE) {
+					}else if (control.getCtrlMode() == ControlMode.INACTIVE && correct) {
 							currentStatus = CurrentStatus.PARK;
 							Thread.sleep(500);
-					    }
+					}
 				//		
 					
         	
@@ -397,7 +450,9 @@ public enum CurrentStatusPark {
 					break;
 				////////////////////////////////////////////////////////////////////////////////////////
 				case PARK_OUT:
-					//
+				/*
+				 * TODO-> all
+				 */
 					//Into action
 					if ( lastStatus != CurrentStatus.PARK_OUT ){
 						

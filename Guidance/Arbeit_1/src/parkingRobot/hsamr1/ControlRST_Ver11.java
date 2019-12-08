@@ -107,9 +107,9 @@ public class ControlRST_Ver11 implements IControl {
 		this.lineSensorRight		= perception.getRightLineSensor();
 		
 		// MONITOR (example)
-		//monitor.addControlVar("RightSensor");
-		//monitor.addControlVar("LeftSensor");
-		//monitor.addControlVar("Winkel");
+		monitor.addControlVar("RightSensor");
+		monitor.addControlVar("LeftSensor");
+		
 		this.ctrlThread = new ControlThread_Ver11(this);
 		
 		ctrlThread.setPriority(Thread.MAX_PRIORITY-1);
@@ -147,16 +147,16 @@ public class ControlRST_Ver11 implements IControl {
 	}
 	
 	public void setDriveFor(double x, double y, double phi, double v, double omega, Pose enteringPosition) {
-		setDestination(phi,x,y);
+		setDestination(enteringPosition.getHeading()+phi, enteringPosition.getX() + x, enteringPosition.getY() + y);
 		setVelocity(v);
 		setAngularVelocity(omega);
 		this.enteringPosition = enteringPosition;
-		//this.enteringEta = Math.atan2(this.destination.getY()-this.enteringPosition.getY(), this.destination.getX()-this.enteringPosition.getX());
+		this.enteringEta = Math.atan2(this.destination.getY()-this.enteringPosition.getY(), this.destination.getX()-this.enteringPosition.getX());
 	}
 	
 	/**
 	 * sets current pose
-	 * @see parkingRobot.IControl#(Pose currentPosition)
+	 * @see parkingRobot.IControl#setPose(Pose currentPosition)
 	 */
 	public void setPose(Pose currentPosition) {
 		// TODO Auto-generated method stub
@@ -258,7 +258,7 @@ public class ControlRST_Ver11 implements IControl {
 
     private void exec_SETPOSE_ALGO(){
     	
-    	PID_Ver11 omegaPID = new PID_Ver11(0, SAMPLETIME, 6, 0, 0.01, 0, false); // 0.3, 0, 0.1, 2 // 0.7
+    	PID_Ver11 omegaPID = new PID_Ver11(0, SAMPLETIME, 12, 0, 0.01, 0, false); // 0.3, 0, 0.1, 2 // 0.7
     	double signX = Math.signum(this.destination.getX() - this.enteringPosition.getX());
     	double signY = Math.signum(this.destination.getY() - this.enteringPosition.getY());
     	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPosition.getHeading());
@@ -266,7 +266,7 @@ public class ControlRST_Ver11 implements IControl {
     	
     	this.update_SETPOSE_Parameter();
     	//LCD.clear();
-		///LCD.drawString("akt phi:"+ currentPosition.getHeading(), 0, 3);
+		//LCD.drawString("akt phi:"+ currentPosition.getHeading(), 0, 3);
 		//LCD.drawString("Ziel phi:"+ destination.getHeading() + " " + destination.getX() + " " + destination.getY(), 0, 4);
 		//LCD.drawString("akt:" + currentPosition.getX() + " " + currentPosition.getY(), 0, 6);
 		//LCD.drawString("Ziel:"+ destination.getX() + " " + destination.getY(), 0, 7);
@@ -282,11 +282,11 @@ public class ControlRST_Ver11 implements IControl {
 	    	double angleCourse = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX());
 	    	// Diff-Angle
 	    	eta = angleCourse - this.currentPosition.getHeading();
-	    	omegaPID.updateDesiredValue(eta);
+	    	omegaPID.updateDesiredValue(angleCourse);
 	    	
 	    	
-	    	// Translate & Rotate
-	    	if (signEta*eta >  Math.toRadians(5) && this.angularVelocity != 0) // only turn
+	    	// First Rotate
+	    	if ((signEta*eta >  Math.toRadians(5)) && this.angularVelocity != 0) // only turn
 	    	{
 	    		drive(0,this.angularVelocity, 0);
 	    	}
@@ -295,28 +295,21 @@ public class ControlRST_Ver11 implements IControl {
 	    	else
 	    	{
 	    		// drive with angle control
-		    	omega = omegaPID.runControl(eta);
+		    	omega = omegaPID.runControl(this.currentPosition.getHeading());
 		    	drive(this.velocity,omega, 0);
 		    	LCD.clear(6);
 		    	LCD.drawString("CTR_Error:"+ omega, 0, 6);
 	    	}
-	    	
     	}
     	
     	//	Rotate only
     	else if (signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(5) && this.angularVelocity != 0)
     	{
     		drive(0,this.angularVelocity, 0);
-    		
-	    	// Destination angle
-	    	eta = this.destination.getHeading() - this.currentPosition.getHeading();
     	}
     	
     	// stop
     	else {
-    		setVelocity(0);
-    		setAngularVelocity(0);
-    		setDestination(0, 0, 0);
     		this.setCtrlMode(ControlMode.INACTIVE);
     	}
     	
@@ -406,8 +399,8 @@ public class ControlRST_Ver11 implements IControl {
 		
 		
 		// MONITOR (example)
-		//monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
-		//monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
+		monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
+		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
 		
 		/* Vorsteuerung*/
 		desiredRPMLeft = (desiredVelocity-(desiredAngularVelocity*(WHEELDISTANCE/2)/10))/(WHEELDIA*Math.PI/(10.0*60.0));

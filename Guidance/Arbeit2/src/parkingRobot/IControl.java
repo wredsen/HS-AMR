@@ -45,7 +45,11 @@ public interface IControl {
 		/**
 		 * NXT in Ruhe versetzen
 		 */
-		INACTIVE
+		INACTIVE,
+		/**
+		 * Pfadfolger
+		 */
+		PFADFOLGER;
 	}
 	
 		

@@ -400,11 +400,11 @@ public interface IPerception {
 			
 			ReturnOdoDiffMeas.uSum = this.odoDiffMeas.uSum;
 			ReturnOdoDiffMeas.vSum = this.odoDiffMeas.vSum;
-			ReturnOdoDiffMeas.deltaT   = this.odoDiffMeas.deltaT;
+			ReturnOdoDiffMeas.deltaT = this.odoDiffMeas.deltaT;
 			
-			this.odoDiffMeas.uSum = 0;
-			this.odoDiffMeas.vSum = 0;
-			this.odoDiffMeas.deltaT   = 0;
+			//this.odoDiffMeas.uSum = 0;
+			//this.odoDiffMeas.vSum = 0;
+			//this.odoDiffMeas.deltaT   = 0;
 			
 			this.ReferenceTime        = this.CurrentTime;	//not used
 			

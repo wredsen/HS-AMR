@@ -35,6 +35,8 @@ public interface INavigation {
 	public void setDetectionState(boolean isOn);
 	
 	
+	public boolean getCornerDetected();
+	
 	// Class control
 	
 	/**

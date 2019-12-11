@@ -64,6 +64,7 @@ public class NavigationAT_Ver12 implements INavigation{
 	double backpark=0;
 	
 	double parkingslotlong=0;
+	public boolean corner_detected;
 	INavigation.ParkingSlot[] Slots=null;  
 	////////////////////////////////////////////////////////////
 	int mapModus = 1; 	// 1 for real, big map and 2 for small test-map
@@ -332,17 +333,25 @@ public class NavigationAT_Ver12 implements INavigation{
 			    //special condition for corner 4
 				if(cornerIndexNumber == 4 && this.getPose().getHeading()>=2.8 && this.getPose().getHeading() <= 3.5) {
 					lastCornerNumber++;
+					corner_detected = true;
 				}
 			
 				//normal condition with sharp sensor
-				if(detectCorner() && cornerIndexNumber != 4) lastCornerNumber++;
+				if(detectCorner() && cornerIndexNumber != 4) {
+					lastCornerNumber++;
+					corner_detected = true;
+				}
 				
-				//override pose depend on current position
-				if(lastCornerNumber == nextCornerNumber) {
-					evaluateCornerDetection();
-					Sound.beep();
 				
-				return true;
+				if(corner_detected && this.getPose().getHeading()>= Math.PI*0.3 && this.getPose().getHeading() <= Math.PI*0.7) {
+					//override pose depend on current position
+					if(lastCornerNumber == nextCornerNumber) {
+						evaluateCornerDetection();
+						corner_detected = false;
+						Sound.beep();
+					
+					return true;
+					}
 				}
 			else return false;
 		}
@@ -356,15 +365,19 @@ public class NavigationAT_Ver12 implements INavigation{
 	 */
 	public boolean detectCorner() {
 		
-		if (perception.getFrontSensorDistance() < 19 && lastCornerNumber != 4) {
+		if (perception.getFrontSensorDistance() < 20 && lastCornerNumber != 4) {
 			return true;
 		}
-		else if(perception.getFrontSensorDistance() < 53 && nextCornerNumber == 5){
+		else if(perception.getFrontSensorDistance() < 55 && nextCornerNumber == 5){
 			return true;
 		}
 		else {
 			return false;
 		}
+	}
+	
+	public boolean getCornerDetected() {
+		return corner_detected;
 	}
 	
 	public synchronized int getLastCornerNumber() {

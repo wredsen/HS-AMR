@@ -5,6 +5,7 @@ import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
 import parkingRobot.IControl;
 import parkingRobot.IControl.*;
+import parkingRobot.hsamr1.Guidance_VS1.CurrentStatus;
 import parkingRobot.hsamr1.ControlRST_Ver12;
 import parkingRobot.hsamr1.HmiPLT_Ver12;
 import parkingRobot.hsamr1.NavigationAT_Ver12;
@@ -36,6 +37,10 @@ import lejos.nxt.LCD;
  * synchronized context to avoid inconsistent or corrupt data!
  */
 public class Guidance_VS1 {
+	
+	static double distanceU;
+	static double distanceV;
+	static double i;
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -118,7 +123,7 @@ public class Guidance_VS1 {
 		
 		INavigation navigation = new NavigationAT_Ver12(perception, monitor);
 		IControl    control    = new ControlRST_Ver12(perception, navigation, leftMotor, rightMotor, monitor);
-		//INxtHmi  	hmi        = new HmiPLT(perception, navigation, control, monitor);
+		INxtHmi  	hmi        = new HmiPLT_Ver12(perception, navigation, control, monitor);
 		
 		monitor.startLogging();
 				
@@ -144,6 +149,9 @@ public class Guidance_VS1 {
 					currentStatus = CurrentStatus.DRIVING;
 				    lastStatus = currentStatus;
 					
+				    if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
+						currentStatus = CurrentStatus.INACTIVE;
+				    }
 				   
 					if(navigation.getCornerArea()==false) {
 							currentStatus = CurrentStatus.LINE_FOLLOW_FAST;
@@ -178,7 +186,9 @@ public class Guidance_VS1 {
 					currentStatus = CurrentStatus.LINE_FOLLOW_SLOW;
 				    lastStatus = currentStatus;
 				    
-				    
+				    if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
+						currentStatus = CurrentStatus.INACTIVE;
+				    }
 				    
 				    if(navigation.getCornerArea()==false) {
 						currentStatus = CurrentStatus.LINE_FOLLOW_FAST;
@@ -208,7 +218,9 @@ public class Guidance_VS1 {
 					//State transition check
 					lastStatus = currentStatus;
 							
-					if ( Button.ENTER.isDown() ){
+					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
+						currentStatus = CurrentStatus.LINE_FOLLOW_SLOW;		
+					}else if ( Button.ENTER.isDown() ){
 						currentStatus = CurrentStatus.LINE_FOLLOW_SLOW;
 						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
@@ -277,11 +289,20 @@ public class Guidance_VS1 {
 		LCD.drawString("Y   = "+ navigation.getPose().getY(), 0, 2);
 		LCD.drawString("phi = "+  navigation.getPose().getHeading()/Math.PI*180, 0, 3);
 		LCD.drawString("s1  = "+ perception.getFrontSensorDistance(), 0, 4);
-		LCD.drawString("lcn  = "+ navigation.getLastCornerNumber(), 0, 5);
-		LCD.drawString("ncn  = "+ navigation.getNextCornerNumber(), 0, 6);
-		LCD.drawString("ci   = "+ navigation.getCornerIndex(), 0, 7);
+		LCD.drawString("c  = "+ navigation.getCornerDetected(), 0, 5);
 		
+		if(i == 0) {
+			distanceU += perception.getNavigationOdo().getOdoMeasurement().getUSum();
+		}
 		
+		LCD.drawString("U  = "+ perception.getNavigationOdo().getOdoMeasurement().getUSum(), 0, 6);
+		
+		if(i == 0) {
+		distanceV += perception.getNavigationOdo().getOdoMeasurement().getUSum();
+		}
+		LCD.drawString("V   = "+perception.getNavigationOdo().getOdoMeasurement().getVSum() , 0, 7);
+		i++;
+		i = i%4;
 	}
 	
 }

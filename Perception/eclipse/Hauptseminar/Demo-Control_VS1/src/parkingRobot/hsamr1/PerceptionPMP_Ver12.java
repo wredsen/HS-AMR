@@ -154,7 +154,7 @@ public class PerceptionPMP_Ver12 implements IPerception {
 		Button.ENTER.waitForPressAndRelease();
 		
 		try {
-		    Thread.sleep(500);
+		    Thread.sleep(300);
 		}
 		catch(InterruptedException e){
 			e.printStackTrace();
@@ -180,7 +180,7 @@ public class PerceptionPMP_Ver12 implements IPerception {
 		}
 		Button.ENTER.waitForPressAndRelease();
 		try {
-		    Thread.sleep(500);
+		    Thread.sleep(300);
 		}
 		catch(InterruptedException e){
 			e.printStackTrace();

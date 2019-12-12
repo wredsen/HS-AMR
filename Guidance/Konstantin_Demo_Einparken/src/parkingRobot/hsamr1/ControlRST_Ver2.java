@@ -18,7 +18,7 @@ import lejos.geom.Point;
  * Main class for control module
  *
  */
-public class ControlRST_Ver12 implements IControl {
+public class ControlRST_Ver2 implements IControl {
 	
 	/**
 	 * reference to {@link IPerception.EncoderSensor} class for left robot wheel which measures the wheels angle difference
@@ -57,7 +57,7 @@ public class ControlRST_Ver12 implements IControl {
 	IPerception perception = null;
 	INavigation navigation = null;
 	IMonitor monitor = null;
-	ControlThread_Ver12 ctrlThread = null;
+	ControlThread_Ver2 ctrlThread = null;
 	
 	double velocity = 10.0;	// in cm/s
 	double angularVelocity = 0.10;	// in 1/s
@@ -92,7 +92,7 @@ public class ControlRST_Ver12 implements IControl {
 	 * @param leftMotor corresponding NXTMotor object
 	 * @param rightMotor corresponding NXTMotor object
 	 */
-	public ControlRST_Ver12(IPerception perception, INavigation navigation, NXTMotor leftMotor, NXTMotor rightMotor, IMonitor monitor){
+	public ControlRST_Ver2(IPerception perception, INavigation navigation, NXTMotor leftMotor, NXTMotor rightMotor, IMonitor monitor){
 		this.perception = perception;
         this.navigation = navigation;
         this.monitor = monitor;
@@ -110,7 +110,7 @@ public class ControlRST_Ver12 implements IControl {
 		monitor.addControlVar("RightSensor");
 		monitor.addControlVar("LeftSensor");
 		
-		this.ctrlThread = new ControlThread_Ver12(this);
+		this.ctrlThread = new ControlThread_Ver2(this);
 		
 		ctrlThread.setPriority(Thread.MAX_PRIORITY-1);
 		ctrlThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
@@ -174,7 +174,7 @@ public class ControlRST_Ver12 implements IControl {
 		
 		
 		// Parking slot rotation
-		if(Math.abs(angle) < Math.toRadians(10)) {
+		if(angle == 0) {
 			// do nothing
 		}
 		else if(Math.abs(angle - Math.PI/2) < 0.0001) {
@@ -295,7 +295,7 @@ public class ControlRST_Ver12 implements IControl {
 
     private void exec_SETPOSE_ALGO(){
     	
-    	PID_Ver12 omegaPID = new PID_Ver12(0, SAMPLETIME, 12, 0, 0.01, 0, false); // 0.3, 0, 0.1, 2 // 0.7
+    	PID_Ver2 omegaPID = new PID_Ver2(0, SAMPLETIME, 12, 0, 0.01, 0, false); // 0.3, 0, 0.1, 2 // 0.7
     	double signX = Math.signum(this.destination.getX() - this.enteringPosition.getX());
     	double signY = Math.signum(this.destination.getY() - this.enteringPosition.getY());
     	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPosition.getHeading());
@@ -362,7 +362,7 @@ public class ControlRST_Ver12 implements IControl {
 	 * PARKING along the generated path
 	 */
 	private void exec_PARKCTRL_ALGO(){
-		//PID_Ver12 omegaPID = new PID_Ver12(0, SAMPLETIME, 12, 0, 0.01, 0, false);
+		//PID_Ver2 omegaPID = new PID_Ver2(0, SAMPLETIME, 12, 0, 0.01, 0, false);
 
     	this.update_SETPOSE_Parameter();
     	
@@ -463,7 +463,7 @@ public class ControlRST_Ver12 implements IControl {
 
     	leftMotor.forward();
 		rightMotor.forward();
-		PID_Ver12 lineFollowPIDFast = new PID_Ver12(0, SAMPLETIME, 0.2, 0, 0.05, 999999, false);
+		PID_Ver2 lineFollowPIDFast = new PID_Ver2(0, SAMPLETIME, 0.2, 0, 0.05, 999999, false);
 		double desiredVelocity = 15;
 		int lineControlFast = (int) lineFollowPIDFast.runControl(this.lineSensorLeft - this.lineSensorRight);
 		drive(desiredVelocity, 0, lineControlFast);
@@ -478,7 +478,7 @@ public class ControlRST_Ver12 implements IControl {
     	
     	leftMotor.forward();
 		rightMotor.forward();
-		PID_Ver12 lineFollowPIDSlow = new PID_Ver12(0, SAMPLETIME, 0.3, 0.0, 0.13, 999999, true);	// D: 0.09
+		PID_Ver2 lineFollowPIDSlow = new PID_Ver2(0, SAMPLETIME, 0.3, 0.0, 0.13, 999999, true);	// D: 0.09
 		double desiredVelocity = 7;
 		int lineControlSlow = (int) lineFollowPIDSlow.runControl(this.lineSensorLeft - this.lineSensorRight);
 		drive(desiredVelocity, 0, lineControlSlow);
@@ -505,8 +505,8 @@ public class ControlRST_Ver12 implements IControl {
 		double desiredVelocity = v; // in cm/s
 		double desiredAngularVelocity = omega; // in 1/s
 		
-	    PID_Ver12 leftRPMPID = new PID_Ver12(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //0.6, 0.2, 0.005
-	    PID_Ver12 rightRPMPID = new PID_Ver12(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //0.6, 0.2, 0.005
+	    PID_Ver2 leftRPMPID = new PID_Ver2(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //0.6, 0.2, 0.005
+	    PID_Ver2 rightRPMPID = new PID_Ver2(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //0.6, 0.2, 0.005
 	    
 	    int leftControlOut = 0;
 	    int rightControlOut = 0;

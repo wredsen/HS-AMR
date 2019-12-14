@@ -96,7 +96,7 @@ public class Guidence_per {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
-        currentStatus = CurrentStatus.DRIVING;
+        currentStatus = CurrentStatus.INACTIVE;
         lastStatus    = CurrentStatus.EXIT;
 		
 		// Generate objects
@@ -126,7 +126,7 @@ public class Guidence_per {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING ){
-						control.setDriveFor(0.3, 0, 0, 25, 0, navigation.getPose());	
+						control.setDriveFor(0.3, 0, 0, 2.5, 0, navigation.getPose());	
 						control.setCtrlMode(ControlMode.SETPOSE);
 					}
 					

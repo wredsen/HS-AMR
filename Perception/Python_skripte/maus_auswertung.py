@@ -1,15 +1,18 @@
 import numpy as np
 from matplotlib import pyplot as plt
+import os
+
+dirname = os.path.dirname(__file__)               #get absulute file path
 
 sample_array = np.arange(45,dtype=float).reshape((15,3)) #array that contains the raw sample values extracted from .txt 
-gauss_array = np.arange(213,dtype=float).reshape((71,3))    #fist distace 10-80cm, second value expected value, third value variance
+gauss_array = np.arange(213,dtype=float).reshape((71,3))    #fist value ppi, second value expected value, third value variance
 
 j=0            #variable to itterate thru file
 l=0            #flag if string Initialisierung ok is found
 k=0            #counter for number of lines
 
 
-
+filename = os.path.join(dirname,'../PWM-Drehzahl/mit_last/pwm_'+str(i)+'.txt')  #define relative path
 
 
 with open("/home/sebastian/Dokumente/Mitschriften/WISE_2020/Hauptseminar/HS-AMR/Perception/mouse/output_X.txt","r") as file: #open i'ten file 

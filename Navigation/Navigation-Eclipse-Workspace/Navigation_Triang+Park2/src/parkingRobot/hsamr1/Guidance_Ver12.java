@@ -298,11 +298,12 @@ public enum CurrentStatusDrive {
 		LCD.clear();
 		LCD.drawString("X   = "+ navigation.getPose().getX(), 0, 1);
 		LCD.drawString("Y   = "+ navigation.getPose().getY(), 0, 2);
-		LCD.drawString("phi = "+  navigation.getPose().getHeading()/Math.PI*180, 0, 3);
-		LCD.drawString("s1  = "+ perception.getFrontSensorDistance(), 0, 4);
-		LCD.drawString("lcn  = "+ navigation.getLastCornerNumber(), 0, 5);
-		LCD.drawString("ncn  = "+ navigation.getNextCornerNumber(), 0, 6);
-		LCD.drawString("ci   = "+ navigation.getCornerIndex(), 0, 7);
+		LCD.drawString("s1  = "+ perception.getFrontSideSensorDistance(), 0, 3);
+		LCD.drawString("Slots  = "+ navigation.getNumberOfSlots(), 0, 4);
+		//LCD.drawString("phi = "+  navigation.getPose().getHeading()/Math.PI*180, 0, 4);
+		//LCD.drawString("lcn  = "+ navigation.getLastCornerNumber(), 0, 5);
+		//LCD.drawString("ncn  = "+ navigation.getNextCornerNumber(), 0, 6);
+		//LCD.drawString("ci   = "+ navigation.getCornerIndex(), 0, 7);
 		
 		
 	}

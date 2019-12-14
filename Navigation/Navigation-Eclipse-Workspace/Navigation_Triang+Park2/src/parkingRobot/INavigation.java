@@ -96,17 +96,7 @@ public interface INavigation {
 	 */
 	public boolean getCornerType();
 	
-	/**
-	 * Gives information about the Type of the current / last corner
-	 * @return true --> detected corner is a left Corner
-	 */
-	//public boolean getLeftCorner();
-	
-	/**
-	 * Gives information about the Type of the current / last corner
-	 * @return true --> detected corner is a right Corner
-	 */
-	//ublic boolean getRightCorner();
+	public int getNumberOfSlots();
 	
 	// Subclasses
 	

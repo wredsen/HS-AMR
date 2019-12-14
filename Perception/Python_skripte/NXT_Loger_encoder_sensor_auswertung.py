@@ -32,7 +32,7 @@ while i <= 100:
 
                                    k = 1
                                    while line[1][-k] != ";":                         #start itterate backwards to search for first ";"
-                                       k+=1
+                                        k+=1
                                    
                                    left_meas = float(line[1][-(k-1):])              #cast from string to float line from -(k-1) to end of line
                                    sample_value_left[sampcount_l] = left_meas      #save sample to array 
@@ -46,7 +46,7 @@ while i <= 100:
                                    m = k+1
 
                                    while line[1][-m] != ";":                         #start itterate backwards to search for first ";" beginning from k+1
-                                          m+=1
+                                        m+=1
 
                                    right_meas = float(line[1][-(m-1):-(k)])           #cast from string to float line from -(m-1) to -(k-1) second sample 
                                    sample_value_right[sampcount_r] = right_meas        #save sample to array

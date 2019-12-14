@@ -151,9 +151,8 @@ public class CTR_D3 {
 						Pose endPose = new Pose(.60f,-.25f,0);
 						control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 						control.setParkingData(startPose, endPose);
+						control.setCtrlMode(ControlMode.PARK_CTRL);
 					}
-					
-					control.setCtrlMode(ControlMode.PARK_CTRL);
 					
 					
 					//While action				

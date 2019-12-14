@@ -393,6 +393,7 @@ public class ControlRST_Ver2 implements IControl {
     		y_local = -y_local;
     	}
     	
+    	//TODO: Das hier rausnehmen oder inkrement erhöhen?
     	// Check for driving direction
     	if(Math.signum(this.velocity) == 1){
     		x_local = x_local + 0.01;
@@ -431,18 +432,27 @@ public class ControlRST_Ver2 implements IControl {
     		eta = Math.atan((y - y_next)/(x - x_next))- this.currentPosition.getHeading();
     	}
     	// Check if destination is reached
-    	//TODO: Correct value
-    	if(this.currentPosition.getLocation().subtract(this.destination.getLocation()).length()<0.1) {
+    	if(this.currentPosition.getLocation().subtract(this.destination.getLocation()).length()<0.05) {
 			eta = this.destination.getHeading() -this.currentPosition.getHeading();
 	    	omega = KP*eta ;
 	    	etaoldPose = eta;
 			drive(0,omega, 0);
+			//TODO: testen ob das hier fixt
+			if( Math.abs(eta) < 0.07 ){
+				this.setCtrlMode(ControlMode.INACTIVE);
+			}
+			
     	}
     	else {
     	etasumPose += eta;
     	omega = KP*eta + KI*etasumPose + KD*(etaoldPose-eta);
     	etaoldPose = eta;
     	RConsole.println("[control] Fehler: " + omega);
+    	
+    	//TODO: DIRTY FIX funktioniert?
+    	if (Math.abs(this.destination.getHeading()-this.navigation.getPose().getHeading()) > Math.toRadians(50)) {
+    		omega = -omega;
+    	}
     	
     	drive(this.velocity,omega, 0);
     	}

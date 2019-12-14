@@ -21,29 +21,32 @@ public interface IControl {
 
 		
 		/**
-		 * folgt schwarzer Linie
+		 * linefollowing mode at highspeed with low d-control 
 		 */
 		FAST,
 		
+		/**
+		 * linefollowing mode at lowspeed with high d-control 
+		 */
 		SLOW,
 		
 		/**
-		 * einparken
+		 * executing parking in mode
 		 */
 		PARK_CTRL,
 		
 		/**
-		 * v/w-Control
+		 * v/w-Control, redundant, everything already included in drive-method
 		 */
 		VW_CTRL,
 		
 		/**
-		 * eine Zielpsoe anfahren
+		 * executing driving to position by translating and rotating
 		 */
 		SETPOSE,
 		
 		/**
-		 * NXT in Ruhe versetzen
+		 * Sleeping mode
 		 */
 		INACTIVE
 	}
@@ -60,7 +63,7 @@ public interface IControl {
 	/**
 	 *  set the required angular velocity
 	 *  
-	 * @param angularVelocity  the angular velocity to be set
+	 * @param angularVelocity the angular velocity to be set
 	 */
 	public void setAngularVelocity(double angularVelocity);
 
@@ -82,9 +85,25 @@ public interface IControl {
 	public void setPose(Pose currentPosition); 	
 	
 
-	
+	/**
+	 * set destination and speeds before entering setpose-mode
+	 * 
+	 * @param x the destination position in x axis
+	 * @param y the destination position in y axis
+	 * @param phi the heading angle of the robot at the destination
+	 * @param v translatory velocity
+	 * @param omega angular velocity 
+	 * @param startPose latest measured pose 
+	 */
 	public void setDriveFor(double x, double y, double phi, double v, double omega, Pose startPose);
 	
+	
+	/**
+	 * set destination and speeds before entering parking-mode
+	 * 
+	 * @param startPose latest measured pose
+	 * @param endPose finishing pose of parking process 
+	 */
 	public void setParkingData(Pose startPose, Pose endPose);
 	
 	
@@ -95,6 +114,12 @@ public interface IControl {
 	 */
 	public void setCtrlMode(ControlMode ctrl_mode);
 	
+	
+	/**
+	 * get the current control mode
+	 * 
+	 * @return current ctrl_mode
+	 */
 	public ControlMode getCtrlMode();
 	
 	/**

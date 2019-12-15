@@ -16,7 +16,7 @@ gauss_surface_array = np.arange(12, dtype=float).reshape((6, 2))
 # fist value expected value, second value variance
 gauss_hight_array = np.arange(16, dtype=float).reshape((8, 2))
 # fist value expected value, second value variance
-gauss_velocity_array = np.arange(4, dtype=float)
+gauss_velocity_array = np.arange(8, dtype=float).reshape((4,2))
 
 
 j = 0  # variable to itterate thru file
@@ -47,7 +47,7 @@ for i in range(0, 6):
                 try:  # exeption for convertion from string to float
                     t = abs(float(line))
                     # print(t)
-                    sample_surface_array[j+((15*(i//2))-1), i % 2] = t
+                    sample_surface_array[j+((15*(i//2))), i % 2] = t
                 except ValueError:
                     print('not a valid number')
 
@@ -74,11 +74,13 @@ for i in range(0, 8):
             j = 0
 
             for j, line in enumerate(file):  # itterate thru file i
-
+                
                 try:  # exeption for convertion from string to float
+                    #print(j)
+                    #print(j+((15*(i//2))))
                     t = abs(float(line))
-                    # print(t)
-                    sample_hight_array[j+((15*(i//2))-1), i % 2] = t
+                    #print(t)
+                    sample_hight_array[j+((15*(i//2))), i % 2] = t
                 except ValueError:
                     print('not a valid number')
 
@@ -96,14 +98,13 @@ for i in range(0, 4):
     with open(filename, "r") as file:
         if file.mode == 'r':  # check if file is readable
 
-            j = 0
-
+            
             for j, line in enumerate(file):  # itterate thru file i
 
                 try:  # exeption for convertion from string to float
                     t = abs(float(line))
                     # print(t)
-                    sample_velocity_array[j+((15*i)-1)] = t
+                    sample_velocity_array[j+((15*i))] = t
 
                 except ValueError:
                     print('not a valid number')
@@ -125,42 +126,46 @@ if(True):
 
 
 # calculate expected value and variance and print them out
-for i in range(0, 3):
+i = 0
 
-    gauss_surface_array[i, 0] = np.mean(sample_surface_array[(i*15):(i*15)+14, 0])      # mean value from x axis
-    # mean value from y axis
-    gauss_surface_array[i+1, 0] = np.mean(sample_surface_array[(i*15):(i*15)+14, 1])
+while i < 5:
 
-    gauss_surface_array[i, 1] = np.std(sample_surface_array[(i*15):(i*15)+14, 0])       # sigma from x axis
-    # sigma frim y axis
-    gauss_surface_array[i+1, 1] = np.std(sample_surface_array[(i*15):(i*15)+14, 1])
+    gauss_surface_array[i, 0] = np.mean(sample_surface_array[((i//2)*15):((i//2)*15)+14, 0])      # mean value from x axis
+   
+    gauss_surface_array[i+1, 0] = np.mean(sample_surface_array[((i//2)*15):((i//2)*15)+14, 1])    # mean value from y axis
 
-    i += 1
+    gauss_surface_array[i, 1] = np.std(sample_surface_array[((i//2)*15):((i//2)*15)+14, 0])       # sigma from x axis
+  
+    gauss_surface_array[i+1, 1] = np.std(sample_surface_array[((i//2)*15):((i//2)*15)+14, 1])     # sigma frim y axis
+
+    i += 2
 
 # calculate expected value and variance and print them out
-for i in range(0, 6):
 
-    gauss_hight_array[i, 0] = np.mean(sample_hight_array[(i*15):(i*15)+14, 0])            # mean value from x axis
+i = 0
+while i < 7:
+    
+    gauss_hight_array[i, 0] = np.mean(sample_hight_array[((i//2)*15):((i//2)*15)+15, 0])            # mean value from x axis
     # mean value from y axis
-    gauss_hight_array[i+1, 0] = np.mean(sample_hight_array[(i*15):(i*15)+14, 1])
+    gauss_hight_array[i+1, 0] = np.mean(sample_hight_array[((i//2)*15):((i//2)*15)+15, 1])
 
-    gauss_hight_array[i, 1] = np.std(sample_hight_array[(i*15):(i*15)+14, 0])             # sigma from x axis
-    # sigma frim y axis
-    gauss_hight_array[i+1, 1] = np.std(sample_hight_array[(i*15):(i*15)+14, 1])
+    gauss_hight_array[i, 1] = np.std(sample_hight_array[((i//2)*15):((i//2)*15)+15, 0])             # sigma from x axis
+    # sigma from y axis
+    gauss_hight_array[i+1, 1] = np.std(sample_hight_array[((i//2)*15):((i//2)*15)+15, 1])
+    print(np.std(sample_hight_array[((i//2)*15):((i//2)*15)+15, 1]))
+    print((sample_hight_array[((i//2)*15):((i//2)*15)+15, 1]))
 
-    i += 1
+    i += 2
 
 # calculate expected value and variance and print them out
 for i in range(0, 4):
 
-    gauss_velocity_array[i] = np.mean(sample_velocity_array[(
-        i*15):(i*15)+14])            # mean value from x axis
+    gauss_velocity_array[i,0] = np.mean(sample_velocity_array[(i*15):(i*15)+14])            # mean value from x axis
     # gauss_velocity_array[i+1,0] = np.mean(sample_velocity_array[(i*15):(i*15)+14,1])          # mean value from y axis
 
-    gauss_velocity_array[i] = np.std(sample_velocity_array[(i*15):(i*15)+14])             # sigma from x axis
+    gauss_velocity_array[i,1] = np.std(sample_velocity_array[(i*15):(i*15)+14])             # sigma from x axis
     # gauss_velocity_array[i+1,1] = np.std(sample_velocity_array[(i*15):(i*15)+14,1])           # sigma frim y axis
 
-    i += 1
 
 
 if(p == True):
@@ -183,27 +188,43 @@ if(p == True):
     print('sigma x '+str(gauss_surface_array[4, 1]))
     print('sigma y '+str(gauss_surface_array[5, 1]))
     print('')
-    print('höhe 6,3 mm')
+    print('Höhe 6,3 mm')
     print('Mittelwert x '+str(gauss_hight_array[0, 0]))
     print('Mittelwert y '+str(gauss_hight_array[1, 0]))
     print('sigma x '+str(gauss_hight_array[0, 1]))
     print('sigma y '+str(gauss_hight_array[1, 1]))
     print('')
-    print('höhe 5,85 mm')
+    print('Höhe 5,85 mm')
     print('Mittelwert x '+str(gauss_hight_array[2, 0]))
     print('Mittelwert y '+str(gauss_hight_array[3, 0]))
     print('sigma x '+str(gauss_hight_array[2, 1]))
     print('sigma y '+str(gauss_hight_array[3, 1]))
     print('')
-    print('höhe 5,8 mm')
+    print('Höhe 5,8 mm')
     print('Mittelwert x '+str(gauss_hight_array[4, 0]))
     print('Mittelwert y '+str(gauss_hight_array[5, 0]))
     print('sigma x '+str(gauss_hight_array[4, 1]))
     print('sigma y '+str(gauss_hight_array[5, 1]))
     print('')
-    print('höhe 5,3 mm')
+    print('Höhe 5,3 mm')
     print('Mittelwert x '+str(gauss_hight_array[6, 0]))
     print('Mittelwert y '+str(gauss_hight_array[7, 0]))
     print('sigma x '+str(gauss_hight_array[6, 1]))
     print('sigma y '+str(gauss_hight_array[7, 1]))
     print('')
+    print('Geschwindigkeit 25cm/s')
+    print('Mittelwert y '+str(gauss_velocity_array[0,0]))
+    print('sigma y '+str(gauss_velocity_array[0, 1]))
+    print('')
+    print('Geschwindigkeit 12,5cm/s')
+    print('Mittelwert y '+str(gauss_velocity_array[1,0]))
+    print('sigma y '+str(gauss_velocity_array[1, 1]))
+    print('')
+    print('Geschwindigkeit 5cm/s')
+    print('Mittelwert y '+str(gauss_velocity_array[2,0]))
+    print('sigma y '+str(gauss_velocity_array[2, 1]))
+    print('')
+    print('Geschwindigkeit 2,5cm/s')
+    print('Mittelwert y '+str(gauss_velocity_array[3,0]))
+    print('sigma y '+str(gauss_velocity_array[3, 1]))
+   

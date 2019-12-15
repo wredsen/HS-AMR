@@ -114,65 +114,41 @@ public enum CurrentStatusPark {
 	 */
 	CORRECT
 }
-
-public enum CurrentStatusParkOut {
-	/**
-	 * a
-	 */
-	SLOT,
-	/**
-	 * b
-	 */
-	POLYNOM,
-	/**
-	 * indicates that shutdown of main program has initiated
-	 */
-	CENTER;
-}
 	
 	/**
 	 * state in which the main finite state machine is running at the moment
 	 */
-protected static CurrentStatus currentStatus 	= CurrentStatus.INACTIVE;
+	protected static CurrentStatus currentStatus 	= CurrentStatus.INACTIVE;
 	/**
 	 * state in which the main finite state machine was running before entering the actual state
 	 */
-protected static CurrentStatus lastStatus		= CurrentStatus.INACTIVE;
+	protected static CurrentStatus lastStatus		= CurrentStatus.INACTIVE;
 	
 	
 	/**
 	 * state in which the main finite state machine is running at the moment
 	 */
-protected static CurrentStatusDrive currentStatusDrive 	= CurrentStatusDrive.SLOW;
+	protected static CurrentStatusDrive currentStatusDrive 	= CurrentStatusDrive.SLOW;
 	/**
 	 * state in which the main finite state machine was running before entering the actual state
 	 */
-protected static CurrentStatusDrive lastStatusDrive		= CurrentStatusDrive.SLOW;
+	protected static CurrentStatusDrive lastStatusDrive		= CurrentStatusDrive.SLOW;
 	
 	/**
 	 * state in which the main finite state machine is running at the moment
 	 */
-protected static CurrentStatusPark currentStatusPark 	= CurrentStatusPark.TO_SLOT;
+	protected static CurrentStatusPark currentStatusPark 	= CurrentStatusPark.TO_SLOT;
 	/**
 	 * state in which the main finite state machine was running before entering the actual state
 	 */
-protected static CurrentStatusPark lastStatusPark		= CurrentStatusPark.IN_SLOT;
-	
-	/**
-	 * state in which the main finite state machine is running at the moment
-	 */
-protected static CurrentStatusParkOut currentStatusParkOut 	= CurrentStatusParkOut.SLOT;
-	/**
-	 * state in which the main finite state machine was running before entering the actual state
-	 */
-protected static CurrentStatusParkOut lastStatusParkOut		= CurrentStatusParkOut.SLOT;
+	protected static CurrentStatusPark lastStatusPark		= CurrentStatusPark.IN_SLOT;
 	
 	/**
 	 * one line of the map of the robot course. The course consists of a closed chain of straight lines.
 	 * Thus every next line starts where the last line ends and the last line ends where the first line starts.
 	 * This documentation for line0 hold for all lines.
 	 */
-    static Line line0 = new Line(  0,  0, 180,  0);
+	static Line line0 = new Line(  0,  0, 180,  0);
 	static Line line1 = new Line(180,  0, 180, 60);
 	static Line line2 = new Line(180, 60, 150, 60);
 	static Line line3 = new Line(150, 60, 150, 30);
@@ -277,7 +253,12 @@ protected static CurrentStatusParkOut lastStatusParkOut		= CurrentStatusParkOut.
 					if(navigation.getCornerArea()==true) {
 						currentStatusDrive=CurrentStatusDrive.SLOW;
 					}
-				
+					/*
+					if(navigation.getCornerArea()==true && navigation.getCorner()==true) {
+						currentStatusDrive=CurrentStatusDrive.TURN;
+					}
+					*/	
+
 					//State transition check
 					lastStatus = currentStatus;
 					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE &&(anfahrt!=true) ){
@@ -358,8 +339,8 @@ protected static CurrentStatusParkOut lastStatusParkOut		= CurrentStatusParkOut.
 					lastStatus = currentStatus;
 					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_OUT){ //PARKOUT
 						currentStatus = CurrentStatus.PARK_OUT; //PARK_OUT
-					}else if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE){
-						currentStatus = CurrentStatus.INACTIVE; 			
+					//}else if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE){
+					//	currentStatus = CurrentStatus.INACTIVE; 			
 					}else if ( Button.ENTER.isDown() ){
 						currentStatus = CurrentStatus.INACTIVE;
 						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
@@ -402,17 +383,17 @@ protected static CurrentStatusParkOut lastStatusParkOut		= CurrentStatusParkOut.
 							//Into-action
 							if( lastStatusPark != CurrentStatusPark.REACHED_SLOT ) {
 								Pose startPose = navigation.getPose();
-									if(Math.abs(startPose.getHeading())<Math.toRadians(10)) {
-										endPose = new Pose((float)p2.getX()-0.10f,(float)p2.getY()-.26f,0);
-										//endPose = new Pose(1.20f,-0.26f,0);
+									/*if(Math.abs(startPose.getHeading())<Math.toRadians(10)) {
+										//endPose = new Pose((float)p2.getX()-0.10f,(float)p2.getY()-.26f,0);
+										endPose = new Pose(1.20f,-0.26f,0);
 									}else if(Math.abs(startPose.getHeading()-Math.PI/2)<Math.toRadians(10)) {
 										endPose = new Pose((float)p2.getX()+0.26f,(float)p2.getY()-.10f,0);
 									}else if(Math.abs(startPose.getHeading()-Math.PI)<Math.toRadians(10)) {
 										endPose = new Pose((float)p2.getX()+0.10f,(float)p2.getY()+0.26f,0);
-									}
+									}*/
 								//Pose endPose = new Pose(.60f,-.25f,0);
 								control.setDriveFor(0, 0, 0, 7, 0, navigation.getPose());
-								control.setParkingData(startPose,endPose);
+								control.setParkingData(startPose,new Pose(1.10f,-0.26f,0));
 								
 							}
 							
@@ -424,7 +405,7 @@ protected static CurrentStatusParkOut lastStatusParkOut		= CurrentStatusParkOut.
 							break;
 						////////////////////////////////
 						case IN_SLOT:
-							
+							Sound.beep();
 							differenz=perception.getBackSensorDistance()-perception.getFrontSensorDistance(); //Richtige Sensoren?
 							if(Math.abs(differenz)>0.05) {
 								currentStatusPark=CurrentStatusPark.CORRECT;
@@ -499,24 +480,9 @@ protected static CurrentStatusParkOut lastStatusParkOut		= CurrentStatusParkOut.
 						
 					}
 					//While action
-					switch(currentStatusParkOut) {
-					case SLOT:
-						
-						break;
-					/////////////////////////////////////////////////////////////////////////////////////
-					case CENTER:
-						
-						break;
-					////////////////////////////////////////////////////////////////////////////////////
-					case POLYNOM:
-						
-						break;
-					
-					}
 					
 					//State transition check
 					lastStatus = currentStatus;
-					lastStatusParkOut=currentStatusParkOut;
 					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE){ //PARKOUT muss noch implementiert werden
 						currentStatus = CurrentStatus.INACTIVE;
 					}else if ( Button.ENTER.isDown() ){

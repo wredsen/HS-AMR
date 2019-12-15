@@ -857,7 +857,7 @@ public class NavigationAT_Ver12 implements INavigation{
 				foundBackBoundary = false;
 				newFrontBoundaryPosition=new Point(this.pose.getX(),this.pose.getY());
 				//if (checkDublicate() == false)
-				//this.saveParkingSlot();
+				this.saveParkingSlot();
 				numberOfSlots++;
 			}
 		}

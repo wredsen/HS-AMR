@@ -10,8 +10,9 @@ import parkingRobot.INavigation;
 import parkingRobot.IPerception;
 import parkingRobot.INavigation.ParkingSlot;
 import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
-import parkingRobot.hsamr1.NavigationThread_Ver12;
-import parkingRobot.hsamr1.Guidance_Ver12;
+import parkingRobot.hsamr1.NavigationThread_Ver2;
+import parkingRobot.hsamr1.CTR_D3;
+import parkingRobot.hsamr1.CTR_D3.CurrentStatus;
 import parkingRobot.IMonitor;
 
 import java.util.*;
@@ -27,7 +28,7 @@ import java.util.*;
  * 
  * @author IfA
  */
-public class NavigationAT_Ver12 implements INavigation{
+public class NavigationAT_Ver2 implements INavigation{
 	
 	INavigation.ParkingSlot[] Slots=null;  
 	int mapModus = 1; 	// 1 for real, big map and 2 for small test-map
@@ -205,7 +206,7 @@ public class NavigationAT_Ver12 implements INavigation{
 	/**
 	 * thread started by the 'Navigation' class for background calculating
 	 */
-	NavigationThread_Ver12 navThread = new NavigationThread_Ver12(this);
+	NavigationThread_Ver2 navThread = new NavigationThread_Ver2(this);
 
 	
 	/**
@@ -215,7 +216,7 @@ public class NavigationAT_Ver12 implements INavigation{
 	 * @param perception corresponding main module Perception class object
 	 * @param monitor corresponding main module Monitor class object
 	 */
-	public NavigationAT_Ver12(IPerception perception, IMonitor monitor){
+	public NavigationAT_Ver2(IPerception perception, IMonitor monitor){
 		this.perception   = perception;
 		this.monitor = monitor;
 		this.encoderLeft  = perception.getNavigationLeftEncoder();
@@ -523,7 +524,7 @@ public class NavigationAT_Ver12 implements INavigation{
 				return true;
 			}
 		
-			if ((this.pose.getX()>=0.35) && (this.pose.getX()<=1.45) && (this.pose.getY()>=0.20)) {
+			if ((this.pose.getX()>=0.45) && (this.pose.getX()<=1.35) && (this.pose.getY()>=0.20)) {
 				return true;
 			}
 			else {
@@ -760,7 +761,7 @@ public class NavigationAT_Ver12 implements INavigation{
 			//xResult=xResult+0.09;
 		}
 
-		if(!(Guidance_Ver12.getCurrentStatus() == Guidance_Ver12.CurrentStatus.INACTIVE || Guidance_Ver12.getCurrentStatus() == Guidance_Ver12.CurrentStatus.EXIT) && (mapModus==1)){
+		if((CurrentStatus.DRIVING==CTR_D3.currentStatus) && (mapModus==1)){
 			
 			//	Linie 1
 			if(this.pose.getX()>0.10&&this.pose.getX()<1.70&&this.pose.getY()<0.10) { 

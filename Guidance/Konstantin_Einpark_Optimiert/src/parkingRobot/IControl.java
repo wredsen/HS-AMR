@@ -1,0 +1,138 @@
+package parkingRobot;
+
+import lejos.robotics.navigation.Pose;
+import parkingRobot.IControl.ControlMode;
+
+/**
+ * interface for the main module 'Control', providing methods for executing the algorithms to
+ * control the robot according to different modes which is set by guidance.
+ * 
+ * @author RST
+ */
+public interface IControl {
+	// Inputs
+	
+	
+	/**
+	 * The predefined control modes
+	 */
+	public enum ControlMode {
+		
+
+		
+		/**
+		 * linefollowing mode at highspeed with low d-control 
+		 */
+		FAST,
+		
+		/**
+		 * linefollowing mode at lowspeed with high d-control 
+		 */
+		SLOW,
+		
+		/**
+		 * executing parking in mode
+		 */
+		PARK_CTRL,
+		
+		/**
+		 * v/w-Control, redundant, everything already included in drive-method
+		 */
+		VW_CTRL,
+		
+		/**
+		 * executing driving to position by translating and rotating
+		 */
+		SETPOSE,
+		
+		/**
+		 * Sleeping mode
+		 */
+		INACTIVE
+	}
+	
+		
+	/**
+	 * set the required speed
+	 * 
+	 * @param velocity the velocity of the robot to be set
+	 */	
+	public void setVelocity(double velocity);
+
+	
+	/**
+	 *  set the required angular velocity
+	 *  
+	 * @param angularVelocity the angular velocity to be set
+	 */
+	public void setAngularVelocity(double angularVelocity);
+
+	/**
+	 * set the destination to be driven to
+	 * 
+	 * @param heading the heading angle of the robot at the destination
+	 * @param x the destination position in x axis
+	 * @param y the destination position in y axis
+	 */
+	public void setDestination(double heading, double x, double y);
+		
+	
+	/**
+	 * the Robot's current position 
+	 * 
+	 * @param currentPosition the current position of the robot at each sampling  
+	 */	
+	public void setPose(Pose currentPosition); 	
+	
+
+	/**
+	 * set destination and speeds before entering setpose-mode
+	 * 
+	 * @param x the destination position in x axis
+	 * @param y the destination position in y axis
+	 * @param phi the heading angle of the robot at the destination
+	 * @param v translatory velocity
+	 * @param omega angular velocity 
+	 * @param startPose latest measured pose 
+	 */
+	public void setDriveFor(double x, double y, double phi, double v, double omega, Pose startPose);
+	
+	
+	/**
+	 * set destination and speeds before entering parking-mode
+	 * 
+	 * @param startPose latest measured pose
+	 * @param endPose finishing pose of parking process 
+	 */
+	public void setParkingData(Pose startPose, Pose endPose);
+	
+	
+	/**
+	 * set the current control mode
+	 * 
+	 * @param ctrl_mode parameter for control mode which is defined by Guidance 
+	 */
+	public void setCtrlMode(ControlMode ctrl_mode);
+	
+	
+	/**
+	 * get the current control mode
+	 * 
+	 * @return current ctrl_mode
+	 */
+	public ControlMode getCtrlMode();
+	
+	/**
+	 * set start time
+	 * @param startTime start time
+	 */
+	public void setStartTime(int startTime);
+	
+	
+	/**
+	 * execute the selected algorithms for control which was set by guidance
+	 */
+	public void exec_CTRL_ALGO();
+
+}
+

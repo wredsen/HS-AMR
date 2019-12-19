@@ -184,6 +184,7 @@ public enum CurrentStatusParkOut {
 	
 	
 	private static boolean turning=false;
+	private static boolean outside=false;
 	private static boolean anfahrt=false;
 	private static boolean correct=false;
 	private static boolean back=false;
@@ -301,7 +302,6 @@ public enum CurrentStatusParkOut {
 						currentStatus = CurrentStatus.EXIT;
 					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS &&(anfahrt==false)){ //ausgewählter Parkplatz
 						currentStatus = CurrentStatus.PARK_THIS;
-					//Anfahrt Parklücke -> wenn in der Nähe, dann Wechsel in den Einparkvorgang	
 					}else if (anfahrt==true && (Math.abs(navigation.getPose().getX()-anfahrort.getX())<0.05) && (Math.abs(navigation.getPose().getY()-anfahrort.getY())<0.05)) {
 						control.setCtrlMode(ControlMode.INACTIVE);
 						currentStatus = CurrentStatus.PARK_THIS;
@@ -390,14 +390,16 @@ public enum CurrentStatusParkOut {
 					//monitor.writeGuidanceComment("Park_This und nichts machen"); 
 					//Into action
 					if(lastStatus != CurrentStatus.PARK_THIS) {
-					parkplatz =hmi.getSelectedParkingSlot();
-					ParkingSlot[] parkingslots= navigation.getParkingSlots();
-					anfahrort=parkingslots[parkplatz-1].getFrontBoundaryPosition(); //start
-					p2=parkingslots[parkplatz-1].getBackBoundaryPosition();//ende 
-					//p2=new Point(1.10f,0f);
-					//anfahrort= new Point(0.5f,0f);
-					anfahrt=false;
-					correct=false;
+						if(anfahrt==false) {
+							currentStatusPark=CurrentStatusPark.TO_SLOT;
+						}
+						parkplatz =hmi.getSelectedParkingSlot();
+						ParkingSlot[] parkingslots= navigation.getParkingSlots();
+						//Hier überprüfen später beim Zusammenhauen
+						anfahrort=parkingslots[parkplatz-1].getFrontBoundaryPosition(); //start
+						p2=parkingslots[parkplatz-1].getBackBoundaryPosition();//ende 
+						anfahrt=false;
+						correct=false;
 					}
 					//While action
 					switch(currentStatusPark)
@@ -418,8 +420,8 @@ public enum CurrentStatusParkOut {
 										startPose.setHeading((float)Math.toRadians(90)); 
 										endPose = new Pose((float)startPose.getX()+0.26f,(float)startPose.getY()+.45f,0);
 									}else if(Math.abs(startPose.getHeading()-Math.PI)<Math.toRadians(20)) {
-										startPose.setHeading((float)Math.toRadians(180));
-										endPose = new Pose((float)startPose.getX()-0.45f,(float)startPose.getY()+0.26f,0);
+										startPose.setHeading((float)Math.PI);
+										endPose = new Pose((float)(startPose.getX()-0.45f),(float)startPose.getY()+0.26f,0);
 									}
 								control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 								control.setParkingData(startPose,endPose);
@@ -436,11 +438,12 @@ public enum CurrentStatusParkOut {
 						////////////////////////////////
 						case IN_SLOT:
 							//Sound.beep();
-							differenz=(float)perception.getBackSensorDistance()-(float)perception.getFrontSensorDistance(); //Richtige Sensoren?
+							/*differenz=(float)perception.getBackSensorDistance()-(float)perception.getFrontSensorDistance(); //Richtige Sensoren?
 							LCD.drawString("D (in cm): " + (differenz), 0, 4);
 							if(Math.abs(differenz)>10) {
 								currentStatusPark=CurrentStatusPark.CORRECT;
-							}else correct=true;
+							}else */
+							correct=true;
 							break;
 						////////////////////////////////	
 						case CORRECT:
@@ -508,52 +511,71 @@ public enum CurrentStatusParkOut {
 				 * TODO-> all
 				 */
 					//Into action
+					
 					if ( lastStatus != CurrentStatus.PARK_OUT ){
+						currentStatusParkOut=CurrentStatusParkOut.BACKWARDS;
 						back=false;
-						if(perception.getFrontSideSensorDistance()<30) {
-							double distance = perception.getBackSensorDistance();
-							
-							if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(10))){//wenn Winkel 90°
-								control.setDriveFor(navigation.getPose().getX(), navigation.getPose().getY()-distance, navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
-								control.setCtrlMode(ControlMode.SETPOSE);
-							}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(10))){ //wenn Winkel 0° 
-								control.setDriveFor(navigation.getPose().getX()-distance, navigation.getPose().getY(), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
-								control.setCtrlMode(ControlMode.SETPOSE);
-							}else {//Winkel 180°
-								control.setDriveFor(navigation.getPose().getX()+distance, navigation.getPose().getY(), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
-								control.setCtrlMode(ControlMode.SETPOSE);
-							}
-							if(control.getCtrlMode()==ControlMode.INACTIVE) {
-								back=true;
-							}
-						}else {
-							back=true;
 						}	
 					
 					
-					
-					if(back==true) {
-						Pose startPose = navigation.getPose();
-						if(Math.abs(startPose.getHeading())<Math.toRadians(20)) {
-							startPose.setHeading(0);
-							endPose = new Pose((float)startPose.getX()+0.45f,0,0);
-						}else if(Math.abs(startPose.getHeading()-Math.PI/2)<Math.toRadians(20)) {
-							startPose.setHeading((float)Math.toRadians(90)); 
-							endPose = new Pose((float)startPose.getX()-0.26f,(float)startPose.getY()+.45f,0);
-						}else if(Math.abs(startPose.getHeading()-Math.PI)<Math.toRadians(20)) {
-							startPose.setHeading((float)Math.toRadians(180));
-							endPose = new Pose((float)startPose.getX()-0.45f,(float)startPose.getY()-0.26f,0);
-						}
-						control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
-						control.setParkingData(startPose,endPose);
-						control.setCtrlMode(ControlMode.PARK_CTRL);
-						
-					}
-					}
-					
 					//While action
-					//State transition check
+					switch(currentStatusParkOut) {
+					
+					case BACKWARDS:
+						if(lastStatusParkOut!=currentStatusParkOut) {
+							if(perception.getFrontSensorDistance()<30) {
+								double distance = perception.getBackSensorDistance();
+							
+								if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(10))){//wenn Winkel 90°
+									control.setDriveFor(navigation.getPose().getX(), navigation.getPose().getY()-(distance*0.01), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+									control.setCtrlMode(ControlMode.SETPOSE);
+								}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(10))){ //wenn Winkel 0° 
+									control.setDriveFor(navigation.getPose().getX()-(distance*0.01), navigation.getPose().getY(), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+									control.setCtrlMode(ControlMode.SETPOSE);
+								}else {//Winkel 180°
+									control.setDriveFor(navigation.getPose().getX()+(distance*0.01), navigation.getPose().getY(), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+									control.setCtrlMode(ControlMode.SETPOSE);
+								}
+							}
+							Thread.sleep(50);
+						}
+						if(control.getCtrlMode()==ControlMode.INACTIVE) {
+							back=true;
+						}
+						break;
+					/////////////////////////////////////////////////////////////////////////////////////////////////////	
+					case PARKOUT:
+						if(lastStatusParkOut!=currentStatusParkOut) {
+							Pose startPose = navigation.getPose();
+							if(Math.abs(startPose.getHeading())<Math.toRadians(20)) {
+								startPose.setHeading(0);
+								endPose = new Pose((float)startPose.getX()+0.45f,(float)startPose.getY()+0.24f,0);
+							}else if(Math.abs(startPose.getHeading()-Math.PI/2)<Math.toRadians(20)) {
+								startPose.setHeading((float)Math.toRadians(90)); 
+								endPose = new Pose((float)startPose.getX()-0.24f,(float)startPose.getY()+.45f,0);
+							}else if(Math.abs(startPose.getHeading()-Math.PI)<Math.toRadians(20)) {
+								startPose.setHeading((float)Math.toRadians(180));
+								endPose = new Pose((float)startPose.getX()-0.45f,(float)startPose.getY()-0.24f,0);
+							}
+							control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
+							control.setParkingData(startPose,endPose);
+							control.setCtrlMode(ControlMode.PARK_CTRL);
+							}
+						if(control.getCtrlMode()==ControlMode.INACTIVE) {
+							outside=true;
+						}
+						break;
+					}
+					//State transition check 1
+					lastStatusParkOut=currentStatusParkOut;
+					if(back==true) {
+						currentStatusParkOut=CurrentStatusParkOut.PARKOUT;
+						back=false;		
+					}
+					
+					//State transition check 2
 					lastStatus = currentStatus;
+					
 					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE){ //PARKOUT muss noch implementiert werden
 						currentStatus = CurrentStatus.INACTIVE;
 					}else if ( Button.ENTER.isDown() ){
@@ -564,7 +586,7 @@ public enum CurrentStatusParkOut {
         				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
         			}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
         				currentStatus = CurrentStatus.EXIT;
-        			}else if(control.getCtrlMode()==ControlMode.INACTIVE){
+        			}else if(control.getCtrlMode()==ControlMode.INACTIVE && outside){
         				currentStatus=CurrentStatus.DRIVING;	
         			}
 					
@@ -572,12 +594,12 @@ public enum CurrentStatusParkOut {
 					
 					//
 					break;
-			
-        	}	
-        	Thread.sleep(100);        	
+        	}		
+        	Thread.sleep(100);
 		}
-	}
+		}
 	
+		
 	
 	/**
 	 * returns the actual state of the main finite state machine as defined by the requirements

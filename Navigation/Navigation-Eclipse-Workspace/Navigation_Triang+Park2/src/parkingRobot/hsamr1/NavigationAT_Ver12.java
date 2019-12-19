@@ -523,7 +523,7 @@ public class NavigationAT_Ver12 implements INavigation{
 				return true;
 			}
 		
-			if ((this.pose.getX()>=0.45) && (this.pose.getX()<=1.35) && (this.pose.getY()>=0.20)) {
+			if ((this.pose.getX()>=0.35) && (this.pose.getX()<=1.45) && (this.pose.getY()>=0.20)) {
 				return true;
 			}
 			else {

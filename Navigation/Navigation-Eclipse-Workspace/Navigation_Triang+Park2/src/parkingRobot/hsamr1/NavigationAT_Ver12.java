@@ -12,6 +12,7 @@ import parkingRobot.INavigation.ParkingSlot;
 import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
 import parkingRobot.hsamr1.NavigationThread_Ver12;
 import parkingRobot.hsamr1.Guidance_Ver12;
+import parkingRobot.hsamr1.Guidance_Ver12.CurrentStatus;
 import parkingRobot.IMonitor;
 
 import java.util.*;
@@ -523,7 +524,7 @@ public class NavigationAT_Ver12 implements INavigation{
 				return true;
 			}
 		
-			if ((this.pose.getX()>=0.35) && (this.pose.getX()<=1.45) && (this.pose.getY()>=0.20)) {
+			if ((this.pose.getX()>=0.45) && (this.pose.getX()<=1.35) && (this.pose.getY()>=0.20)) {
 				return true;
 			}
 			else {
@@ -760,7 +761,7 @@ public class NavigationAT_Ver12 implements INavigation{
 			//xResult=xResult+0.09;
 		}
 
-		if(!(Guidance_Ver12.getCurrentStatus() == Guidance_Ver12.CurrentStatus.INACTIVE || Guidance_Ver12.getCurrentStatus() == Guidance_Ver12.CurrentStatus.EXIT) && (mapModus==1)){
+		if((CurrentStatus.DRIVING==Guidance_Ver12.currentStatus) && (mapModus==1)){
 			
 			//	Linie 1
 			if(this.pose.getX()>0.10&&this.pose.getX()<1.70&&this.pose.getY()<0.10) { 
@@ -857,7 +858,7 @@ public class NavigationAT_Ver12 implements INavigation{
 				foundBackBoundary = false;
 				newFrontBoundaryPosition=new Point(this.pose.getX(),this.pose.getY());
 				//if (checkDublicate() == false)
-				this.saveParkingSlot();
+				//this.saveParkingSlot();
 				numberOfSlots++;
 			}
 		}

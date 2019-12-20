@@ -34,7 +34,7 @@ public interface INavigation {
 	 */
 	public void setDetectionState(boolean isOn);
 	
-	
+	public void setPose(Pose a);
 	// Class control
 	
 	/**

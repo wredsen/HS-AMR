@@ -247,7 +247,13 @@ public class NavigationAT_Ver2 implements INavigation{
 	public void setDetectionState(boolean isOn){
 		this.parkingSlotDetectionIsOn = isOn;
 	}
-	
+	/**
+	 * 
+	 * @param a
+	 */
+	public void setPose(Pose a){
+		this.pose = a;
+	}
 	
 	// 	Class control
 	

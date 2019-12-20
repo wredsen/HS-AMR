@@ -135,7 +135,7 @@ public enum CurrentStatusParkOut {
 	/**
 	 * state in which the main finite state machine was running before entering the actual state
 	 */
-	protected static CurrentStatus lastStatus		= CurrentStatus.INACTIVE;
+	protected static CurrentStatus lastStatus		= CurrentStatus.PARK;
 	
 	
 	/**
@@ -160,7 +160,7 @@ public enum CurrentStatusParkOut {
 	/**
 	 * state in which the main finite state machine was running before entering the actual state
 	 */
-	protected static CurrentStatusParkOut lastStatusParkOut		= CurrentStatusParkOut.BACKWARDS;
+	protected static CurrentStatusParkOut lastStatusParkOut		= CurrentStatusParkOut.PARKOUT;
 	
 	/**
 	 * one line of the map of the robot course. The course consists of a closed chain of straight lines.
@@ -221,6 +221,8 @@ public enum CurrentStatusParkOut {
 		monitor.addGuidanceVar("Y");
 		monitor.addGuidanceVar("W");
 		monitor.startLogging();
+		
+		navigation.setPose(new Pose(0,0,0));
 				
 		while(true) {
 			LCD.clear();
@@ -243,6 +245,7 @@ public enum CurrentStatusParkOut {
 					//LCD.drawString("DRIVING",0,0);
 					//Into action
 					if(lastStatus!=currentStatus) {
+						Sound.beep();
 						if(navigation.getCornerArea()==true) {
 							control.setCtrlMode(ControlMode.SLOW);
 						}
@@ -362,7 +365,8 @@ public enum CurrentStatusParkOut {
 						Sound.twoBeeps();
 					}
 					//While action
-					
+					LCD.drawString("Abstand"+perception.getFrontSensorDistance(),0 ,5);
+					LCD.drawString("Abstand"+perception.getBackSensorDistance(),0 ,6);
 					//State transition check
 					lastStatus = currentStatus;
 					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_OUT){ //PARKOUT
@@ -406,6 +410,14 @@ public enum CurrentStatusParkOut {
 					{
 						case TO_SLOT:
 							anfahrt=true;
+							if(Math.abs(navigation.getPose().getHeading())<Math.toRadians(20)) {
+								anfahrort.x=(float)(anfahrort.x+0.05);
+							}else if(Math.abs(navigation.getPose().getHeading()-Math.PI/2)<Math.toRadians(20)) {
+								anfahrort.y=(float)(anfahrort.y+0.05);
+							}else if(Math.abs(navigation.getPose().getHeading()-Math.PI)<Math.toRadians(20)) {
+								anfahrort.x=(float)(anfahrort.x-0.05);
+							}
+													
 							currentStatus = CurrentStatus.DRIVING;
 							break;
 						////////////////////////////////	
@@ -452,24 +464,24 @@ public enum CurrentStatusParkOut {
 								Sound.beep();
 								if(Math.signum(differenz)<0) {//negative differenz -> zu weit links -> vorwärtsfahren
 									if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(10))){//wenn Winkel 90°
-										control.setDriveFor(navigation.getPose().getX(), navigation.getPose().getY()-differenz, navigation.getPose().getHeading(), 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setDriveFor(0,-differenz,0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 										control.setCtrlMode(ControlMode.SETPOSE);
 									}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(10))){ //wenn Winkel 0° 
-										control.setDriveFor(navigation.getPose().getX()-differenz, navigation.getPose().getY(), navigation.getPose().getHeading(), 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setDriveFor(-differenz,0,0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 										control.setCtrlMode(ControlMode.SETPOSE);
 									}else {//Winkel 180°
-										control.setDriveFor(navigation.getPose().getX()+differenz, navigation.getPose().getY(), navigation.getPose().getHeading(), 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setDriveFor(differenz,0,0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 										control.setCtrlMode(ControlMode.SETPOSE);
 									}		
 								}else {//positive differenz -> zu weit rechts -> rückwärtsfahren
 									if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(10))){//wenn Winkel 90°
-										control.setDriveFor(navigation.getPose().getX(), navigation.getPose().getY()-differenz, navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setDriveFor(0,-differenz,0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 										control.setCtrlMode(ControlMode.SETPOSE);
 									}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(10))){ //wenn Winkel 0° 
-										control.setDriveFor(navigation.getPose().getX()-differenz, navigation.getPose().getY(), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setDriveFor(-differenz,0,0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 										control.setCtrlMode(ControlMode.SETPOSE);
 									}else {//Winkel 180°
-										control.setDriveFor(navigation.getPose().getX()+differenz, navigation.getPose().getY(), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+										control.setDriveFor(differenz,0,0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 										control.setCtrlMode(ControlMode.SETPOSE);
 									}	
 								}
@@ -526,14 +538,14 @@ public enum CurrentStatusParkOut {
 							if(perception.getFrontSensorDistance()<30) {
 								double distance = perception.getBackSensorDistance();
 							
-								if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(10))){//wenn Winkel 90°
-									control.setDriveFor(navigation.getPose().getX(), navigation.getPose().getY()-(distance*0.01), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+								if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(20))){//wenn Winkel 90°
+									control.setDriveFor(0,(distance*0.01),0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 									control.setCtrlMode(ControlMode.SETPOSE);
-								}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(10))){ //wenn Winkel 0° 
-									control.setDriveFor(navigation.getPose().getX()-(distance*0.01), navigation.getPose().getY(), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+								}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(20))){ //wenn Winkel 0° 
+									control.setDriveFor((0-distance*0.01),0,0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}else {//Winkel 180°
-									control.setDriveFor(navigation.getPose().getX()+(distance*0.01), navigation.getPose().getY(), navigation.getPose().getHeading(), -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+									control.setDriveFor((distance*0.01),0,0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}
 							}
@@ -551,10 +563,10 @@ public enum CurrentStatusParkOut {
 								startPose.setHeading(0);
 								endPose = new Pose((float)startPose.getX()+0.45f,(float)startPose.getY()+0.24f,0);
 							}else if(Math.abs(startPose.getHeading()-Math.PI/2)<Math.toRadians(20)) {
-								startPose.setHeading((float)Math.toRadians(90)); 
+								startPose.setHeading((float)Math.PI/2); 
 								endPose = new Pose((float)startPose.getX()-0.24f,(float)startPose.getY()+.45f,0);
 							}else if(Math.abs(startPose.getHeading()-Math.PI)<Math.toRadians(20)) {
-								startPose.setHeading((float)Math.toRadians(180));
+								startPose.setHeading((float)Math.PI);
 								endPose = new Pose((float)startPose.getX()-0.45f,(float)startPose.getY()-0.24f,0);
 							}
 							control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
@@ -597,7 +609,7 @@ public enum CurrentStatusParkOut {
         	}		
         	Thread.sleep(100);
 		}
-		}
+	}
 	
 		
 	
@@ -621,31 +633,6 @@ public enum CurrentStatusParkOut {
 		LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 1);
 		LCD.drawString("Phi (grd): " + (navigation.getPose().getHeading()/Math.PI*180), 0, 2);
 		
-//		perception.showSensorData();
-		
-//    	if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
-//			LCD.drawString("HMI Mode SCOUT", 0, 3);
-//		}else if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE ){
-//			LCD.drawString("HMI Mode PAUSE", 0, 3);
-//		}else{
-//			LCD.drawString("HMI Mode UNKNOWN", 0, 3);
-//		}
 	}
-	
-	/*protected static double[] calcLGS(double x0, double x1, double y0, double y1) {
-	 *	double c_0=y0;
-	 *	double c_1=0;
-	 *	double c_2=((y1-y0)/(x1-x0))/(x1-x0);
-	 *	double c_3=(-2*(y1-y0)/(x1-x0))/((x1-x0)*(x1-x0));
-	 *	double[] param= {c_0,c_1,c_2,c_3}; 
-	 *   return param;}	
-	 */
-	
-	/**
-	 * für Funktion p(x)=c0+c1*(x-x0)+c2*(x-x0)^2+c3*(x-x0)^2*(x-x1)
-	 * @return parameter c0 c1 c2 c3
-	 *
-	 *	public double[] getparameter(){
-	 *	return parameter;
-	 */
+
 }

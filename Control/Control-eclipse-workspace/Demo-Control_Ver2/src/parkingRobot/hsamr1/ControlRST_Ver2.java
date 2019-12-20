@@ -321,15 +321,19 @@ public class ControlRST_Ver2 implements IControl {
     	{
 		    // angle for driving straight to the destination and setting it as desired angle for control
 		    double routeAngle = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX()); 
-		    // for driving backwards emulate forward angle
+		   
+		    //TODO: Fixt das hier das rückwärts fahren?, eventuell noch Vorzeichen von omega bei Drive ändern falls v negativ
+		    // for driving backwards: emulate forward angle
 		    if (this.velocity < 0) {
-		    	routeAngle = routeAngle + Math.PI;
+		    	routeAngle = (routeAngle + Math.PI) % (2*Math.PI);
+		    	signEnterAng = Math.signum((this.enteringRouteAngle + Math.PI) % (2*Math.PI));
 		    }
 		    omegaPID.updateDesiredValue(routeAngle);
 		    	
 		    // first Rotate towards destination 
 		    if ((signEnterAng*(routeAngle - this.currentPosition.getHeading()) >  Math.toRadians(5)) && this.angularVelocity != 0) {
-		    	drive(0,this.angularVelocity, 0); // turn only
+		    	// for driving backwards: emulate forward omega control
+		    	drive(0, this.angularVelocity, 0); // rotate only
 		    }
 		    	
 		    // driving forward
@@ -444,13 +448,20 @@ public class ControlRST_Ver2 implements IControl {
 			
     	}
     	else {
-    	etasumPose += eta;
-    	omega = KP*eta + KI*etasumPose + KD*(etaoldPose-eta);
-    	etaoldPose = eta;
-    	RConsole.println("[control] Fehler: " + omega);
-    	
-    	drive(this.velocity,omega, 0);
-    	}
+	    	etasumPose += eta;
+	    	omega = KP*eta + KI*etasumPose + KD*(etaoldPose-eta);
+	    	etaoldPose = eta;
+	    	RConsole.println("[control] Fehler: " + omega);
+	    	
+	    	//TODO: DIRTY FIX funktioniert?, sonst versuchen rauszunhemen und PD werte besser zu kalibrieren
+	    	if (Math.abs(this.destination.getHeading()-this.navigation.getPose().getHeading()) > Math.toRadians(50)) {
+	    		omega = -omega;
+	    	}if (Math.abs(omega) > Math.toRadians(40)) {
+	            omega = Math.signum(omega)*Math.toRadians(40);
+	        }
+	    	
+	    	drive(this.velocity,omega, 0);
+	    }
 
 	}
 	
@@ -465,16 +476,11 @@ public class ControlRST_Ver2 implements IControl {
     private void exec_FAST_ALGO() {
     	leftMotor.forward();
 		rightMotor.forward();
+		double desiredVelocity = 15;
 		// PID-control with angularVelocity as output, deviation from black line center via linesensors as input
 		PID_Ver2 lineFollowPIDFast = new PID_Ver2(0, SAMPLETIME, 0.2, 0, 0.05, 999999, false);
-		double desiredVelocity = 15;
 		int lineControlFast = (int) lineFollowPIDFast.runControl(this.lineSensorLeft - this.lineSensorRight);
-		drive(desiredVelocity, 0, lineControlFast);
-		
-		//LCD.clear();
-		//LCD.drawString("X:" + navigation.getPose().getX(), 0, 2);
-		//LCD.drawString("Y:" + navigation.getPose().getY(), 0, 3);
-		//LCD.drawString("C Num = " + this.navigation.getCornerNumber(), 0,5);		
+		drive(desiredVelocity, 0, lineControlFast);	
     }
     
     /**
@@ -484,18 +490,16 @@ public class ControlRST_Ver2 implements IControl {
     private void exec_SLOW_ALGO() {
     	leftMotor.forward();
 		rightMotor.forward();
-		// PID-control with angularVelocity as output, deviation from black line center via linesensors as input
-		PID_Ver2 lineFollowPIDSlow = new PID_Ver2(0, SAMPLETIME, 0.3, 0.0, 0.13, 999999, true);	// D: 0.09
 		double desiredVelocity = 7;
+		// PID-control with angularVelocity as output, deviation from black line center via linesensors as input
+		PID_Ver2 lineFollowPIDSlow = new PID_Ver2(0, SAMPLETIME, 0.3, 0.0, 0.13, 999999, true);
 		int lineControlSlow = (int) lineFollowPIDSlow.runControl(this.lineSensorLeft - this.lineSensorRight);
 		drive(desiredVelocity, 0, lineControlSlow);
-		//LCD.clear();
-		//LCD.drawString("X:" + navigation.getPose().getX(), 0, 2);
-		//LCD.drawString("Y:" + navigation.getPose().getY(), 0, 3);
-		//LCD.drawString("C Num = " + this.navigation.getCornerNumber(), 0,5);		
     }
     
-	
+	/** 
+	 * stopping all kinds of the robot's movement immediately
+	 */
 	private void stop(){
 		this.leftMotor.stop();
 		this.rightMotor.stop();
@@ -504,16 +508,16 @@ public class ControlRST_Ver2 implements IControl {
     /**
      * calculates the left and right angle speed of the both motors with given velocity 
      * and angle velocity of the robot
+     * also contains underlying control of angular velocity
      * @param v velocity of the robot
      * @param omega angle velocity of the robot
      */
-	private void drive(double v, double omega, int control){
-		//Aufgabe 3.2
+	private void drive(double v, double w, int control){
 		double desiredVelocity = v; // in cm/s
-		double desiredAngularVelocity = omega; // in 1/s
+		double desiredAngularVelocity = w; // in 1/s
 		
-	    PID_Ver2 leftRPMPID = new PID_Ver2(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //0.6, 0.2, 0.005
-	    PID_Ver2 rightRPMPID = new PID_Ver2(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); //0.6, 0.2, 0.005
+	    PID_Ver2 leftRPMPID = new PID_Ver2(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false);
+	    PID_Ver2 rightRPMPID = new PID_Ver2(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); 
 	    
 	    int leftControlOut = 0;
 	    int rightControlOut = 0;
@@ -531,19 +535,14 @@ public class ControlRST_Ver2 implements IControl {
 		leftMotor.forward();
 		rightMotor.forward();
 		
-		
-		// MONITOR (example)
-		monitor.writeControlVar("LeftSensor", "" + this.lineSensorLeft);
-		monitor.writeControlVar("RightSensor", "" + this.lineSensorRight);
-		
-		/* Vorsteuerung*/
+		/* feed forward control*/
 		desiredRPMLeft = (desiredVelocity-(desiredAngularVelocity*(WHEELDISTANCE/2)/10))/(WHEELDIA*Math.PI/(10.0*60.0));
 		desiredRPMRight = (desiredVelocity+(desiredAngularVelocity*(WHEELDISTANCE/2)/10))/(WHEELDIA*Math.PI/(10.0*60.0)); 
+		// power values from sampled linear regression
 		desiredPowerLeft = (int) (0.72762 * desiredRPMLeft + 8.61696);
 		desiredPowerRight = (int) (0.77850 * desiredRPMRight + 8.40402);
 		
-			
-		
+		// RPM from angle difference and conversion from deg/s to RPM 
 		measuredRPMLeft = ((double) leftAngle.getAngleSum() / (double) leftAngle.getDeltaT()) * 166.667; //in revelations per min
 		measuredRPMRight = ((double) rightAngle.getAngleSum() / (double) rightAngle.getDeltaT()) * 166.667; //in revelations per min
 		
@@ -555,17 +554,6 @@ public class ControlRST_Ver2 implements IControl {
 		
 		leftMotor.setPower(desiredPowerLeft + leftControlOut);
 		rightMotor.setPower(desiredPowerRight + rightControlOut);
-		
-		/*
-		LCD.clear();
-		LCD.drawString("DesRPMLeft:"+desiredRPMLeft, 0, 1);
-		LCD.drawString("DesRPMRight:"+desiredRPMRight, 0, 2);
-		LCD.drawString("MeasRPMLeft:"+measuredRPMLeft, 0, 3);
-		LCD.drawString("MeasRPMRight:"+measuredRPMRight, 0, 4);
-		LCD.drawString("RegLeft:"+leftControlOut, 0, 5);
-		LCD.drawString("RegRight:"+rightControlOut, 0, 6);
-		*/
-		//LCD.drawString("SampleTime:"+this.encoderRight.getEncoderMeasurement().getDeltaT(), 0, 7);
 	}
 }
 

@@ -86,16 +86,16 @@ public interface IControl {
 	
 
 	/**
-	 * set destination and speeds before entering setpose-mode
+	 * set RELATIVE destination and velocities before entering setpose-mode
 	 * 
-	 * @param x the destination position in x axis
-	 * @param y the destination position in y axis
-	 * @param phi the heading angle of the robot at the destination
-	 * @param v translatory velocity
-	 * @param omega angular velocity 
+	 * @param x the destination position in x axis in m
+	 * @param y the destination position in y axis in m 
+	 * @param phi the heading angle of the robot at the destination in rad
+	 * @param v translatory velocity in cm//s
+	 * @param w angular velocity in rad/s
 	 * @param startPose latest measured pose 
 	 */
-	public void setDriveFor(double x, double y, double phi, double v, double omega, Pose startPose);
+	public void setDriveFor(double x, double y, double phi, double v, double w, Pose startPose);
 	
 	
 	/**

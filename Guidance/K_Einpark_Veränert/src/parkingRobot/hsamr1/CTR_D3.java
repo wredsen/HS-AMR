@@ -411,7 +411,7 @@ public enum CurrentStatusParkOut {
 						case TO_SLOT:
 							anfahrt=true;
 							if(Math.abs(navigation.getPose().getHeading())<Math.toRadians(20)) {
-								anfahrort.x=(float)(anfahrort.x+0.05);
+								anfahrort.x=(float)(anfahrort.x+0.07);
 							}else if(Math.abs(navigation.getPose().getHeading()-Math.PI/2)<Math.toRadians(20)) {
 								anfahrort.y=(float)(anfahrort.y+0.05);
 							}else if(Math.abs(navigation.getPose().getHeading()-Math.PI)<Math.toRadians(20)) {
@@ -539,7 +539,7 @@ public enum CurrentStatusParkOut {
 								double distance = perception.getBackSensorDistance();
 							
 								if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(20))){//wenn Winkel 90°
-									control.setDriveFor(0,(distance*0.01),0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+									control.setDriveFor(0,-(distance*0.01),0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(20))){ //wenn Winkel 0° 
 									control.setDriveFor((0-distance*0.01),0,0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s

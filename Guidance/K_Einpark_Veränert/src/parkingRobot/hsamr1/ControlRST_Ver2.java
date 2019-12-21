@@ -3,7 +3,6 @@ package parkingRobot.hsamr1;
 
 import lejos.robotics.navigation.Pose;
 import parkingRobot.IControl;
-import parkingRobot.IControl.ControlMode;
 import parkingRobot.IMonitor;
 import parkingRobot.IPerception;
 import parkingRobot.IPerception.*;
@@ -19,6 +18,12 @@ import lejos.geom.Point;
  *
  */
 public class ControlRST_Ver2 implements IControl {
+	
+	/* geometric constants of the robot */
+	final double WHEELDIA = 56; // in mm
+	final double WHEELDISTANCE = 150; // in mm
+	
+	final double SAMPLETIME = 0.032; // in seconds
 	
 	/**
 	 * reference to {@link IPerception.EncoderSensor} class for left robot wheel which measures the wheels angle difference
@@ -59,14 +64,16 @@ public class ControlRST_Ver2 implements IControl {
 	IMonitor monitor = null;
 	ControlThread_Ver2 ctrlThread = null;
 	
+	/* class variables of desired velocities */
 	double velocity = 10.0;	// in cm/s
-	double angularVelocity = 0.10;	// in 1/s
+	double angularVelocity = 1.0;	// in rad/s
 	
-	Pose startPosition = new Pose();
 	Pose currentPosition = new Pose();
 	Pose destination = new Pose();
-	Pose enteringPosition = new Pose();
-	double enteringEta = 0;
+	
+	/* pose Data while entering the SETPOSE-mode */ 
+	Pose enteringPose = new Pose();
+	double enteringRouteAngle = 0;
 	
 	ControlMode currentCTRLMODE = null;
 	
@@ -74,13 +81,6 @@ public class ControlRST_Ver2 implements IControl {
 	EncoderSensor controlLeftEncoder     = null;
 
 	int lastTime = 0;
-	
-    double currentDistance = 0.0;
-    double Distance = 0.0;
-    
-	final double SAMPLETIME = 0.032; // in seconds
-	final double WHEELDIA = 56; // in mm
-	final double WHEELDISTANCE = 150; // in mm
 	
 	/**
 	 * provides the reference transfer so that the class knows its corresponding navigation object (to obtain the current 
@@ -146,18 +146,25 @@ public class ControlRST_Ver2 implements IControl {
 		this.destination.setLocation((float) x, (float) y);
 	}
 	
-	public void setDriveFor(double x, double y, double phi, double v, double omega, Pose enteringPosition) {
-		setDestination(enteringPosition.getHeading()+phi, enteringPosition.getX() + x, enteringPosition.getY() + y);
+	/**
+	 * set drive for
+	 * @see parkingRobot.IControl#setDriveFor(double x, double y, double phi, double v, double w, Pose startPose)
+	 */
+	public void setDriveFor(double x, double y, double phi, double v, double w, Pose enteringPose) {
+		setDestination(enteringPose.getHeading()+phi, enteringPose.getX() + x, enteringPose.getY() + y);
 		setVelocity(v);
-		setAngularVelocity(omega);
-		this.enteringPosition = enteringPosition;
-		this.enteringEta = Math.atan2(this.destination.getY()-this.enteringPosition.getY(), this.destination.getX()-this.enteringPosition.getX());
+		setAngularVelocity(w);
+		this.enteringPose = enteringPose;
+		this.enteringRouteAngle = Math.atan2(this.destination.getY()-this.enteringPose.getY(), this.destination.getX()-this.enteringPose.getX());
 	}
 	
 	Point offset;
 	double trajectory_a = 0.0;
 	double trajectory_c = 0.0;
-	
+	/**
+	 * set parking data
+	 * @see parkingRobot.IControl#setParkingData(Pose startPose, Pose endPose)
+	 */
 	public void setParkingData(Pose startPose, Pose endPose) {
 		 // Check angle of the parking slot
 		float angle = startPose.getHeading();
@@ -192,11 +199,10 @@ public class ControlRST_Ver2 implements IControl {
 	}
 	
 	/**
-	 * sets current pose
+	 * set pose
 	 * @see parkingRobot.IControl#setPose(Pose currentPosition)
 	 */
 	public void setPose(Pose currentPosition) {
-		// TODO Auto-generated method stub
 		this.currentPosition = currentPosition;
 	}
 	
@@ -208,6 +214,10 @@ public class ControlRST_Ver2 implements IControl {
 		this.currentCTRLMODE = ctrl_mode;
 	}
 	
+	/**
+	 * get ctrl mode
+	 * @see parkingRobot.IControl#getCtrlMode()
+	 */
 	public ControlMode getCtrlMode() {
 		return this.currentCTRLMODE;
 	}
@@ -230,23 +240,23 @@ public class ControlRST_Ver2 implements IControl {
 		
 		switch (currentCTRLMODE)
 		{
-			case FAST	:	update_LINECTRL_Parameter();
-							exec_FAST_ALGO();
-							break;
-			case SLOW	:	update_LINECTRL_Parameter();
-							exec_SLOW_ALGO();
-							break;
+			case FAST		:	update_LINECTRL_Parameter();
+								exec_FAST_ALGO();
+								break;
+			case SLOW		:	update_LINECTRL_Parameter();
+								exec_SLOW_ALGO();
+								break;
 			case VW_CTRL	:	update_VWCTRL_Parameter();
 				   				exec_VWCTRL_ALGO();
 				   				break; 
 			case SETPOSE	: 	update_SETPOSE_Parameter();
 					  			exec_SETPOSE_ALGO();
-				                break;
-			case PARK_CTRL	: update_PARKCTRL_Parameter();
-				  			  exec_PARKCTRL_ALGO();
-				  			  break;		  					  
-			case INACTIVE 	: exec_INACTIVE();
-					          break;
+					  			break;
+			case PARK_CTRL	:	update_PARKCTRL_Parameter();
+				  				exec_PARKCTRL_ALGO();
+				  				break;		  					  
+			case INACTIVE 	: 	exec_INACTIVE();
+					          	break;
 		}
 
 	}
@@ -271,7 +281,7 @@ public class ControlRST_Ver2 implements IControl {
 	 * update parameters during PARKING Control Mode
 	 */
 	private void update_PARKCTRL_Parameter(){
-		//Aufgabe 3.4
+		//redundant method already done in setParkingData and exec_PARKCTRL_ALGO
 	}
 
 	/**
@@ -284,68 +294,59 @@ public class ControlRST_Ver2 implements IControl {
 	}
 	
 	/**
-	 * The car can be driven with velocity in m/s or angular velocity in grade during VW Control Mode
+	 * the robot can be driven with velocity in cm/s or angular velocity in rad/s during VW Control Mode
 	 * optionally one of them could be set to zero for simple test.
 	 */
     private void exec_VWCTRL_ALGO(){  
 		this.drive(this.velocity, this.angularVelocity, 0);
 	}
-    
-	// UNBEDINGT REWORKEN: gehackt fuer 1. Verteidigung
 
+    /**
+     * driving for destination with prior in setDriveFor-method set parameters
+     * enables controlled sequences of driving forward
+     */
     private void exec_SETPOSE_ALGO(){
+    	// PD-control with angularVelocity as output, deviating angle as input
+    	PID_Ver2 omegaPID = new PID_Ver2(0, SAMPLETIME, 12, 0, 0.01, 0, false);
     	
-    	PID_Ver2 omegaPID = new PID_Ver2(0, SAMPLETIME, 12, 0, 0.01, 0, false); // 0.3, 0, 0.1, 2 // 0.7
-    	double signX = Math.signum(this.destination.getX() - this.enteringPosition.getX());
-    	double signY = Math.signum(this.destination.getY() - this.enteringPosition.getY());
-    	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPosition.getHeading());
-    	double signEta = Math.signum(this.enteringEta);
+    	// signs of the initial pose data for checking if destination is reached and not driving beyond
+    	double signX = Math.signum(this.destination.getX() - this.enteringPose.getX());
+    	double signY = Math.signum(this.destination.getY() - this.enteringPose.getY());
+    	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPose.getHeading());
+    	double signEnterAng = Math.signum(this.enteringRouteAngle);
     	
-    	this.update_SETPOSE_Parameter();
-    	//LCD.clear();
-		//LCD.drawString("akt phi:"+ currentPosition.getHeading(), 0, 3);
-		//LCD.drawString("Ziel phi:"+ destination.getHeading() + " " + destination.getX() + " " + destination.getY(), 0, 4);
-		//LCD.drawString("akt:" + currentPosition.getX() + " " + currentPosition.getY(), 0, 6);
-		//LCD.drawString("Ziel:"+ destination.getX() + " " + destination.getY(), 0, 7);
-    	
-    	double omega = this.angularVelocity;
-    	double eta;
-    	
-    	if ((	signX*(this.destination.getX() - this.currentPosition.getX()) > 0.005 ||
-    			signY*(this.destination.getY() - this.currentPosition.getY()) > 0.005    )
-    			&& this.velocity != 0) 
+    	if (	(	signX*(this.destination.getX() - this.currentPosition.getX()) > 0.005 ||
+    				signY*(this.destination.getY() - this.currentPosition.getY()) > 0.005    )
+    			&& 	this.velocity != 0) 
     	{
-	    	// Angle for driving to destination point
-	    	double angleCourse = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX());
-	    	// Diff-Angle
-	    	eta = angleCourse - this.currentPosition.getHeading();
-	    	omegaPID.updateDesiredValue(angleCourse);
-	    	
-	    	
-	    	// First Rotate
-	    	if ((signEta*eta >  Math.toRadians(5)) && this.angularVelocity != 0) // only turn
-	    	{
-	    		drive(0,this.angularVelocity, 0);
-	    	}
-	    	
-	    	// Translate only
-	    	else
-	    	{
-	    		// drive with angle control
-		    	omega = omegaPID.runControl(this.currentPosition.getHeading());
-		    	drive(this.velocity,omega, 0);
-		    	LCD.clear(6);
-		    	LCD.drawString("CTR_Error:"+ omega, 0, 6);
-	    	}
-    	}
+		    // angle for driving straight to the destination and setting it as desired angle for control
+		    double routeAngle = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX()); 
+		    // for driving backwards emulate forward angle
+		    
+		    if (this.velocity < 0) {
+		          routeAngle = routeAngle + Math.PI;
+		        }
+		    omegaPID.updateDesiredValue(routeAngle);
+		    
+		 // first Rotate towards destination 
+	        if ((signEnterAng*(routeAngle - this.currentPosition.getHeading()) >  Math.toRadians(5)) && this.angularVelocity != 0) {
+	          // for driving backwards: emulate forward omega control
+	          drive(0,this.angularVelocity, 0); // rotate only
+	        }
+		    	    	
+		    // driving forward
+		    else {
+			    drive(this.velocity, omegaPID.runControl(this.currentPosition.getHeading()), 0); // drive with angle control
+		    }
+	    }
     	
-    	//	Rotate only
+    	//	rotate only
     	else if (signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(5) && this.angularVelocity != 0)
     	{
     		drive(0,this.angularVelocity, 0);
     	}
     	
-    	// stop
+    	// stop because destination reached
     	else {
     		this.setCtrlMode(ControlMode.INACTIVE);
     	}
@@ -393,7 +394,7 @@ public class ControlRST_Ver2 implements IControl {
     		y_local = -y_local;
     	}
     	
-    	//TODO: Das hier rausnehmen oder inkrement erhöhen?
+    	//TODO: Das hier rausnehmen oder inkrement erhöhen -> von x abhängig machen?
     	// Check for driving direction
     	if(Math.signum(this.velocity) == 1){
     		x_local = x_local + 0.01;
@@ -431,14 +432,14 @@ public class ControlRST_Ver2 implements IControl {
     	}else {
     		eta = Math.atan((y - y_next)/(x - x_next))- this.currentPosition.getHeading();
     	}
-    	// Check if destination is reached
-    	if(this.currentPosition.getLocation().subtract(this.destination.getLocation()).length()<0.05) {
+    	//	 Check if destination is reached
+    	if(this.currentPosition.getLocation().subtract(this.destination.getLocation()).length()<0.05) 
+    	{
 			eta = this.destination.getHeading() -this.currentPosition.getHeading();
 	    	omega = KP*eta ;
 	    	etaoldPose = eta;
-	    	Sound.beep();
 			drive(0,omega, 0);
-			//TODO: testen ob das hier fixt
+			//TODO: Winkel verkleinern von 0.07 abwärts
 			if( Math.abs(eta) < 0.07 ){
 				this.setCtrlMode(ControlMode.INACTIVE);
 			}
@@ -449,14 +450,13 @@ public class ControlRST_Ver2 implements IControl {
     	omega = KP*eta + KI*etasumPose + KD*(etaoldPose-eta);
     	etaoldPose = eta;
     	RConsole.println("[control] Fehler: " + omega);
-    	
+    	//�NDERUNG
     	//TODO: DIRTY FIX funktioniert?
-    	if (Math.abs(this.destination.getHeading()-this.navigation.getPose().getHeading()) > Math.toRadians(50)) {
-    		omega = -omega;
-    	}if (Math.abs(omega) > Math.toRadians(40)) {
-            omega = Math.signum(omega)*Math.toRadians(40);
-        }
-    	//Sound.twoBeeps();
+        if (Math.abs(this.destination.getHeading()-this.navigation.getPose().getHeading()) > Math.toRadians(50)) {
+          omega = -omega;
+        }if (Math.abs(omega) > Math.toRadians(40)) {
+              omega = Math.signum(omega)*Math.toRadians(40);
+          }
     	drive(this.velocity,omega, 0);
     	}
 
@@ -468,14 +468,12 @@ public class ControlRST_Ver2 implements IControl {
 	
 	/**
 	 * DRIVING along black line
-	 * Minimalbeispiel
-	 * Linienverfolgung fuer gegebene Werte 0,1,2
-	 * white = 0, black = 2, grey = 1
+	 * with high speed of 15 cm/s and low d-control
 	 */
     private void exec_FAST_ALGO() {
-
     	leftMotor.forward();
 		rightMotor.forward();
+		// PID-control with angularVelocity as output, deviation from black line center via linesensors as input
 		PID_Ver2 lineFollowPIDFast = new PID_Ver2(0, SAMPLETIME, 0.2, 0, 0.05, 999999, false);
 		double desiredVelocity = 15;
 		int lineControlFast = (int) lineFollowPIDFast.runControl(this.lineSensorLeft - this.lineSensorRight);
@@ -487,10 +485,14 @@ public class ControlRST_Ver2 implements IControl {
 		//LCD.drawString("C Num = " + this.navigation.getCornerNumber(), 0,5);		
     }
     
+    /**
+	 * DRIVING along black line
+	 * with low speed of 7 cm/s and high d-control
+	 */
     private void exec_SLOW_ALGO() {
-    	
     	leftMotor.forward();
 		rightMotor.forward();
+		// PID-control with angularVelocity as output, deviation from black line center via linesensors as input
 		PID_Ver2 lineFollowPIDSlow = new PID_Ver2(0, SAMPLETIME, 0.3, 0.0, 0.13, 999999, true);	// D: 0.09
 		double desiredVelocity = 7;
 		int lineControlSlow = (int) lineFollowPIDSlow.runControl(this.lineSensorLeft - this.lineSensorRight);
@@ -575,9 +577,7 @@ public class ControlRST_Ver2 implements IControl {
 	}
 }
 
-/*	geändert: ThreadSleeps angepasst, PID ADRW geändert, vorher e1-e2
+/*	geändert:
  * 
- * TODO: 	mehr D im linefollow
- * 			Transition von Driving in TURNING kontrollieren
- * 			Regelausgang bei drive(..,omega,control) in omega packen 
+ * TODO:	Regelausgang bei drive(..,omega,control) in omega packen 
  */

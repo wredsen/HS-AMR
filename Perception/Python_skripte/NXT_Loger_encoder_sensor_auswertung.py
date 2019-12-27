@@ -12,6 +12,7 @@ sample_value_right = np.arange(40,dtype=float)
 mean_value_left = np.arange(40,dtype=float).reshape((10,4)) # pro Zeile (PWM, Drehzahl)
 mean_value_right = np.arange(40,dtype=float).reshape((10,4)) # pro Zeile (PWM, Drehzahl)
 
+func = 2 # 1 rpm to power 2 power to rpm
 
 i = 10
 while i <= 100: 
@@ -35,7 +36,7 @@ while i <= 100:
                                         k+=1
                                    
                                    left_meas = float(line[1][-(k-1):])              #cast from string to float line from -(k-1) to end of line
-                                   sample_value_left[sampcount_l] = left_meas      #save sample to array 
+                                   sample_value_right[sampcount_l] = left_meas      #save sample to array 
                                    sampcount_l += 1                                  #increment sample count
 
                               except ValueError:            
@@ -49,7 +50,7 @@ while i <= 100:
                                         m+=1
 
                                    right_meas = float(line[1][-(m-1):-(k)])           #cast from string to float line from -(m-1) to -(k-1) second sample 
-                                   sample_value_right[sampcount_r] = right_meas        #save sample to array
+                                   sample_value_left[sampcount_r] = right_meas        #save sample to array
                                    sampcount_r += 1                                  #increment sample count
 
                               except ValueError:
@@ -70,39 +71,73 @@ while i <= 100:
                mean_value_left[(i//10)-1, 2]  = np.std(sample_value_left)
      i = i+10          
                
-print(mean_value_left[:,1])
-print(mean_value_right[:,1])
+#print(mean_value_left[:,1])
+#print(mean_value_right[:,1])
 
 #Skaliere die RPMs:
 sample_time = 0.105 # miliseconds
 mean_value_left[:,3] = (mean_value_left[:,1]/sample_time) * (60/360) 
 mean_value_right[:,3] = (mean_value_right[:,1]/sample_time) * (60/360)     
 
-print(mean_value_left[:,3])
-print(mean_value_right[:,3])
+#print(mean_value_left[:,3])
+#print(mean_value_right[:,3])
 
-plt.plot(mean_value_left[:,3], mean_value_left[:,0],'ro')                            #plot scatter of left motor with red dots  
-plt.plot(mean_value_right[:,3], mean_value_right[:,0],'bo')                          #plot scatter of right motor with blue dots
+if(func == 1):
 
-#claculate a fit of first degree
-fit_left = np.polyfit(mean_value_left[:, 3],mean_value_left[:, 0],1)                 
-fit_right = np.polyfit(mean_value_right[:, 3],mean_value_right[:, 0],1)
+     plt.plot(mean_value_left[:,3], mean_value_left[:,0],'ro')                            #plot scatter of left motor with red dots  
+     plt.plot(mean_value_right[:,3], mean_value_right[:,0],'bo')                          #plot scatter of right motor with blue dots
 
-#print out function
-print("Left-Motor-PWM: "+str(fit_left[0])+"*rpm +"+str(fit_left[1]))                 
-print("Right-Motor-PWM: "+str(fit_right[0])+"*rpm +"+str(fit_right[1]))
+     #claculate a fit of first degree
+     fit_left = np.polyfit(mean_value_left[:, 3],mean_value_left[:, 0],1)                 
+     fit_right = np.polyfit(mean_value_right[:, 3],mean_value_right[:, 0],1)
 
-#generate plottable function
-func_left = np.poly1d(fit_left)                                                     
-func_right = np.poly1d(fit_right) 
+     #print out function
+     print("Left-Motor-PWM: "+str(fit_left[0])+"*rpm +"+str(fit_left[1]))                 
+     print("Right-Motor-PWM: "+str(fit_right[0])+"*rpm +"+str(fit_right[1]))
 
-#plot both fit functions 
-plt.plot(mean_value_left[:, 3],func_left(mean_value_left[:, 3]), 'r-')
-plt.plot(mean_value_right[:, 3],func_right(mean_value_right[:, 3]), 'b-')
+     #generate plottable function
+     func_left = np.poly1d(fit_left)                                                     
+     func_right = np.poly1d(fit_right) 
 
-#label axes
-plt.xlabel("RPM [1/min]")
-plt.ylabel("PWM [%]")
+     #plot both fit functions 
+     plt.plot(mean_value_left[:, 3],func_left(mean_value_left[:, 3]), 'r-')
+     plt.plot(mean_value_right[:, 3],func_right(mean_value_right[:, 3]), 'b-')
+
+
+     #label axes
+     plt.xlabel("RPM [1/min]")
+     plt.ylabel("Leistunglevel [%]")
+
+
+
+
+if(func == 2):
+
+     plt.plot(mean_value_left[:,0], mean_value_left[:,3],'ro')                            #plot scatter of left motor with red dots  
+     plt.plot(mean_value_right[:,0], mean_value_right[:,3],'bo')                          #plot scatter of right motor with blue dots
+
+     #claculate a fit of first degree
+     fit_left = np.polyfit(mean_value_left[:, 0],mean_value_left[:, 3],1)                 
+     fit_right = np.polyfit(mean_value_right[:, 0],mean_value_right[:, 3],1)
+
+     #print out function
+     print("Left-Motor-PWM: "+str(fit_left[0])+"*rpm +"+str(fit_left[1]))                 
+     print("Right-Motor-PWM: "+str(fit_right[0])+"*rpm +"+str(fit_right[1]))
+
+     #generate plottable function
+     func_left = np.poly1d(fit_left)                                                     
+     func_right = np.poly1d(fit_right) 
+
+     #plot both fit functions 
+     plt.plot(mean_value_left[:, 0],func_left(mean_value_left[:, 0]), 'r-')
+     plt.plot(mean_value_right[:, 0],func_right(mean_value_right[:, 0]), 'b-')
+
+     #label axes
+     plt.xlabel("Leistunglevel [%]")
+     plt.ylabel("RPM [1/min]")
+     
+
+
 
 #label graphs
 red_patch = mpatches.Patch(color='red', label='linker Motor')

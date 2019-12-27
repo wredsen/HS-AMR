@@ -110,7 +110,7 @@ rects2 = ax.bar(ind+width,zvals,width)
 ax.set_ylabel('Helligkeit in [%]')
 ax.set_xticks(ind+width)
 ax.set_xticklabels( ('schwarz hell','schwarz dunkel', 'grau hell','grau dunkel','weiß hell', 'weiß dunkel') )
-ax.legend( (rects1[0], rects2[0]), ('links', 'rechts') )
+ax.legend( (rects1[0], rects2[0]), ('linker Sensor', 'rechter Sensor') )
 
 def autolabel(rects):
     for rect in rects:
@@ -133,10 +133,10 @@ rects1 = ax.bar(ind,yvals,width)
 zvals=[mean_value_right[0,1],mean_value_right[1,1],mean_value_right[2,1],mean_value_right[3,1],mean_value_right[4,1],mean_value_right[5,1]]
 rects2 = ax.bar(ind+width,zvals,width)
 
-ax.set_ylabel('Zufällige Messabweichung')
+ax.set_ylabel('Messunsicherheit in [%]')
 ax.set_xticks(ind+width)
 ax.set_xticklabels( ('schwarz hell','schwarz dunkel', 'grau hell','grau dunkel','weiß hell', 'weiß dunkel') )
-ax.legend( (rects1[0], rects2[0]), ('links', 'rechts') )
+ax.legend( (rects1[0], rects2[0]), ('linker Sensor', 'rechter Sensor') )
 
 def autolabel(rects):
     for rect in rects:

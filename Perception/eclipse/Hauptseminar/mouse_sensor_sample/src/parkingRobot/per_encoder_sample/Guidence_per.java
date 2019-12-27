@@ -117,7 +117,7 @@ public class Guidence_per {
 				
 		while(true) {
 			//showData(navigation, perception);
-			
+			showData_sharp(perception);
 			
         	switch ( currentStatus )
         	{
@@ -232,6 +232,15 @@ public class Guidence_per {
 		LCD.drawString("right Sensor: " + perception.getRightLineSensorValueRaw(), 0, 1);
 		LCD.drawString("s front: " + perception.getFrontSensorDistance(), 0, 2);
 		//LCD.drawString("s side: " + perception.getFrontSideSensorDistance(), 0, 3);
+		
+	}
+	protected static void showData_sharp(IPerception perception){
+		LCD.clear();	
+		
+		LCD.drawString("s front: " + perception.getFrontSensorDistance(), 0, 0);
+		LCD.drawString("s fside: " + perception.getFrontSideSensorDistance(), 0, 1);
+		LCD.drawString("s back:  " + perception.getBackSensorDistance(), 0, 2);
+		LCD.drawString("s bside: " + perception.getBackSideSensorDistance(), 0, 3);
 		
 	}
 }

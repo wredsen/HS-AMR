@@ -1,0 +1,42 @@
+\chapter{Entwurf Pfadgenerator}
+
+\section{Geforderte Funktionen}
+
+Damit der Roboter einparken kann, soll er einem Polynom folgen. Dabei ist zu beachten, dass für jede Parklücke individuell ein Polynom entwickelt werden muss. In dem Modul Guidance wird die Start- und Endpose festgelegt. Anschließend muss der entsprechende Controlmodus gestartet werden. Die Berechnung des Polynoms wird danach im Control-Modul aufgerufen. 
+
+
+\section{Mathematische Beschreibung}
+
+Eine einfache und gute Einparkkurve entspricht einer Funktion dritten Grades:
+\begin{equation}
+f=y(x)=a*x^3+c*x^2+b*x+d
+\end{equation}
+
+\noindent Die Funktion soll durch den Koordinatenursprung gehen und punktsymmetrisch sein. Das Problem vereinfacht sich auf folgendes Polynom:
+
+\begin{equation}
+f=y(x)=a*x^3+b*x
+\end{equation}
+
+\noindent Es werden zwei Bedingungen benötigt, damit die Koeffizienten berechnet werden können. 
+
+\begin{equation}
+ y_s=a*(x_s)^3+b*x_s
+ \end{equation}
+ \begin{equation}
+y_e=a*(x_e)^3+b*(x_e)
+ \end{equation}
+ 
+\noindent Es folgt:
+ %this.trajectory_a = endPose.getY()/(-2*Math.pow(endPose.getX(),3));
+ \begin{equation}
+a=-\dfrac{y_{end}}{2*x_{end}^3}
+\end{equation}
+\noindent und
+%this.trajectory_c = -this.trajectory_a*3*Math.pow(endPose.getX(),2);
+ \begin{equation} 
+b=-3*a*x_{end}^3
+\end{equation}
+
+\noindent Damit die Brechung stets auf das selbe Problem zurückzuführen ist, gibt es einen globales und lokales Koordinatensystem. Der Mittelpunkt zwischen der Start- und Zielpose im globalen Koordinatensystem entspricht dem Ursprung des lokalem Systems. Dieses ist je nach Richtungswinkel des Roboters entsprechend gedreht.
+   

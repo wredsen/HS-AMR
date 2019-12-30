@@ -1,0 +1,114 @@
+\chapter{Entwurf Missionsplaner}
+
+\section{Geforderte Funktionen}
+
+Die geforderten Funktionen können in fünf Kategorien eingeteilt werden.
+\renewcommand{\labelenumi}{\roman{enumi}}
+\begin{enumerate}
+\item 	Scoutmodus mit Parklückensuche
+\item 	Einparken
+\item	Parken
+\item	Ausparken
+\item	Inaktiv sein
+\end{enumerate}
+
+\noindent Diese Kategorien definieren die Hauptzustände.\\
+
+\noindent Was der Roboter in jener Kategorie machen soll, ist in den Unterzuständen definiert.\\
+
+
+\noindent Scoutmodus bedeutet, dass das Fahrzeug einem Parcours abfährt. Dabei wird einer Linie gefolgt. Wenn eine Ecke detektiert wird, muss die Geschwindigkeit reduziert werden. Das Ziel dabei ist, dass die Regelung genauer arbeiten kann und die Kurve abgefahren wird. Während dem Abfahren sucht der Roboter nach Parklücken.\\
+
+
+\noindent In dem Zustand "Einparken" wird als erstes die Startpose angefahren. Danach wird ein Polynom abgefahren. Wenn die Zielpose in der Lücke erreicht ist, wechselt der Automat automatisch in den Zustand Park. In diesem wird gewartet, bis über die App das Ausparksignal übermittelt wird.\\
+
+
+\noindent Beim Ausparken folgt der Apparat erneut einem Polynom zurück auf die Linie. Dabei muss sichergestellt werden, dass nach vorne genügen Freiraum vorhanden ist, sonst gibt es einen Unfall.
+
+
+
+
+\section{Hauptzustandsmaschine}
+-Orientierung an den geforderten Funktionen\\
+-Aufteilung so, dass die Zustandsübergänge möglichst einfach sind\\
+%
+\begin{tabular}{|p{1.5cm}|p{4cm}|p{4cm}|p{3cm}|}
+	\hline 
+	Zustand & Eingangsaktion & Nominalaktion & Ausgangsaktion \\ 
+	\hline 
+	Driving & Wahl des richtigen Controlmodus & siehe Unterzustandsmaschine & Parklückensuche ausschalten \\ 
+	\hline 
+	 & Parklückensuche einschalten &  &  \\ 
+	\hline
+	Inactive & Auswahl Controlmodus INACTIVE & siehe Unterzustandsmaschine &  \\ 
+	\hline 
+	Exit &  & Abschalten des Systems &  \\ 
+	\hline
+	Park & Auswahl Controlmodus INACTIVE &  &  \\ 
+	\hline
+	Park This & Überprüfung ob die Anfahrt schon erfolgte & siehe Unterzustandsmaschine &  \\ 
+	\hline
+	 & Parkplatzinformationen abfragen &  &  \\ 
+	\hline
+	Park Out & Auswahl des Richtigen Zustands & siehe Unterzustandsmaschine &  \\ 
+	\hline 	
+\end{tabular} 
+
+\section{Unterzustandsmaschine}
+
+\subsection{Scout}
+
+\begin{tabular}{|p{1.5cm}|p{4cm}|p{4cm}|p{3cm}|}
+	\hline 
+	Zustand & Eingangsaktion & Nominalaktion & Ausgangsaktion \\ 
+	\hline 
+	Slow & Controlmodusauswahl langsam &  &  \\ 
+	\hline 
+	Fast & Controlmodusauswahl schnell &  &  \\ 
+	\hline 
+\end{tabular} 
+
+\subsection{Pause}
+
+Es gibt keine Unterzustandsmaschine.
+
+\subsection{Exit}
+
+Es gibt keine Unterzustandsmaschine.
+
+\subsection{Park}
+
+Es gibt keine Unterzustandsmaschine.
+
+\subsection{Park This}
+
+\begin{tabular}{|p{1.5cm}|p{4cm}|p{4cm}|p{3cm}|}
+	\hline 
+	Zustand & Eingangsaktion & Nominalaktion & Ausgangsaktion \\ 
+	\hline 
+	To Slot & Anfahrort festlegen & DRIVING bis Pose erreicht ist &  \\ 
+	\hline 
+	Reached Slot & Start- und Endpose vom Polynom festlegen &  &  \\ 
+	\hline 
+	 & Parkcontrolmudus festlegen & Überprüfung ob Polynom abgefahren wurde &  \\ 
+	\hline
+	In Slot &  &  &  \\ 
+	\hline 
+	Correct &  &  &  \\ 
+	\hline
+\end{tabular} 
+
+\subsection{Park Out}
+
+\begin{tabular}{|p{1.5cm}|p{4cm}|p{4cm}|p{3cm}|}
+	\hline 
+	Zustand & Eingangsaktion & Nominalaktion & Ausgangsaktion \\ 
+	\hline 
+	Backwarts & Überprüfung ob genügend Platz vorhanden ist & Überprüfung ob das Zurückfahren erfolgt ist &  \\ 
+	\hline 
+	ParkOut & Start- und Endpose vom Polynom festlegen  &  &  \\ 
+	\hline  
+	& Parkcontrolmodus festlegen & Überprüfung ob Polynom abgefahren wurde &  \\ 
+	\hline
+ 
+\end{tabular} 

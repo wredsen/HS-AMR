@@ -1,0 +1,31 @@
+# Changelog
+
+## [1.8.0] - 2018-04-20
+### Changed/Enhanced
+- Use the OpenSans font that replaced the old Univers font in the corporate design of the TU for the 'Kopfzeile'
+
+### Bug fixes
+- Include missing package 'pifont'
+- Move hyperref package inclusion to the end of the required packages to fix footnote referencing
+- Remove default file names for user listings and acknowledgements since there is no class option (yet) that can be used to disable these features
+
+## [1.7.0] - 2017-08-14
+### Added
+- Support A5 paper format.
+- Possibility to include a CV.
+- Possibility to include additional content before/after title page.
+- Possibility to include additional content at the end of the document.
+- Support different biblatex backends (biber/bibtex/bitex8).
+- Support specifying 'chair' and 'day of defense' for dissertations.
+- Distinguish between 'Gutachten' and 'Pflichtexemplare' stage of dissertations.
+- Add the IfA logo to the title page heading.
+
+
+### Changed/Enhanced
+- Minor changes to listing colors.
+- Layout improvements for title page of dissertations.
+- Manual construction of the 'Kopfzeile'
+
+### Bug fixes
+- Fix for biblatex complaining about undefined refs.
+- Prevent that footnotes are split onto two pages

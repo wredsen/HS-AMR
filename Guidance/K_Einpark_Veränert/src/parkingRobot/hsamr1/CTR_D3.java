@@ -114,6 +114,11 @@ public enum CurrentStatusPark {
 	CORRECT
 }
 
+/**
+ * 
+ * @author kirch
+ *
+ */
 public enum CurrentStatusParkOut {
 	/**
 	 * a
@@ -181,9 +186,7 @@ public enum CurrentStatusParkOut {
 	 * All above defined lines are bundled in this array and to form the course map.
 	 */
 	static Line[] map = {line0, line1, line2, line3, line4, line5, line6, line7};
-	
-	
-	private static boolean turning=false;
+
 	private static boolean outside=false;
 	private static boolean anfahrt=false;
 	private static boolean correct=false;
@@ -227,22 +230,11 @@ public enum CurrentStatusParkOut {
 		while(true) {
 			LCD.clear();
 			showData(navigation, perception);
-			//monitor.writeGuidanceComment(""+currentStatus);
-			//if(currentStatus==CurrentStatus.PARK_THIS) {
-			//	monitor.writeGuidanceComment(""+currentStatusPark);
-			//}
-			//monitor.writeGuidanceVar("X", ""+navigation.getPose().getX());
-			//monitor.writeGuidanceVar("Y", ""+navigation.getPose().getY());
-			//monitor.writeGuidanceVar("W", ""+navigation.getPose().getHeading());
-			
+				
         	switch ( currentStatus )
         	{
         	/////////////////////////////////////////////////////////////////
 				case DRIVING:
-					// MONITOR (example)
-//					monitor.writeGuidanceComment("Guidance_Driving");
-						
-					//LCD.drawString("DRIVING",0,0);
 					//Into action
 					if(lastStatus!=currentStatus) {
 						Sound.beep();
@@ -278,18 +270,13 @@ public enum CurrentStatusParkOut {
 					
 					//State transition check DRIVE
 					lastStatusDrive = currentStatusDrive;
-					if(navigation.getCornerArea()==false || turning) {
+					if(navigation.getCornerArea()==false) {
 						currentStatusDrive=CurrentStatusDrive.FAST;						
-						turning=false;
 					}
 					if(navigation.getCornerArea()==true) {
 						currentStatusDrive=CurrentStatusDrive.SLOW;
 					}
-					/*
-					if(navigation.getCornerArea()==true && navigation.getCorner()==true) {
-						currentStatusDrive=CurrentStatusDrive.TURN;
-					}
-					*/	
+						
 
 					//State transition check
 					lastStatus = currentStatus;
@@ -324,9 +311,7 @@ public enum CurrentStatusParkOut {
 					}
 					
 					//While action
-					{
-						////////////////////////////////////////
-					}
+					
 					
 					//State transition check
 					lastStatus = currentStatus;
@@ -343,9 +328,7 @@ public enum CurrentStatusParkOut {
 					}
 					
 					//Leave action
-					if ( currentStatus != CurrentStatus.INACTIVE ){
-						//nothing to do here
-					}					
+								
 					break;
 				////////////////////////////////////////////////////////////////////////////////////////
 				case EXIT:
@@ -387,11 +370,7 @@ public enum CurrentStatusParkOut {
 					//
 					break;
 				////////////////////////////////////////////////////////////////////////////////////////
-					/*
-					 *TODO -> Unterscheidung ob 0°,90°,180°-Parklücke -> Polynom unterschiedlich berechnen  
-					 */
 				case PARK_THIS:
-					//monitor.writeGuidanceComment("Park_This und nichts machen"); 
 					//Into action
 					if(lastStatus != CurrentStatus.PARK_THIS) {
 						if(anfahrt==false) {
@@ -494,7 +473,6 @@ public enum CurrentStatusParkOut {
 							break;
 						///////////////////////////////
 					}
-						//wenn abstand nach vorne etwa abstand nach hinten -> correct=true
 					
 					//State transition check
 					lastStatus = currentStatus;
@@ -512,16 +490,11 @@ public enum CurrentStatusParkOut {
 					}else if (control.getCtrlMode() == ControlMode.INACTIVE && correct) {
 							currentStatus = CurrentStatus.PARK;
 							Thread.sleep(500);
-					}
-				//		
-					
+					}					
 					//Leave action
 					break;
 				////////////////////////////////////////////////////////////////////////////////////////
 				case PARK_OUT:
-				/*
-				 * TODO-> all
-				 */
 					//Into action
 					
 					if ( lastStatus != CurrentStatus.PARK_OUT ){
@@ -539,13 +512,13 @@ public enum CurrentStatusParkOut {
 								double distance = perception.getBackSensorDistance();
 							
 								if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(20))){//wenn Winkel 90°
-									control.setDriveFor(0,-(distance*0.01),0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+									control.setDriveFor(0,-(distance*0.01),0, -10, 0, navigation.getPose());	
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(20))){ //wenn Winkel 0° 
-									control.setDriveFor((0-distance*0.01),0,0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+									control.setDriveFor((0-distance*0.01),0,0, -10, 0, navigation.getPose());	
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}else {//Winkel 180°
-									control.setDriveFor((distance*0.01),0,0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+									control.setDriveFor((distance*0.01),0,0, -10, 0, navigation.getPose());	
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}
 							}

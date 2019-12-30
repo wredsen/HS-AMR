@@ -1,0 +1,94 @@
+%*******************************************************************************
+% * Copyright (c) 2006-2013 
+% * Institute of Automation, Dresden University of Technology
+% * 
+% * All rights reserved. This program and the accompanying materials
+% * are made available under the terms of the Eclipse Public License v1.0 
+% * which accompanies this distribution, and is available at
+% * http://www.eclipse.org/legal/epl-v10.html
+% * 
+% * Contributors:
+% *   Institute of Automation - TU Dresden, Germany 
+% *      - initial API and implementation
+% ******************************************************************************/
+
+\documentclass[
+%  print,          % print optimized version of the thesis, standard option
+                  % alternative:
+  screen,        % makes the thesis better readable on screens (onesided, coloured links)
+                  % use only 'print' OR 'screen'
+                  % ATTENTION: 'screen' changes size of text area slightly. Always optimize document WITH
+                  % 'print' option first for printing (size of graphics etc.) and convert afterwards
+                  % in screen optimized version!
+  %listoffigures,  % includes list of figures
+  %listoftables,   % includes list of tables
+  %listoflistings, % includes list of listings
+  abbrevations,   % includes index of symbols and abbrevations
+  bibIfa,         % citation style (IfA standard), alternatives: bibNumeric, bibHarvard
+  biber,          % bibliography backend, alternatives: bibtex, bibtex8, biber
+  langDE         % define the language (default: langDE)
+%  noIfaLogo,     % prevents the 'IfA' logo from being inculded in the header for the title page and abstract
+%  a5paper        % switches to 'A5' paper size (this may only be used for Dissertations!!!)
+]{ifathesis}
+
+%***********************************
+% General commands
+%***********************************
+
+\ifaThesis{Dokumentation}                               % type of the thesis                
+\ifaAuthor{Max Kirchner}                            % author of the thesis
+\ifaAuthorBirthday{03.05.1998}                         % date of birth
+\ifaAuthorBirthplace{Räckelwitz}             % place of birth
+\ifaAuthorCourse{Elektrotechnik}                          % study program
+\ifaAuthorYearOfMatriculation{2017}                    % year of immatriculation
+\ifaKeywords{Dokumentation, Hauptseminar AMR, Robotik, Einparkhilfe}    % Keywords included in pdf-file. Could be found e.g. by Windows file search.
+\ifaTitleDE{Hauptseminar Automatisierungs-, Mess- und Regelungstechnik}       % geman title of the thesis
+%\ifaTitleEN{Teleautomation, Chances and Risks}         % english title of the thesis
+%\ifaAbstractDE{example_files/00_abstract_de}           % a tex file containing the german abstract
+%\ifaAbstractEN{example_files/00_abstract_en__invalid}  % a tex file containing the german abstract
+%\ifaAbbrev{}                                          % a tex file containing the various abbreviations to include into the list of abbreviations (alternatively,
+%\ifaUserListings{}                                    % a tex file containing additional listings to be printed (besides list of figures, tables, and/or listings)
+%\ifaAcknowledegments{}                                % the acknowlegements for the thesis (usually only used for dissertation)
+                                                       % these may also be defined in the text where they are first used)
+
+% supervisors of the thesis (for dissertations, this can be used to indicate the reviewers)
+\ifaSupervisorA{Dr.-Ing. Carsten Knoll}
+\ifaSupervisorB{Dipl.-Ing. Elias Scharf}
+\ifaSupervisorC{Dipl.-Ing. Julian Rahm}
+\ifaSupervisorD{Dr.-Ing. Andrey Morozov}
+\ifaSupervisorE{Dipl.-Ing. Mustafa Saraoglu}
+
+\ifaProfessor{Prof. Dr. techn. Klaus Janschek}         % supervising professor as indicated on the topic description
+\ifaDayOfSubmission{12.01.2020}                        % the day the thesis is submitted
+%\ifaTopicDescriptionPDF{example_files/00_Aufgabenstellung.pdf} % a PDF file of the topic description
+%\ifaAppendix{example_files/appendix}                   % a tex file containing the appendix for the thesis
+
+% Literaturverzeichnis angeben
+\bibliography{bibliography}                            % a bib file containing the reference sources
+\ifaBibliographyBeforeAppendix{false}	                 % print the bibliography before or after the appendix ('true' or 'false')
+%\ifaAdditionalContributors{}                           % additional contributors to be included in the statement of authorship
+
+%***********************************
+% Special commands for dissertations
+%***********************************
+
+%\ifaDissertationStage{Gutachten}                      % stage of the dissertation ('Gutachten' or 'Pflichtexemplare')
+%\ifaChair{}                                           % chair of the phd board
+%\ifaDayOfDefense{}                                    % the day the dissertation was defended (only used in 'Pflichtexemplare' mode)
+%\ifaIncludeBeforeTitlePage{}                          % include additional content before the title page (e.g. bastard title or impressum)
+%\ifaIncludeAfterTitlePage{}                           % include additional content between title page and abstract (e.g. impressum or dedication)
+%\ifaCV{}                                              % include a CV at the end of the document
+%\ifaIncludeAtEndOfDocument{}                          % include additional content at the end of the document (e.g. to reach an even number of pages)
+
+
+%***********************************
+% The actual content of the thesis
+%***********************************
+
+\begin{document} 
+\input{example_files/01_Analyse_Aufgabenstellung.tex}
+\input{example_files/02_Entwurf_MP.tex}
+\input{example_files/03_Entwurf_PG.tex}
+\input{example_files/04_Implementierung.tex}
+\input{example_files/05_Anmerkung.tex}                               
+\end{document}

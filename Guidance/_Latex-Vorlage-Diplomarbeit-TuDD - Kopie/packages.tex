@@ -1,0 +1,111 @@
+%!TEX root = example.tex
+%*******************************************************************************
+% * Copyright (c) 2006-2013 
+% * Institute of Automation, Dresden University of Technology
+% * 
+% * All rights reserved. This program and the accompanying materials
+% * are made available under the terms of the Eclipse Public License v1.0 
+% * which accompanies this distribution, and is available at
+% * http://www.eclipse.org/legal/epl-v10.html
+% * 
+% * Contributors:
+% *   Institute of Automation - TU Dresden, Germany 
+% *      - initial API and implementation
+% ******************************************************************************/
+
+\RequirePackage[utf8]{inputenc}  % Eingabe von Umlauten ermöglichen.
+\RequirePackage[OT1]{fontenc}       % EC-Fonts verwenden, so dass Wörter mit Umlauten getrennt werden
+\RequirePackage[T1]{fontenc}       
+% \RequirePackage{type1ec} % or \RequirePackage{cm-super} % .sty-file cannot be found, the cm-super package has to installed manually using the package manager
+\RequirePackage{lmodern}           % Verbesserte Schriftart. Alternativ auch \RequirePackage{palatino}, \RequirePackage{fourier}, etc.
+
+\RequirePackage{nameref}           % Zusatzpaket zu hyperref. Muss vor inkompatiblen Paketen geladen werden.
+\RequirePackage{graphicx}          % zum Einbinden von Graphiken (.png,.pdf,...)
+\RequirePackage{units}             % zum Korrekten setzen von Einheiten mit \unit[Wert]{Einheit}
+                                   % (noch weitere Befehle unterstützt)
+\RequirePackage{booktabs}          % verbessert das Aussehen von Tabellen, neue Befehle \toprule, \midrule, etc.
+\RequirePackage{colortbl}
+\RequirePackage{multirow}          % Mehrere Zeilen in Tabellen zusammenfassen
+\RequirePackage{multicol}          % Mehrere Spalten in Tabellen zusammenfassen
+\RequirePackage{paralist}          % Ermöglicht parametrisierbare Listen wie z.B. compactitem
+\RequirePackage{subfig}            % Zum Benutzen der Subfigure Umgebung  (2 Bilder in einem)
+\RequirePackage[section]{placeins} % Plaztiert zu einem Abschnitt gehörende Floating-Objekte spätestens am Ende des Abschnitts
+\RequirePackage{pdfpages}          % Zum einbinden von kompletten PDF-Seiten (z.B. Aufgabenstellung)
+\RequirePackage{caption}           % Paket zum Einbinden von Captions bei Nicht-Float-Objekten (hauptsächlich für Anhang)
+
+\RequirePackage{csquotes}		       % Ergänzungspaket zu Babel für erweiterte Zitierfunktionen
+
+\RequirePackage{calc}              % Für Berechnungen mit Variablen
+\RequirePackage{upgreek}           % Aufrechte griechische Buchstaben (beachte ISO konformer Formelsatz)
+\RequirePackage{bm}                % Fette Formelzeichen (Vektoren, Matrizen, etc.)
+
+\RequirePackage{microtype}         % Optischer Randausgleich: Korrigert "Lücken" im Blocksatz; hervorgerufen z.B. durch Silbentrennung
+
+\RequirePackage{textcomp}          % Sonderzeichen wie Copyright, Trademark, Registered und nicht kursives mü
+  % Zum hochgestellten Benutzen der des Registered-Zeichens
+  \def\TReg{\textsuperscript{\textregistered}}
+  % Zum hochgestellten Benutzen der des Copyright-Zeichens
+  \def\TCop{\textsuperscript{\textcopyright}}
+  % Zum hochgestellten Benutzen der des Trademark-Zeichens
+  \def\TTra{\textsuperscript{\texttrademark}}
+
+%  für mathematische Symbole <Kompatibilität zu hyperref beachten!>
+\RequirePackage{amsmath}
+  % Workaround für hyperref Verwendung
+  \let\equation\gather
+  % Workaround für hyperref Verwendung
+  \let\endequation\endgather
+
+% zur scrbook-Klasse passendes Koma-Skript- Paket zum Einbinden einer Kopf-/Fußzeile:
+\RequirePackage[
+  headsepline,  % headsepline für die Linie unter der Kopfzeie,
+  automark      % automark für das automatische Update des Kopfzeileninhalts
+]{scrpage2}
+
+% Für farbige Verweise (die Option 'table' lädt zusätzlich das Paket 'colortbl', wodurch in Tabellen farbige Zellen,
+% Spalten, Zeilen, etc. realisiert werden können)
+\RequirePackage[table]{xcolor}
+
+%\RequirePackage[draft]{fixme}	% Zum Einfügen von Kommentaren im Text, z.B. Erinnerungen welche Stellen noch bearbeitet werden müssen.
+                                % Mit \fixme{}, \fxnote{}, \fxwarning{}, \fxerror{} können differnzierte Notizen gemacht werden.
+                                % Beim Kompilieren wird eine Zusammenfassung gegeben, wie viele fixme-Notizen noch im Dokument sind.
+
+% Anhänge
+\RequirePackage[titletoc]{appendix}
+
+% Quellcode Listings
+\RequirePackage{listings}
+
+% Teilweise sind die Füllpunkte im Inhaltsverzeichnis nicht bündig:
+% \RequirePackage{titletoc} % Inhaltsverzeichnis anpassen 
+
+\newcommand{\setpnumwidth}[1]{\renewcommand{\@pnumwidth}{#1}}
+\newcommand{\setrmarg}[1]{\renewcommand{\@tocrmarg}{#1}}
+
+\setpnumwidth{2.2em}
+\setrmarg{2.3em}
+
+\RequirePackage{icomma}
+
+% date time
+\RequirePackage{datetime}
+
+% Use the Adobe Source Code Pro font as monospaced/ttfamily font
+%\RequirePackage{sourcecodepro} % disable, since it interferes with the 
+
+% Zum Verändern von u.a. Zeilenabständen
+\RequirePackage{setspace}
+
+\RequirePackage{pifont}
+
+% Paket zum setzen von Verweisen im Dokument
+\IfStrEq{\@ifaThesisLanguage}{de}{\PassOptionsToPackage{ngerman}{hyperref}}{}     % necessary for \autoref to work for german and english
+\RequirePackage[
+  pdfpagelabels,
+  plainpages=false,
+  colorlinks=true,
+  pdfdisplaydoctitle=true,  %
+  pdfpagemode=UseOutlines   % Determines how the file is opening:
+                            % UseNone, UseThumbs (show thumbnails), UseOutlines (show bookmarks), FullScreen, UseOC, UseAttachments
+]{hyperref}
+

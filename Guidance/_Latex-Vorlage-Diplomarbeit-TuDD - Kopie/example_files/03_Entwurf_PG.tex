@@ -21,22 +21,22 @@ f=y(x)=a*x^3+b*x
 \noindent Es werden zwei Bedingungen benötigt, damit die Koeffizienten berechnet werden können. 
 
 \begin{equation}
- y_s=a*(x_s)^3+b*x_s
+ y'_{ende}=f'(x_{ende})=0
  \end{equation}
  \begin{equation}
-y_e=a*(x_e)^3+b*(x_e)
+y_{ende}=a*x_{ende}^3+b*x_{ende}
  \end{equation}
  
 \noindent Es folgt:
  %this.trajectory_a = endPose.getY()/(-2*Math.pow(endPose.getX(),3));
  \begin{equation}
-a=-\dfrac{y_{end}}{2*x_{end}^3}
+a=-\dfrac{y_{ende}}{2*x_{ende}^3}
 \end{equation}
 \noindent und
 %this.trajectory_c = -this.trajectory_a*3*Math.pow(endPose.getX(),2);
  \begin{equation} 
-b=-3*a*x_{end}^3
+b=-3*a*x_{ende}^3
 \end{equation}
 
-\noindent Damit die Brechung stets auf das selbe Problem zurückzuführen ist, gibt es einen globales und lokales Koordinatensystem. Der Mittelpunkt zwischen der Start- und Zielpose im globalen Koordinatensystem entspricht dem Ursprung des lokalem Systems. Dieses ist je nach Richtungswinkel des Roboters entsprechend gedreht.
+\noindent Damit die Brechung stets auf das selbe Problem zurückzuführen ist, gibt es einen globales und lokales Koordinatensystem. Der Mittelpunkt zwischen Start- und Zielpose im globalen Koordinatensystem entspricht dem Ursprung des lokalem Systems. Dieses ist je nach Richtungswinkel des Roboters entsprechend gedreht.
    

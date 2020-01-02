@@ -471,10 +471,10 @@ public class NavigationAT implements INavigation{
 			for(int i =0; i<slotList.size() ;i++) {
 				
 				INavigation.ParkingSlot slot = slotList.get(i);
-				double x_Back = slot.getFrontBoundaryPosition().getX();	//////////////////// Unbedingt Vertauschung von Back und Front untersuchen! 
-				double y_Back = slot.getFrontBoundaryPosition().getY();
-				double x_Front = slot.getBackBoundaryPosition().getX();
-				double y_Front = slot.getBackBoundaryPosition().getY();
+				double x_Back = slot.getBackBoundaryPosition().getX();	//////////////////// Unbedingt Vertauschung von Back und Front untersuchen! 
+				double y_Back = slot.getBackBoundaryPosition().getY();
+				double x_Front = slot.getFrontBoundaryPosition().getX();
+				double y_Front = slot.getFrontBoundaryPosition().getY();
 				slotListIndex =  i;
 				
 				if ((y_new_Back < 0.1) ||(y_new_Back>0.2)) {						// check x-values if the detected slot is horizontal

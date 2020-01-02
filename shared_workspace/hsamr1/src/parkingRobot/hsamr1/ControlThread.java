@@ -8,7 +8,7 @@ import parkingRobot.IControl;
  * other main module classes synchronized access must be guaranteed.
  * 
  */
-public class ControlThread_Ver12 extends Thread {
+public class ControlThread extends Thread {
     
 	/**
 	 * 
@@ -21,7 +21,7 @@ public class ControlThread_Ver12 extends Thread {
 	 * 
 	 * @param perception
 	 */
-	ControlThread_Ver12(IControl control){
+	ControlThread(IControl control){
     	this.control = control;
     }
 	

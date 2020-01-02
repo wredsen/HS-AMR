@@ -1,6 +1,6 @@
 package parkingRobot.hsamr1;
 
-public class PID_Ver12 {
+public class PID {
 	
 	double desiredValue = 0;
 	double samplePeriod = 0;
@@ -35,8 +35,17 @@ public class PID_Ver12 {
 	double c1id = 0;
 	double c2id = 0;
 
-	
-	public PID_Ver12(double desiredValue, double samplePeriod, double Kr, double Ki, double Kd, double AIWR, boolean ADWR) {
+	/**
+	 * 
+	 * @param desiredValue
+	 * @param samplePeriod
+	 * @param Kr
+	 * @param Ki
+	 * @param Kd
+	 * @param AIWR
+	 * @param ADWR
+	 */
+	public PID(double desiredValue, double samplePeriod, double Kr, double Ki, double Kd, double AIWR, boolean ADWR) {
 		this.desiredValue = desiredValue;
 		this.samplePeriod = samplePeriod;
 		

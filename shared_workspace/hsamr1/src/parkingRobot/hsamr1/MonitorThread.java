@@ -8,11 +8,11 @@ import parkingRobot.IMonitor;
  * other main module classes synchronized access must be guaranteed.
  *
  */
-public class MonitorThread_Ver12 extends Thread {
+public class MonitorThread extends Thread {
 	
 	IMonitor monitor;
 	
-	MonitorThread_Ver12(IMonitor monitor) {
+	MonitorThread(IMonitor monitor) {
 		this.monitor = monitor;
 	}
 	

@@ -10,9 +10,9 @@ import parkingRobot.INavigation;
 import parkingRobot.IPerception;
 import parkingRobot.INavigation.ParkingSlot;
 import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
-import parkingRobot.hsamr1.NavigationThread_Ver12;
-import parkingRobot.hsamr1.Guidance_Ver12;
-import parkingRobot.hsamr1.Guidance_Ver12.CurrentStatus;
+import parkingRobot.hsamr1.NavigationThread;
+import parkingRobot.hsamr1.Guidance;
+import parkingRobot.hsamr1.Guidance.CurrentStatus;
 import parkingRobot.IMonitor;
 
 import java.util.*;
@@ -28,22 +28,19 @@ import java.util.*;
  * 
  * @author IfA
  */
-public class NavigationAT_Ver12 implements INavigation{
+public class NavigationAT implements INavigation{
 	
 	INavigation.ParkingSlot[] Slots=null;  
 	int mapModus = 1; 	// 1 for real, big map and 2 for small test-map
 	
 	/////////////////////////////////////////////////////////// Variablen fuer Parkluecken
 	boolean foundBackBoundary = false;
-	boolean verticalSlot = false;
-	
+
 	Point newBackBoundaryPosition=null;
 	Point newFrontBoundaryPosition=null;
 	
-	int parkingSlotAreaNumber = 0;
 	int numberOfSlots = 0;
 	int ID = 1;
-	int slotListIndex = 0;
 	int slotMeasurementQuality = 1;
 	ArrayList<ParkingSlot>slotList=new ArrayList<ParkingSlot>();
 	
@@ -209,7 +206,7 @@ public class NavigationAT_Ver12 implements INavigation{
 	/**
 	 * thread started by the 'Navigation' class for background calculating
 	 */
-	NavigationThread_Ver12 navThread = new NavigationThread_Ver12(this);
+	NavigationThread navThread = new NavigationThread(this);
 
 	
 	/**
@@ -219,7 +216,7 @@ public class NavigationAT_Ver12 implements INavigation{
 	 * @param perception corresponding main module Perception class object
 	 * @param monitor corresponding main module Monitor class object
 	 */
-	public NavigationAT_Ver12(IPerception perception, IMonitor monitor){
+	public NavigationAT(IPerception perception, IMonitor monitor){
 		this.perception   = perception;
 		this.monitor = monitor;
 		this.encoderLeft  = perception.getNavigationLeftEncoder();
@@ -250,7 +247,13 @@ public class NavigationAT_Ver12 implements INavigation{
 	public void setDetectionState(boolean isOn){
 		this.parkingSlotDetectionIsOn = isOn;
 	}
-	
+	/**
+	 * 
+	 * @param a
+	 */
+	public void setPose(Pose a){
+		this.pose = a;
+	}
 	
 	// 	Class control
 	
@@ -340,7 +343,7 @@ public class NavigationAT_Ver12 implements INavigation{
 	 */
 	public boolean detectCorner() {
 		
-		if (perception.getFrontSensorDistance() < 19 && lastCornerNumber != 4) {
+		if (perception.getFrontSensorDistance() < 17 && lastCornerNumber != 4) {
 			return true;
 		}
 		else if(perception.getFrontSensorDistance() < 55 && nextCornerNumber == 5){
@@ -437,11 +440,8 @@ public class NavigationAT_Ver12 implements INavigation{
 	 */
 	private boolean detectBackBoundary() {
 		boolean backBoundary = false;
-		if (verticalSlot==false) {
-			if (perception.getFrontSideSensorDistance() > 45) backBoundary = true;
-		}
-		else {
-			if (perception.getBackSideSensorDistance() > 45) backBoundary = true;
+		if (perception.getFrontSideSensorDistance() > 45) {
+			backBoundary = true;
 		}
 		return backBoundary;
 	}
@@ -452,7 +452,7 @@ public class NavigationAT_Ver12 implements INavigation{
 	 */
 	private boolean detectFrontBoundary() {
 		boolean frontBoundary = false;
-		if (perception.getFrontSideSensorDistance() < 20) {
+		if (perception.getFrontSideSensorDistance() < 15) {
 			frontBoundary = true;
 		}
 		return frontBoundary;
@@ -468,16 +468,16 @@ public class NavigationAT_Ver12 implements INavigation{
 		double x_new_Front = newFrontBoundaryPosition.getX();
 		double y_new_Front = newFrontBoundaryPosition.getY();
 		if (slotList.size()>0) {
+			
 			for(int i =0; i<slotList.size() ;i++) {
 				
 				INavigation.ParkingSlot slot = slotList.get(i);
-				double x_Back = slot.getFrontBoundaryPosition().getX();	//////////////////// Unbedingt Vertauschung von Back und Front untersuchen! 
-				double y_Back = slot.getFrontBoundaryPosition().getY();
-				double x_Front = slot.getBackBoundaryPosition().getX();
-				double y_Front = slot.getBackBoundaryPosition().getY();
-				slotListIndex =  i;
+				double x_Back = slot.getBackBoundaryPosition().getX();
+				double y_Back = slot.getBackBoundaryPosition().getY();
+				double x_Front = slot.getFrontBoundaryPosition().getX();
+				double y_Front = slot.getFrontBoundaryPosition().getY();
 				
-				if ((y_new_Back < 0.1) ||(y_new_Back>0.2)) {						// check x-values if the detected slot is horizontal
+				if ((y_new_Back < 0.1)||(y_new_Back>0.2)) {						// check x-values if the detected slot is horizontal
 					if (Math.abs(x_new_Back - x_Back)< 0.10) return true;			
 					if (Math.abs(x_new_Front - x_Front)< 0.10) return true;
 				}
@@ -499,17 +499,15 @@ public class NavigationAT_Ver12 implements INavigation{
 		
 		double parkingSlotLength = Math.abs(frontValue-backValue);
 		
-		if (parkingSlotLength>0.30) return true;
+		if (parkingSlotLength>0.3) return true;
 		else return false;
 	}
 	
 	/**
 	 * Adds new parking slots to the array "Slots"
 	 */
-	private void addParkingSlot() {
-		ParkingSlotStatus status= ParkingSlotStatus.SUITABLE_FOR_PARKING;
-		if (checkSuitability() == false) status = ParkingSlotStatus.NOT_SUITABLE_FOR_PARKING;
-		
+	private void saveParkingSlot() {
+		ParkingSlotStatus status=ParkingSlotStatus.SUITABLE_FOR_PARKING;
 		INavigation.ParkingSlot slot = new ParkingSlot(ID,newFrontBoundaryPosition,newBackBoundaryPosition,status,slotMeasurementQuality);
 		slotList.add(slot);
 		Slots = new ParkingSlot[slotList.size()];
@@ -520,74 +518,29 @@ public class NavigationAT_Ver12 implements INavigation{
 	}
 	
 	/**
-	 * overwrites a parking slot if one of its boundaries is already known to the roboter
-	 */
-	private void overwriteParkingSlot () {
-		ParkingSlotStatus status= ParkingSlotStatus.SUITABLE_FOR_PARKING;
-		if (checkSuitability() == false) status = ParkingSlotStatus.NOT_SUITABLE_FOR_PARKING;
-		
-		numberOfSlots++;
-		
-		INavigation.ParkingSlot slot = new ParkingSlot(ID,newFrontBoundaryPosition,newBackBoundaryPosition,status,slotMeasurementQuality);
-		slotList.set(slotListIndex,slot);
-		Slots = new ParkingSlot[slotList.size()];
-		for (int i=0;i<slotList.size();i++) {
-			Slots[i] = slotList.get(i);
-		}
-	}
-	
-	/**
 	*Checks whether the robot is allowed to search for parking slots
 	*/
 	private boolean checkParkingSlotArea() {
 		if (mapModus == 1) {
-			if ((this.pose.getX()>=0.05) && (this.pose.getX()<=1.75) && (this.pose.getY()<0.1) ) {	
-				verticalSlot = false;
+			if ((this.pose.getX() > 0.05) && (this.pose.getX()<=1.75) && (this.pose.getY() < 0.1) ) {								
 				return true;
 			}
 	
-			if ( (this.pose.getX()>=1.75) && (this.pose.getY()<=0.3) && (Math.abs(this.pose.getHeading()-0.5*Math.PI)<=0.25*Math.PI) ) {
-				verticalSlot = true;
+			if (this.pose.getX() > 1.75 && (this.pose.getY()<=0.05) && (this.pose.getY() < 0.55) ) {
 				return true;
 			}
-			
-			if ((this.pose.getX()>=1.70) && (this.pose.getY()>0.3) && (Math.abs(this.pose.getHeading()-0.5*Math.PI)<=0.35*Math.PI) ) {
-				verticalSlot = true;
-				return true;
-			}
-			
-			if ((this.pose.getY()>=0.20) && (this.pose.getY()<=0.40) && (Math.abs(this.pose.getHeading()-Math.PI)<=0.15*Math.PI)) {
-				verticalSlot = false;
+		
+			if ((this.pose.getX()>=0.45) && (this.pose.getX()<=1.35) && (this.pose.getY()>=0.20)) {
 				return true;
 			}
 			else {
-				foundBackBoundary = false;
+				//foundBackBoundary = false;
 				return false;
 			}
 		}
-		else {
-			numberOfSlots=0;
-			return false;
-		}
+		else return false;
 	}
 	
-	/**
-	 * calculates an offset for the measurement correction in the parking slot detection depending on the parking slot area 
-	 * @return offset in meter as a double
-	 */
-	private float offsetCorrection() {
-		switch(parkingSlotAreaNumber){
-			case 1: 
-				return (float) 0.05; 
-			case 2: 
-				return (float) -0.5;
-			case 3: 
-				return (float) +0.2;
-			case 4:
-				return (float) -1;
-		}
-		return 0;
-	}
 	
 	/**
 	*define the cornerIndexNumber for current pose
@@ -688,7 +641,7 @@ public class NavigationAT_Ver12 implements INavigation{
 				case 1: 
 						this.pose.setLocation((float)1.80,(float)0.00);
 						nextCornerNumber = 2;
-						foundBackBoundary = false;
+						//foundBackBoundary = false;
 					break; 
 				case 2:
 						this.pose.setLocation((float)1.80,(float)0.60);	
@@ -706,7 +659,7 @@ public class NavigationAT_Ver12 implements INavigation{
 				case 5:
 						this.pose.setLocation((float)0.30,(float)0.30);
 						nextCornerNumber = 6;
-						foundBackBoundary = false;
+						//foundBackBoundary = false;
 					break;
 				case 6:
 						this.pose.setLocation((float)0.30,(float)0.60);
@@ -814,7 +767,7 @@ public class NavigationAT_Ver12 implements INavigation{
 			//xResult=xResult+0.09;
 		}
 
-		if((CurrentStatus.DRIVING==Guidance_Ver12.currentStatus) && (mapModus==1)){
+		if((CurrentStatus.DRIVING==Guidance.currentStatus) && (mapModus==1)){
 			
 			//	Linie 1
 			if(this.pose.getX()>0.10&&this.pose.getX()<1.70&&this.pose.getY()<0.10) { 
@@ -905,13 +858,14 @@ public class NavigationAT_Ver12 implements INavigation{
 		if (this.checkParkingSlotArea() == true) {
 			if ( (foundBackBoundary == false) && (detectBackBoundary() == true)) {
 				foundBackBoundary = true;
-				newBackBoundaryPosition=new Point( (this.pose.getX()+offsetCorrection()) , (this.pose.getY()+offsetCorrection()) );
+				newBackBoundaryPosition=new Point(this.pose.getX(),this.pose.getY());
 			}
 			if ( (foundBackBoundary == true) && (detectFrontBoundary() == true)) {
 				foundBackBoundary = false;
-				newFrontBoundaryPosition=new Point( (this.pose.getX()+offsetCorrection()) , (this.pose.getY()+offsetCorrection()) );
-				if (checkDublicate() == false) this.addParkingSlot();
-				else this.overwriteParkingSlot();
+				newFrontBoundaryPosition=new Point(this.pose.getX(),this.pose.getY());
+				//if (checkDublicate() == false)
+				this.saveParkingSlot();
+				numberOfSlots++;
 			}
 		}
 		return;

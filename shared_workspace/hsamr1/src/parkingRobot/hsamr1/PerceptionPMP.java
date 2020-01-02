@@ -12,7 +12,7 @@ import lejos.nxt.NXTMotor;
 import lejos.nxt.SensorPort;
 
 import parkingRobot.IPerception;
-import parkingRobot.hsamr1.PerceptionThread_Ver12;
+import parkingRobot.hsamr1.PerceptionThread;
 import parkingRobot.IMonitor;
 import lejos.nxt.comm.*;
 
@@ -24,7 +24,7 @@ import lejos.nxt.comm.*;
  * 
  * @author PMP
  */
-public class PerceptionPMP_Ver12 implements IPerception {
+public class PerceptionPMP implements IPerception {
 	NXTMotor motorLeft      = null;
 	NXTMotor motorRight     = null;
 	IMonitor monitor = null;
@@ -65,7 +65,7 @@ public class PerceptionPMP_Ver12 implements IPerception {
 	byte[] sendBuffer = {23};
 	int readBytes = 0;
 	
-	PerceptionThread_Ver12 perThread = new PerceptionThread_Ver12(this);
+	PerceptionThread perThread = new PerceptionThread(this);
 
 	/**
 	 * Creates a new {@code PerceptionPMP} module. 
@@ -76,7 +76,7 @@ public class PerceptionPMP_Ver12 implements IPerception {
 	 * @param motorRight reference to the right {@link NXTMotor}-Object
 	 * @param monitor reference to main module Monitor class object
 	 */
-	public PerceptionPMP_Ver12(NXTMotor motorLeft, NXTMotor motorRight, IMonitor monitor){
+	public PerceptionPMP(NXTMotor motorLeft, NXTMotor motorRight, IMonitor monitor){
 		this.motorLeft  = motorLeft;
 		this.motorRight = motorRight;
 		this.monitor = monitor;
@@ -146,7 +146,6 @@ public class PerceptionPMP_Ver12 implements IPerception {
 	}
 	
 	public synchronized void calibrateLineSensors(){
-		Button.ENTER.waitForPressAndRelease();
 		LCD.clear();
 		LCD.drawString("Kalibriere", 0, 0);
 		LCD.drawString("Liniensensor", 0, 1);

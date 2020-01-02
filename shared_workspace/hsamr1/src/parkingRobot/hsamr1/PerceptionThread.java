@@ -7,7 +7,7 @@ import parkingRobot.IPerception;
  *
  * @author PMP
  */
-public class PerceptionThread_Ver12 extends Thread {
+public class PerceptionThread extends Thread {
     
 	/**
 	 * 
@@ -20,7 +20,7 @@ public class PerceptionThread_Ver12 extends Thread {
 	 * 
 	 * @param perception perception object
 	 */
-	public PerceptionThread_Ver12(IPerception perception){
+	public PerceptionThread(IPerception perception){
     	this.perception = perception;
     }
 	
@@ -33,7 +33,7 @@ public class PerceptionThread_Ver12 extends Thread {
         while(true){
         	try{
             	perception.updateSensors();
-	            Thread.sleep(30);
+	            Thread.sleep(20);
         	} catch(InterruptedException ie){	        		
         	}
         }

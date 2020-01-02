@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import parkingRobot.IMonitor;
 import parkingRobot.INxtHmi.Mode;
-import parkingRobot.hsamr1.HmiPLT_Ver12.Command;
+import parkingRobot.hsamr1.HmiPLT.Command;
 
 /**
  * Thread for remote communication via Bluetooth. Hosts the HMI module of class {@code HmiPlt}, from which it was started. For 
@@ -13,9 +13,9 @@ import parkingRobot.hsamr1.HmiPLT_Ver12.Command;
  * @author PLT
  *
  */
-public class HmiReaderThread_Ver12 extends Thread{
+public class HmiReaderThread extends Thread{
 
-	HmiPLT_Ver12 hmi;
+	HmiPLT hmi;
 	IMonitor monitor;
 
 	/**
@@ -23,7 +23,7 @@ public class HmiReaderThread_Ver12 extends Thread{
 	 * @param hmi hmi object reference
 	 * @param monitor monitor object reference 
 	 */
-	public HmiReaderThread_Ver12(HmiPLT_Ver12 hmi, IMonitor monitor) {
+	public HmiReaderThread(HmiPLT hmi, IMonitor monitor) {
 		this.hmi = hmi;
 		this.monitor = monitor;
 	}
@@ -51,7 +51,7 @@ public class HmiReaderThread_Ver12 extends Thread{
 
 	/**
 	 * Reads current input messages to change driving mode or selected parking slot.
-	 * This methods is to be called from the {@link HmiReaderThread_Ver12 HmiThread}. Execution time should be almost equal, because each message consists of 
+	 * This methods is to be called from the {@link HmiReaderThread_Ver2 HmiThread}. Execution time should be almost equal, because each message consists of 
 	 * two integer data. 
 	 */
 	private synchronized void processInputs() {

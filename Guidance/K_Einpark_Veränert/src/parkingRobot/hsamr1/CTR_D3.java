@@ -76,7 +76,7 @@ public class CTR_D3 {
 		PARK,
 	}
 	/**
-	 * states for the sub finite state machine.
+	 * states for the sub finite state machine DRIVE
 	 */
 		
 public enum CurrentStatusDrive {
@@ -92,29 +92,33 @@ public enum CurrentStatusDrive {
 	}
 /**
  * 
+ * states for the sub finite state machine PARK
+ * 
  * @author kirch
  *
  */
 public enum CurrentStatusPark {
 	/**
-	 * a
+	 * indicates, that the robot is driving to the parking slot
 	 */
 	TO_SLOT,
 	/**
-	 * b
+	 * indicates that the robot reached the slot and as next step he follow the path into the slot
 	 */
 	REACHED_SLOT,
 	/**
-	 * indicates that shutdown of main program has initiated
+	 * indicates that the robot is in the slot 
 	 */
 	IN_SLOT,
 	/**
-	 * c
+	 * 
 	 */
 	CORRECT
 }
 
 /**
+ * 
+ * states for the sub finite state machine PARK_OUT
  * 
  * @author kirch
  *

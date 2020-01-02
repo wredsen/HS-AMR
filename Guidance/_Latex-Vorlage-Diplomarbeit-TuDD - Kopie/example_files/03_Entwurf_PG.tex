@@ -2,7 +2,9 @@
 
 \section{Geforderte Funktionen}
 
-Damit der Roboter einparken kann, soll er einem Polynom folgen. Dabei ist zu beachten, dass für jede Parklücke individuell ein Polynom entwickelt werden muss. In dem Modul Guidance wird die Start- und Endpose festgelegt. Anschließend muss der entsprechende Controlmodus gestartet werden. Die Berechnung des Polynoms wird danach im Control-Modul aufgerufen. 
+Damit der Roboter einparken kann, soll er einem Polynom folgen. Dabei ist zu beachten, dass für jede Parklücke individuell ein Polynom entwickelt werden muss.\\
+
+\noindent In dem Modul Guidance wird die Start- und Endpose festgelegt. Anschließend muss der entsprechende Controlmodus gestartet werden. Die Berechnung des Polynoms wird danach im Control-Modul aufgerufen. 
 
 
 \section{Mathematische Beschreibung}
@@ -34,9 +36,15 @@ a=-\dfrac{y_{ende}}{2*x_{ende}^3}
 \end{equation}
 \noindent und
 %this.trajectory_c = -this.trajectory_a*3*Math.pow(endPose.getX(),2);
- \begin{equation} 
+\begin{equation} 
 b=-3*a*x_{ende}^3
 \end{equation}
 
-\noindent Damit die Brechung stets auf das selbe Problem zurückzuführen ist, gibt es einen globales und lokales Koordinatensystem. Der Mittelpunkt zwischen Start- und Zielpose im globalen Koordinatensystem entspricht dem Ursprung des lokalem Systems. Dieses ist je nach Richtungswinkel des Roboters entsprechend gedreht.
+\noindent Damit die Brechung stets auf das selbe Problem zurückzuführen ist, gibt es einen globales und lokales Koordinatensystem. Wie in der Abbildung \ref{img:grafik-Parkluecke} zu sehen, ist der Mittelpunkt zwischen Start- und Zielpose im globalen Koordinatensystem identisch mit dem Ursprung des lokalem Systems. Dieses ist je nach Richtungswinkel des Roboters entsprechend gedreht. \\
    
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=1\textwidth]{Skizze_Parklueckenberechung}
+	\caption{Skizze für die Parklückenberechung}
+	\label{img:grafik-Parkluecke}
+\end{figure}

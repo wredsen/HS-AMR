@@ -21,6 +21,7 @@
                   % 'print' option first for printing (size of graphics etc.) and convert afterwards
                   % in screen optimized version!
   %listoffigures,  % includes list of figures
+  xcolor=dvipsnamesabbrevations
   %listoftables,   % includes list of tables
   %listoflistings, % includes list of listings
   abbrevations,   % includes index of symbols and abbrevations
@@ -30,7 +31,18 @@
 %  noIfaLogo,     % prevents the 'IfA' logo from being inculded in the header for the title page and abstract
 %  a5paper        % switches to 'A5' paper size (this may only be used for Dissertations!!!)
 ]{ifathesis}
-
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+backgroundcolor=\color{white},   % choose the background color
+basicstyle=\footnotesize,        % size of fonts used for the code
+breaklines=true,                 % automatic line breaking only at whitespace
+captionpos=b,                    % sets the caption-position to bottom
+commentstyle=\color{ForestGreen},      % comment style
+escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+keywordstyle=\color{blue},       % keyword style
+stringstyle=\color{mymauve},     % string literal style
+}
 %***********************************
 % General commands
 %***********************************

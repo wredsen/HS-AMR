@@ -1,5 +1,46 @@
 \chapter{Implementierung}
 
 \section{Missionsplaner}
-Quellcode hier??!!?
+Ausgangspunkt für die Implementierung ist das gegebene Beispielprogramm. In diesem wurde die Hauptzustandsmaschine mit drei Grundzuständen (DRIVE, INACTIVE und EXIT) vorgegeben. Mit Hilfe von Switch-Case-Abfragen wird nur der Code des entsprechenden Zustandes ausgeführt. Nach der Abfrage wird überprüft, ob in einem neuen Zustand gewechselt werden muss.\\
+
+
+\noindent Die Grundversion verfügt noch über keine Unterzustandsmaschinen. Es fehlen auch die wesentlichen Zustände für das Ein- und Ausparken. Der getätigte Entwurf des Missionsplaners wurde mit weiter Switch-Case-Abfragen implementiert.
+
 \section{Pfadgenerator}
+
+Zusammen mit dem Controlmodul wurde entschieden, dass im Guidancemodul die Start- und Zielpose, die Geschwindigkeit übergeben wird und zum Schluss der richtige Controlmodus aktiviert wird. Alle Berechnungen werden im Controlmodul getätigt.\\
+
+
+Damit das Polynom richtig berechnet wird und anschließend dieses abgefahren werden kann, muss zwischen dem lokalem und globalem Koordinatensystem transformiert werden.
+
+\newpage
+
+\begin{lstlisting}[language=java, frame=single]
+// transform coordinates
+if(this.destination.getHeading() == 0 ) {
+	// do nothing
+}else if(Math.abs(this.destination.getHeading() - Math.PI/2) < 0.0001) {
+	double n = x_local;
+	x_local = y_local;
+	y_local = -n;
+}else if(Math.abs(this.destination.getHeading() - Math.PI) < 0.0001) {
+	x_local = -x_local;
+	y_local = -y_local;
+}
+\end{lstlisting}
+
+\noindent und
+ 
+\begin{lstlisting}[language=java, frame=single]
+// back transformation
+if(this.destination.getHeading() == 0 ) {
+	// do nothing
+}else if(Math.abs(this.destination.getHeading() - Math.PI/2) < 0.0001) {
+	double n = x_local;
+	x_local = -y_local;
+	y_local = n;
+}else if(Math.abs(this.destination.getHeading() - Math.PI) < 0.0001) {
+	x_local = -x_local;
+	y_local = -y_local;
+}
+\end{lstlisting}

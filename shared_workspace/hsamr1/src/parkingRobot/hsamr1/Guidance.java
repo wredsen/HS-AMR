@@ -296,7 +296,7 @@ public enum CurrentStatusParkOut {
 						currentStatus = CurrentStatus.EXIT;
 					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS &&(anfahrt==false)){ //ausgewählter Parkplatz
 						currentStatus = CurrentStatus.PARK_THIS;
-					}else if (anfahrt==true && (Math.abs(navigation.getPose().getX()-anfahrort.getX())<0.05) && (Math.abs(navigation.getPose().getY()-anfahrort.getY())<0.05)) {
+					}else if (anfahrt==true && (Math.abs(navigation.getPose().getX()-anfahrort.getX())<0.025) && (Math.abs(navigation.getPose().getY()-anfahrort.getY())<0.025)) {
 						control.setCtrlMode(ControlMode.INACTIVE);
 						currentStatus = CurrentStatus.PARK_THIS;
 						currentStatusPark = CurrentStatusPark.REACHED_SLOT;
@@ -383,8 +383,8 @@ public enum CurrentStatusParkOut {
 						parkplatz =hmi.getSelectedParkingSlot();
 						ParkingSlot[] parkingslots= navigation.getParkingSlots();
 						//Hier überprüfen später beim Zusammenhauen
-						anfahrort=parkingslots[parkplatz-1].getFrontBoundaryPosition(); //start
-						p2=parkingslots[parkplatz-1].getBackBoundaryPosition();//ende 
+						anfahrort=parkingslots[parkplatz-1].getBackBoundaryPosition(); //start
+						p2=parkingslots[parkplatz-1].getFrontBoundaryPosition();//ende 
 						anfahrt=false;
 						correct=false;
 					}

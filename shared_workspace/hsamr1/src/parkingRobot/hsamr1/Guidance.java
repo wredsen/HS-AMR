@@ -404,19 +404,19 @@ public enum CurrentStatusParkOut {
 							currentStatus = CurrentStatus.DRIVING;
 							break;
 						////////////////////////////////	
-						case REACHED_SLOT: //FEHLER
+						case REACHED_SLOT: 
 							//Into-action
 							if( lastStatusPark != CurrentStatusPark.REACHED_SLOT ) {
 								Pose startPose = navigation.getPose();
 									if(Math.abs(startPose.getHeading())<Math.toRadians(20)) {
 										startPose.setHeading(0);
-										endPose = new Pose((float)startPose.getX()+0.45f,(float)startPose.getY()-.26f,0);
+										endPose = new Pose((float)startPose.getX()+0.40f,(float)startPose.getY()-.26f,0);
 									}else if(Math.abs(startPose.getHeading()-Math.PI/2)<Math.toRadians(20)) {
 										startPose.setHeading((float)Math.toRadians(90)); 
-										endPose = new Pose((float)startPose.getX()+0.26f,(float)startPose.getY()+.45f,0);
+										endPose = new Pose((float)startPose.getX()+0.26f,(float)startPose.getY()+.40f,0);
 									}else if(Math.abs(startPose.getHeading()-Math.PI)<Math.toRadians(20)) {
 										startPose.setHeading((float)Math.PI);
-										endPose = new Pose((float)(startPose.getX()-0.45f),(float)startPose.getY()+0.26f,0);
+										endPose = new Pose((float)(startPose.getX()-0.40f),(float)startPose.getY()+0.26f,0);
 									}
 								control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 								control.setParkingData(startPose,endPose);
@@ -538,13 +538,13 @@ public enum CurrentStatusParkOut {
 							Pose startPose = navigation.getPose();
 							if(Math.abs(startPose.getHeading())<Math.toRadians(20)) {
 								startPose.setHeading(0);
-								endPose = new Pose((float)startPose.getX()+0.45f,(float)startPose.getY()+0.24f,0);
+								endPose = new Pose((float)startPose.getX()+0.40f,(float)startPose.getY()+0.24f,0);
 							}else if(Math.abs(startPose.getHeading()-Math.PI/2)<Math.toRadians(20)) {
 								startPose.setHeading((float)Math.PI/2); 
-								endPose = new Pose((float)startPose.getX()-0.24f,(float)startPose.getY()+.45f,0);
+								endPose = new Pose((float)startPose.getX()-0.24f,(float)startPose.getY()+.40f,0);
 							}else if(Math.abs(startPose.getHeading()-Math.PI)<Math.toRadians(20)) {
 								startPose.setHeading((float)Math.PI);
-								endPose = new Pose((float)startPose.getX()-0.45f,(float)startPose.getY()-0.24f,0);
+								endPose = new Pose((float)startPose.getX()-0.40f,(float)startPose.getY()-0.24f,0);
 							}
 							control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 							control.setParkingData(startPose,endPose);

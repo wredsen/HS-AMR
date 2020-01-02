@@ -471,7 +471,7 @@ public class NavigationAT implements INavigation{
 			for(int i =0; i<slotList.size() ;i++) {
 				
 				INavigation.ParkingSlot slot = slotList.get(i);
-				double x_Back = slot.getBackBoundaryPosition().getX();	//////////////////// Unbedingt Vertauschung von Back und Front untersuchen! 
+				double x_Back = slot.getBackBoundaryPosition().getX();	 
 				double y_Back = slot.getBackBoundaryPosition().getY();
 				double x_Front = slot.getFrontBoundaryPosition().getX();
 				double y_Front = slot.getFrontBoundaryPosition().getY();
@@ -578,13 +578,13 @@ public class NavigationAT implements INavigation{
 	private float offsetCorrection() {
 		switch(parkingSlotAreaNumber){
 			case 1: 
-				return (float) 0.05; 
+				return 0.05f; 
 			case 2: 
-				return (float) -0.5;
+				return -0.09f;
 			case 3: 
-				return (float) +0.2;
+				return 0.05f;
 			case 4:
-				return (float) -1;
+				return -0.05f;
 		}
 		return 0;
 	}

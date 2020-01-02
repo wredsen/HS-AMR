@@ -396,7 +396,7 @@ public enum CurrentStatusParkOut {
 							if(Math.abs(navigation.getPose().getHeading())<Math.toRadians(20)) {
 								anfahrort.x=(float)(anfahrort.x+0.07);
 							}else if(Math.abs(navigation.getPose().getHeading()-Math.PI/2)<Math.toRadians(20)) {
-								anfahrort.y=(float)(anfahrort.y+0.02);
+								anfahrort.y=(float)(anfahrort.y+0.05);
 							}else if(Math.abs(navigation.getPose().getHeading()-Math.PI)<Math.toRadians(20)) {
 								anfahrort.x=(float)(anfahrort.x-0.05);
 							}

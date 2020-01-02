@@ -229,7 +229,7 @@ public enum CurrentStatusParkOut {
 		monitor.addGuidanceVar("W");
 		monitor.startLogging();
 		
-		navigation.setPose(new Pose(0,0,0));
+		//navigation.setPose(new Pose(0,0,0));
 				
 		while(true) {
 			LCD.clear();

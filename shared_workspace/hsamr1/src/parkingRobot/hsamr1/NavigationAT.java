@@ -510,7 +510,7 @@ public class NavigationAT implements INavigation{
 		ParkingSlotStatus status= ParkingSlotStatus.SUITABLE_FOR_PARKING;
 		if (checkSuitability() == false) status = ParkingSlotStatus.NOT_SUITABLE_FOR_PARKING;
 		
-		INavigation.ParkingSlot slot = new ParkingSlot(ID,newFrontBoundaryPosition,newBackBoundaryPosition,status,slotMeasurementQuality);
+		INavigation.ParkingSlot slot = new ParkingSlot(ID,newBackBoundaryPosition,newFrontBoundaryPosition,status,slotMeasurementQuality);
 		slotList.add(slot);
 		Slots = new ParkingSlot[slotList.size()];
 		for (int i=0;i<slotList.size();i++) {
@@ -528,7 +528,7 @@ public class NavigationAT implements INavigation{
 		
 		numberOfSlots++;
 		
-		INavigation.ParkingSlot slot = new ParkingSlot(ID,newFrontBoundaryPosition,newBackBoundaryPosition,status,slotMeasurementQuality);
+		INavigation.ParkingSlot slot = new ParkingSlot(ID,newBackBoundaryPosition,newFrontBoundaryPosition,status,slotMeasurementQuality);
 		slotList.set(slotListIndex,slot);
 		Slots = new ParkingSlot[slotList.size()];
 		for (int i=0;i<slotList.size();i++) {

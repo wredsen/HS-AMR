@@ -146,6 +146,7 @@ public class PerceptionPMP implements IPerception {
 	}
 	
 	public synchronized void calibrateLineSensors(){
+		Button.ENTER.waitForPressAndRelease();
 		LCD.clear();
 		LCD.drawString("Kalibriere", 0, 0);
 		LCD.drawString("Liniensensor", 0, 1);

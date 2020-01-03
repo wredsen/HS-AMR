@@ -10,6 +10,7 @@ import parkingRobot.hsamr1.ControlRST_Ver2;
 import parkingRobot.hsamr1.HmiPLT_Ver2;
 import parkingRobot.hsamr1.NavigationAT_Ver2;
 import parkingRobot.hsamr1.PerceptionPMP_Ver2;
+import parkingRobot.hsamr1.CTR_D3.CurrentStatus;
 import parkingRobot.INxtHmi;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
@@ -37,6 +38,8 @@ import lejos.nxt.LCD;
  * synchronized context to avoid inconsistent or corrupt data!
  */
 public class CTR_D3 {
+	
+	static int presentationMode = 1;	// 0: Parking, 1: Move and Turn, 2: LineCTR
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -130,7 +133,9 @@ public class CTR_D3 {
 		//INxtHmi  	hmi        = new HmiPLT(perception, navigation, control, monitor);
 		
 		monitor.startLogging();
-				
+		
+		if (presentationMode == 0) {
+		
 		while(true) {
 			//showData(navigation, perception);
 			LCD.clear();
@@ -298,6 +303,180 @@ public class CTR_D3 {
         		
         	Thread.sleep(100);        	
 		}
+		}
+	
+	if (presentationMode == 1) {
+		while(true) {
+			//showData(navigation, perception);
+			LCD.clear();
+		    LCD.drawString("Winkel" + Math.toDegrees(navigation.getPose().getHeading()), 0, 3);
+		    LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 4);
+			LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 5);
+			
+        	switch ( currentStatus )
+        	{
+        		
+				case DRIVING1:
+					
+					
+					//Into action
+					if ( lastStatus != CurrentStatus.DRIVING1 ){
+						control.setDriveFor(-1.20, 0, 0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+						control.setCtrlMode(ControlMode.SETPOSE);
+						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
+						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
+					}
+					
+					
+					//While action				
+						
+					//showData_linesensor(perception);
+					
+					//State transition check
+					currentStatus = CurrentStatus.DRIVING1;
+				    lastStatus = currentStatus;
+				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
+				    	currentStatus = CurrentStatus.TURN_CCW;
+				    	Thread.sleep(500);
+				    }
+					
+				    
+					if ( Button.ENTER.isDown() ){
+	  	        		currentStatus = CurrentStatus.INACTIVE;
+						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+					}else if ( Button.ESCAPE.isDown() ){
+						currentStatus = CurrentStatus.EXIT;
+						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+					}
+				    
+					//Leave action
+					if ( currentStatus != CurrentStatus.DRIVING1 ){
+						//nothing to do here
+					}
+					break;	
+				
+				case TURN_CCW:
+					//Into action
+					if ( lastStatus != CurrentStatus.TURN_CCW ){
+						control.setDriveFor(0, 0, Math.toRadians(90), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
+						control.setCtrlMode(ControlMode.SETPOSE);
+					}
+					
+					//State transition check
+					currentStatus = CurrentStatus.TURN_CCW;
+				    lastStatus = currentStatus;
+				    if ((control.getCtrlMode() == ControlMode.INACTIVE)) {
+				    	currentStatus = CurrentStatus.DRIVING2;
+				    	Thread.sleep(500);
+				    }
+				    
+					
+					break;	
+					
+				case DRIVING2:
+					//Into action
+					if ( lastStatus != CurrentStatus.DRIVING2 ){
+						control.setDriveFor(0, 0.3, 0, 5, 0, navigation.getPose());	// 0,3m @ 5cm/s
+						control.setCtrlMode(ControlMode.SETPOSE);
+						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
+						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
+					}
+					
+					
+					//While action				
+						
+					//showData_linesensor(perception);
+					
+					//State transition check
+					currentStatus = CurrentStatus.DRIVING2;
+				    lastStatus = currentStatus;
+				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
+				    	currentStatus = CurrentStatus.TURN_CW;
+				    	Thread.sleep(500);
+				    }
+					
+				    
+					if ( Button.ENTER.isDown() ){
+	  	        		currentStatus = CurrentStatus.INACTIVE;
+						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+					}else if ( Button.ESCAPE.isDown() ){
+						currentStatus = CurrentStatus.EXIT;
+						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+					}
+				    
+					//Leave action
+					if ( currentStatus != CurrentStatus.DRIVING2 ){
+						//nothing to do here
+					}
+					break;	
+					
+				case TURN_CW:
+					//Into action
+					if ( lastStatus != CurrentStatus.TURN_CW ){
+						control.setDriveFor(0, 0, Math.toRadians(-90), 0, Math.toRadians(-90), navigation.getPose()); // -90deg @ -30deg/s
+						control.setCtrlMode(ControlMode.SETPOSE);
+					}
+					
+					//State transition check
+					currentStatus = CurrentStatus.TURN_CW;
+				    lastStatus = currentStatus;
+				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
+				    	currentStatus = CurrentStatus.INACTIVE;
+				    }
+						
+					break;
+					
+				case INACTIVE:
+					
+					//Into action
+					if ( lastStatus != CurrentStatus.INACTIVE ){
+						control.setCtrlMode(ControlMode.INACTIVE);
+						LCD.drawString("Pause!", 0, 0);
+					}
+					
+					//While action
+					{
+						//nothing to do here
+					}
+					
+					
+					//State transition check
+					lastStatus = currentStatus;
+							
+					if ( Button.ENTER.isDown() ){
+						currentStatus = CurrentStatus.DRIVING1;
+						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+					}else if ( Button.ESCAPE.isDown() ){
+						currentStatus = CurrentStatus.EXIT;
+						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+					}
+					
+					//Leave action
+					if ( currentStatus != CurrentStatus.INACTIVE ){
+						//nothing to do here
+					}
+									
+					break;
+				case EXIT:
+				
+					/** NOTE: RESERVED FOR FUTURE DEVELOPMENT (PLEASE DO NOT CHANGE)
+					// monitor.sendOfflineLog();
+					*/
+					monitor.stopLogging();
+					System.exit(0);
+					break;
+			default:
+				break;
+        	}
+        		
+        	Thread.sleep(100);        	
+		}
+	}
+	
+	if (presentationMode == 2) {
+		
+	}
+	
 	}
 	
 	

@@ -584,7 +584,7 @@ public class NavigationAT implements INavigation{
 			case 3: 
 				return 0.05f;
 			case 4:
-				return -0.05f;
+				return -0.10f;
 		}
 		return 0;
 	}

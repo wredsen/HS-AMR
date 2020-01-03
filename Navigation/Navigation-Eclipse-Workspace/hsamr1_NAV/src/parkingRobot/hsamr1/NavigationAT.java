@@ -543,25 +543,25 @@ public class NavigationAT implements INavigation{
 		if (mapModus == 1) {
 			if ((this.pose.getX()>=0.05) && (this.pose.getX()<=1.75) && (this.pose.getY()<0.1) ) {	
 				verticalSlot = false;
-				//parkingSlotAreaNumber = 1;
+				parkingSlotAreaNumber = 1;
 				return true;
 			}
 	
 			if ( (this.pose.getX()>=1.75) && (this.pose.getY()<=0.3) && (Math.abs(this.pose.getHeading()-0.5*Math.PI)<=0.25*Math.PI) ) {
 				verticalSlot = true;
-				//parkingSlotAreaNumber = 2;
+				parkingSlotAreaNumber = 2;
 				return true;
 			}
 			
 			if ((this.pose.getX()>=1.70) && (this.pose.getY()>0.3) && (Math.abs(this.pose.getHeading()-0.5*Math.PI)<=0.35*Math.PI) ) {
 				verticalSlot = true;
-				//parkingSlotAreaNumber = 3;
+				parkingSlotAreaNumber = 3;
 				return true;
 			}
 			
 			if ((this.pose.getY()>=0.20) && (this.pose.getY()<=0.40) && (Math.abs(this.pose.getHeading()-Math.PI)<=0.15*Math.PI)) {
 				verticalSlot = false;
-				//parkingSlotAreaNumber = 4;
+				parkingSlotAreaNumber = 4;
 				return true;
 			}
 			else {
@@ -592,6 +592,25 @@ public class NavigationAT implements INavigation{
 		}
 		return 0;
 	}
+	
+	private void saveBackBoundary () {
+		if (verticalSlot==true) {
+			newBackBoundaryPosition=new Point( (this.pose.getX()) , (this.pose.getY()+offsetCorrection()) );
+		}
+		else {
+			newBackBoundaryPosition=new Point( (this.pose.getX()+offsetCorrection()) , (this.pose.getY()) );
+		}
+	}
+	
+	private void saveFrontBoundary () {
+		if (verticalSlot==true) {
+			newFrontBoundaryPosition=new Point( (this.pose.getX()) , (this.pose.getY()+offsetCorrection()) );
+		}
+		else {
+			newFrontBoundaryPosition=new Point( (this.pose.getX()+offsetCorrection()) , (this.pose.getY()) );
+		}
+	}
+	
 	
 	/**
 	*define the cornerIndexNumber for current pose
@@ -909,11 +928,11 @@ public class NavigationAT implements INavigation{
 		if (this.checkParkingSlotArea() == true) {
 			if ( (foundBackBoundary == false) && (detectBackBoundary() == true)) {
 				foundBackBoundary = true;
-				newBackBoundaryPosition=new Point( (this.pose.getX()+offsetCorrection()) , (this.pose.getY()+offsetCorrection()) );
+				this.saveBackBoundary();
 			}
 			if ( (foundBackBoundary == true) && (detectFrontBoundary() == true)) {
 				foundBackBoundary = false;
-				newFrontBoundaryPosition=new Point( (this.pose.getX()+offsetCorrection()) , (this.pose.getY()+offsetCorrection()) );
+				this.saveFrontBoundary();
 				if (checkDublicate() == false) this.addParkingSlot();
 				else this.overwriteParkingSlot();
 			}

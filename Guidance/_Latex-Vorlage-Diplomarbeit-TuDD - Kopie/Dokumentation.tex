@@ -13,9 +13,9 @@
 % ******************************************************************************/
 
 \documentclass[
-%  print,          % print optimized version of the thesis, standard option
+  print,          % print optimized version of the thesis, standard option
                   % alternative:
-  screen,        % makes the thesis better readable on screens (onesided, coloured links)
+%  screen,        % makes the thesis better readable on screens (onesided, coloured links)
                   % use only 'print' OR 'screen'
                   % ATTENTION: 'screen' changes size of text area slightly. Always optimize document WITH
                   % 'print' option first for printing (size of graphics etc.) and convert afterwards
@@ -43,6 +43,8 @@ escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
 keywordstyle=\color{blue},       % keyword style
 stringstyle=\color{mymauve},     % string literal style
 }
+\usepackage{tabularx}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % linksbündig mit Breitenangabe
 %***********************************
 % General commands
 %***********************************

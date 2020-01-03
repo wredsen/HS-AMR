@@ -5,7 +5,7 @@
 Die geforderten Funktionen können in fünf Kategorien eingeteilt werden.
 \renewcommand{\labelenumi}{\roman{enumi}}
 \begin{enumerate}
-\item 	Scoutmodus mit Parklückensuche
+\item 	Scout-Modus mit Parklückensuche
 \item 	Einparken
 \item	Parken
 \item	Ausparken
@@ -17,7 +17,7 @@ Die geforderten Funktionen können in fünf Kategorien eingeteilt werden.
 \noindent Was der Roboter in jener Kategorie machen soll, ist in den Unterzuständen definiert.\\
 
 
-\noindent Scoutmodus bedeutet, dass das Fahrzeug einem Parcours abfährt. Dabei wird einer Linie gefolgt. Wenn eine Ecke detektiert wird, muss die Geschwindigkeit reduziert werden. Das Ziel dabei ist, dass die Regelung genauer arbeiten kann und die Kurve abgefahren wird. Während dem Abfahren sucht der Roboter nach Parklücken.\\
+\noindent Scout-Modus bedeutet, dass das Fahrzeug einem Parcours abfährt. Dabei wird einer Linie gefolgt. Wenn eine Ecke detektiert wird, muss die Geschwindigkeit reduziert werden. Das Ziel dabei ist, dass die Regelung genauer arbeiten kann und die Kurve abgefahren wird. Während dem Abfahren sucht der Roboter nach Parklücken.\\
 
 
 \noindent In dem Zustand "Einparken" wird als erstes die Startpose angefahren. Danach wird ein Polynom abgefahren. Wenn die Zielpose in der Lücke erreicht ist, wechselt der Automat automatisch in den Zustand Park. In diesem wird gewartet, bis über die App das Ausparksignal übermittelt wird.\\
@@ -25,14 +25,14 @@ Die geforderten Funktionen können in fünf Kategorien eingeteilt werden.
 
 \noindent Beim Ausparken folgt der Apparat erneut einem Polynom zurück auf die Linie. Dabei muss sichergestellt werden, dass nach vorne genügen Freiraum vorhanden ist, sonst gibt es einen Unfall.
 
-
+\\
 
 
 \section{Hauptzustandsmaschine}
--Orientierung an den geforderten Funktionen\\
--Aufteilung so, dass die Zustandsübergänge möglichst einfach sind\\
-%
-\begin{tabular}{|p{1.5cm}|p{4cm}|p{4cm}|p{3cm}|}
+
+Für den Entwurf der folgenden Zustandsmaschinen wurde sich an den geforderten Funktionen orientiert. Dabei wurde beachtet, dass die Aufteilung so getätigt wird, dass die Zustandsübergange möglichst einfach sind.
+
+\begin{tabular}{|p{1.5cm}|p{4cm}|p{3.8cm}|p{3cm}|}
 	\hline 
 	Zustand & Eingangsaktion & Nominalaktion & Ausgangsaktion \\ 
 	\hline 
@@ -48,15 +48,16 @@ Die geforderten Funktionen können in fünf Kategorien eingeteilt werden.
 	\hline
 	Park This & Überprüfung ob die Anfahrt schon erfolgte & siehe Unterzustandsmaschine &  \\ 
 	\hline
-	 & Parkplatzinformationen abfragen &  &  \\ 
+	 & Parkplatzinformation abfragen &  &  \\ 
 	\hline
-	Park Out & Auswahl des Richtigen Zustands & siehe Unterzustandsmaschine &  \\ 
+	Park Out & Auswahl des richtigen Zustands & siehe Unterzustandsmaschine &  \\ 
 	\hline 	
 \end{tabular} 
 
+
 \section{Unterzustandsmaschine}
 
-\subsection{Scout}
+\subsection{Scout-Modus}
 
 \begin{tabular}{|p{1.5cm}|p{4cm}|p{4cm}|p{3cm}|}
 	\hline 
@@ -90,7 +91,7 @@ Es gibt keine Unterzustandsmaschine.
 	\hline 
 	Reached Slot & Start- und Endpose vom Polynom festlegen &  &  \\ 
 	\hline 
-	 & Parkcontrolmudus festlegen & Überprüfung ob Polynom abgefahren wurde &  \\ 
+	 & Parkcontrol-Modus auswählen & Überprüfung ob Polynom abgefahren wurde &  \\ 
 	\hline
 	In Slot &  &  &  \\ 
 	\hline 

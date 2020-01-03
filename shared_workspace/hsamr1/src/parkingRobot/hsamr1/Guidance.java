@@ -109,11 +109,7 @@ public enum CurrentStatusPark {
 	/**
 	 * indicates that the robot is in the slot 
 	 */
-	IN_SLOT,
-	/**
-	 * 
-	 */
-	CORRECT
+	IN_SLOT;
 }
 
 /**
@@ -340,7 +336,7 @@ public enum CurrentStatusParkOut {
 					/** NOTE: RESERVED FOR FUTURE DEVELOPMENT (PLEASE DO NOT CHANGE)
 					// monitor.sendOfflineLog();
 					*/
-					monitor.stopLogging();
+					//monitor.stopLogging();
 					System.exit(0);
 					break;
 				////////////////////////////////////////////////////////////////////////////////////////

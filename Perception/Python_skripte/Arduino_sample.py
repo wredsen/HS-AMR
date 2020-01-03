@@ -15,7 +15,7 @@ ser = serial.Serial(serial_port, baud_rate)
 
 for i in range(10,81):
 
-    write_to_file_path = "/home/sebastian/Dokumente/Mitschriften/WISE_2020/Hauptseminar/HS-AMR/Perception/sharp_s4/output_"+str(i)+"cm.txt";
+    write_to_file_path = "/home/sebastian/Dokumente/Mitschriften/WISE_2020/Hauptseminar/HS-AMR/Perception/Sharp Sensoren/sharp_1_3_dig/output_"+str(i)+"cm.txt";
     output_file = open(write_to_file_path, "w+");
 
 

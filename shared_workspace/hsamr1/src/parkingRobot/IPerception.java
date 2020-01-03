@@ -41,20 +41,7 @@ public interface IPerception {
 	public int getRightLineSensorValue();
 	
 	
-	/**
-	 * returns the brightness of the subsurfacecolor under the left linesensor in raw values
-	 
-	 * 
-	 * @return brightness of the groundcolor in raw values
-	 */
-	public int getLeftLineSensorValueRaw();
 	
-	/**
-	 * returns the brightness of the subsurfacecolor under the right linesensor in raw values 
-	 * 
-	 * @return brightness of the groundcolor in raw values
-	 */
-	public int getRightLineSensorValueRaw();
 	
 	
 	/**

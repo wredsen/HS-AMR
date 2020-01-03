@@ -17,7 +17,7 @@ for i in range(10,81): #itterate thru all files
    j=0
    k=0
    l=0
-   filename = os.path.join(dirname, '../Sharp Sensoren/sharp_1_3_dig/output_'+str(i)+'cm.txt')
+   filename = os.path.join(dirname, '../Sharp Sensoren/sharp_4_3_dig/output_'+str(i)+'cm.txt')
    with open(filename,"r") as file: #open i'ten file 
         if file.mode == 'r': #check if file is readable
            for j, line in enumerate(file): #itterate thru file i 
@@ -59,7 +59,7 @@ for i in range(0,71):         #calculate expected value and variance and print t
 
 
 for i in range(0,71):         #generate x values 10-80
-     gauss_array[i,0] = (i+10)*10
+     gauss_array[i,0] = (i+10)
 
 
 plt.errorbar(gauss_array[:, 0],gauss_array[:, 1],yerr= gauss_array[:, 2],fmt='o')  #plot dots with error bars 

@@ -467,7 +467,7 @@ public enum CurrentStatusParkOut {
 					
 					case BACKWARDS:
 						if(lastStatusParkOut!=currentStatusParkOut) {
-							if(perception.getFrontSensorDistance()<30) {
+							/*if(perception.getFrontSensorDistance()<30) {
 								double distance = perception.getBackSensorDistance();
 							
 								if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(20))){//wenn Winkel 90°
@@ -480,13 +480,36 @@ public enum CurrentStatusParkOut {
 									control.setDriveFor((distance*0.01),0,0, -10, 0, navigation.getPose());	
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}
+							}*/
+							
+							if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(20))) {
+								
+								if(Math.abs(navigation.getPose().getX()-p2.getX())<30){
+									double distance = perception.getBackSensorDistance();
+									control.setDriveFor(0,-(distance*0.01),0, -10, 0, navigation.getPose());	
+									control.setCtrlMode(ControlMode.SETPOSE);
+								}
+							}else{
+								if(Math.abs(navigation.getPose().getX()-p2.getX())<30) {
+									if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(20))){ //wenn Winkel 0° 
+										double distance = perception.getBackSensorDistance();
+										control.setDriveFor((0-distance*0.01),0,0, -10, 0, navigation.getPose());	
+										control.setCtrlMode(ControlMode.SETPOSE);
+									}else {//Winkel 180°
+										double distance = perception.getBackSensorDistance();
+										control.setDriveFor((distance*0.01),0,0, -10, 0, navigation.getPose());	
+										control.setCtrlMode(ControlMode.SETPOSE);
+									}
 							}
-							Thread.sleep(50);
+							
+							
+							Thread.sleep(50);						
 						}
 						if(control.getCtrlMode()==ControlMode.INACTIVE) {
 							back=true;
 						}
-						break;
+					}
+					break;
 					/////////////////////////////////////////////////////////////////////////////////////////////////////	
 					case PARKOUT:
 						if(lastStatusParkOut!=currentStatusParkOut) {

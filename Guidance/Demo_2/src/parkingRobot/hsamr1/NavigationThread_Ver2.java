@@ -9,7 +9,7 @@ import parkingRobot.INavigation;
  * 
  * @author IfA
  */
-public class NavigationThread_Ver12 extends Thread {
+public class NavigationThread_Ver2 extends Thread {
     
 	/**
 	 * corresponding main module Navigation class object
@@ -21,7 +21,7 @@ public class NavigationThread_Ver12 extends Thread {
 	 * 
 	 * @param navigation corresponding main module Navigation class object
 	 */
-	NavigationThread_Ver12(INavigation navigation){
+	NavigationThread_Ver2(INavigation navigation){
     	this.navigation = navigation;
     }
 	

@@ -42,8 +42,6 @@ public interface IPerception {
 	
 	
 	
-	
-	
 	/**
 	 * calibrate the two LineSensors 
 	 * use a black and white floor color

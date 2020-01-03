@@ -440,7 +440,7 @@ public class ControlRST implements IControl {
 	    	etaoldPose = eta;
 			drive(0,omega, 0);
 			//TODO: Winkel verkleinern von 0.07 abwärts
-			if( Math.abs(eta) < 0.07 ){
+			if( Math.abs(eta) < 0.03 ){
 				this.setCtrlMode(ControlMode.INACTIVE);
 			}
 			

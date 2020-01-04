@@ -306,25 +306,18 @@ public class ControlRST implements IControl {
 		// PD-control with angularVelocity as output, deviating angle as input
 		PID omegaPIDForward = new PID(0, SAMPLETIME, 12, 0, 0.01, 0, false);
     	// signs of the initial pose data for checking if destination is reached and not driving beyond
-    	double signX = Math.signum(this.destination.getX() - this.enteringPose.getX());
-    	double signY = Math.signum(this.destination.getY() - this.enteringPose.getY());
+    	double signX = Math.signum(Math.signum(this.velocity)*this.destination.getX() - this.enteringPose.getX());
+    	double signY = Math.signum(Math.signum(this.velocity)*this.destination.getY() - this.enteringPose.getY());
     	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPose.getHeading());
     	double signEnterAng = Math.signum(this.enteringRouteAngle);
     	
-    	if (	(	(signX*(this.destination.getX() - this.currentPosition.getX()) > 0.005) ||
-    				(signY*(this.destination.getY() - this.currentPosition.getY()) > 0.005)    )
+    	if (	(	(signX*(Math.signum(this.velocity)*this.destination.getX() - this.currentPosition.getX()) > 0.005) ||
+    				(signY*(Math.signum(this.velocity)*this.destination.getY() - this.currentPosition.getY()) > 0.005)    )
     			&& 	(this.velocity != 0)) 
     	{
 		    // angle for driving straight to the destination and setting it as desired angle for control
-    		double routeAngle = 0;
-    		if (this.velocity > 0) {
-    			routeAngle = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX()); 
-    		}
+    		double routeAngle = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX()); 
     		
-		    // for driving backwards: emulate forward angle
-    		if (this.velocity < 0) {
-		    	routeAngle = Math.atan2((-1)*this.destination.getY()-this.currentPosition.getY(), (-1)*this.destination.getX()-this.currentPosition.getX());
-		    }
     		// make angle orientation to shortest possible rotation way
     		routeAngle = (routeAngle + 2*Math.PI) % (2*Math.PI);
 			if (routeAngle > 1.8*Math.PI) {

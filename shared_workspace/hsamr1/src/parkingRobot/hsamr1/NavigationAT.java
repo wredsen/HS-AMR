@@ -438,10 +438,10 @@ public class NavigationAT implements INavigation{
 	private boolean detectBackBoundary() {
 		boolean backBoundary = false;
 		if (verticalSlot==false) {
-			if (perception.getFrontSideSensorDistance() > 45) backBoundary = true;
+			if (perception.getFrontSideSensorDistance() > 28) backBoundary = true;
 		}
 		else {
-			if (perception.getBackSideSensorDistance() > 45) backBoundary = true;
+			if (perception.getBackSideSensorDistance() > 28) backBoundary = true;
 		}
 		return backBoundary;
 	}
@@ -452,7 +452,7 @@ public class NavigationAT implements INavigation{
 	 */
 	private boolean detectFrontBoundary() {
 		boolean frontBoundary = false;
-		if (perception.getFrontSideSensorDistance() < 20) {
+		if (perception.getFrontSideSensorDistance() < 17) {
 			frontBoundary = true;
 		}
 		return frontBoundary;
@@ -471,20 +471,22 @@ public class NavigationAT implements INavigation{
 			for(int i =0; i<slotList.size() ;i++) {
 				
 				INavigation.ParkingSlot slot = slotList.get(i);
-				double x_Back = slot.getBackBoundaryPosition().getX();	//////////////////// Unbedingt Vertauschung von Back und Front untersuchen! 
-				double y_Back = slot.getBackBoundaryPosition().getY();
-				double x_Front = slot.getFrontBoundaryPosition().getX();
-				double y_Front = slot.getFrontBoundaryPosition().getY();
+				double x_Back = slot.getFrontBoundaryPosition().getX();	 
+				double y_Back = slot.getFrontBoundaryPosition().getY();
+				double x_Front = slot.getBackBoundaryPosition().getX();
+				double y_Front = slot.getBackBoundaryPosition().getY();
 				slotListIndex =  i;
 				
-				if ((y_new_Back < 0.1) ||(y_new_Back>0.2)) {						// check x-values if the detected slot is horizontal
-					if (Math.abs(x_new_Back - x_Back)< 0.10) return true;			
-					if (Math.abs(x_new_Front - x_Front)< 0.10) return true;
+				if ((x_new_Back < 1.70)) {										//((y_new_Back < 0.1) ||(y_new_Back>0.2)) && 		// check x-values if the detected slot is horizontal
+					if (Math.abs(x_new_Back - x_Back)< 0.05) return true;			
+					if (Math.abs(x_new_Front - x_Front)< 0.05) return true;
 				}
 				
-				if ((x_new_Back > 1.70)) {										// check y-values if the detected slot is vertical
-					if (Math.abs(y_new_Back - y_Back)< 0.10) return true;			
-					if (Math.abs(y_new_Front - y_Front)< 0.10) return true;
+				if ((x_new_Back > 1.70)) {																		// check y-values if the detected slot is vertical
+					if ((Math.abs(x_new_Front - x_Front)< 0.05) && (Math.abs(y_new_Front - y_Front)< 0.05)) {
+						numberOfSlots++;
+						return true;			
+					}
 				}
 			}
 		}
@@ -499,7 +501,7 @@ public class NavigationAT implements INavigation{
 		
 		double parkingSlotLength = Math.abs(frontValue-backValue);
 		
-		if (parkingSlotLength>0.50) return true;
+		if (parkingSlotLength>0.30) return true;
 		else return false;
 	}
 	
@@ -510,7 +512,7 @@ public class NavigationAT implements INavigation{
 		ParkingSlotStatus status= ParkingSlotStatus.SUITABLE_FOR_PARKING;
 		if (checkSuitability() == false) status = ParkingSlotStatus.NOT_SUITABLE_FOR_PARKING;
 		
-		INavigation.ParkingSlot slot = new ParkingSlot(ID,newBackBoundaryPosition,newFrontBoundaryPosition,status,slotMeasurementQuality);
+		INavigation.ParkingSlot slot = new ParkingSlot(ID,newFrontBoundaryPosition,newBackBoundaryPosition,status,slotMeasurementQuality);
 		slotList.add(slot);
 		Slots = new ParkingSlot[slotList.size()];
 		for (int i=0;i<slotList.size();i++) {
@@ -526,9 +528,7 @@ public class NavigationAT implements INavigation{
 		ParkingSlotStatus status= ParkingSlotStatus.SUITABLE_FOR_PARKING;
 		if (checkSuitability() == false) status = ParkingSlotStatus.NOT_SUITABLE_FOR_PARKING;
 		
-		numberOfSlots++;
-		
-		INavigation.ParkingSlot slot = new ParkingSlot(ID,newBackBoundaryPosition,newFrontBoundaryPosition,status,slotMeasurementQuality);
+		INavigation.ParkingSlot slot = new ParkingSlot((slotListIndex+1),newFrontBoundaryPosition,newBackBoundaryPosition,status,slotMeasurementQuality);
 		slotList.set(slotListIndex,slot);
 		Slots = new ParkingSlot[slotList.size()];
 		for (int i=0;i<slotList.size();i++) {
@@ -543,21 +543,25 @@ public class NavigationAT implements INavigation{
 		if (mapModus == 1) {
 			if ((this.pose.getX()>=0.05) && (this.pose.getX()<=1.75) && (this.pose.getY()<0.1) ) {	
 				verticalSlot = false;
+				parkingSlotAreaNumber = 1;
 				return true;
 			}
 	
 			if ( (this.pose.getX()>=1.75) && (this.pose.getY()<=0.3) && (Math.abs(this.pose.getHeading()-0.5*Math.PI)<=0.25*Math.PI) ) {
 				verticalSlot = true;
+				parkingSlotAreaNumber = 2;
 				return true;
 			}
 			
 			if ((this.pose.getX()>=1.70) && (this.pose.getY()>0.3) && (Math.abs(this.pose.getHeading()-0.5*Math.PI)<=0.35*Math.PI) ) {
 				verticalSlot = true;
+				parkingSlotAreaNumber = 3;
 				return true;
 			}
 			
 			if ((this.pose.getY()>=0.20) && (this.pose.getY()<=0.40) && (Math.abs(this.pose.getHeading()-Math.PI)<=0.15*Math.PI)) {
 				verticalSlot = false;
+				parkingSlotAreaNumber = 4;
 				return true;
 			}
 			else {
@@ -566,7 +570,7 @@ public class NavigationAT implements INavigation{
 			}
 		}
 		else {
-			numberOfSlots=0;
+			//numberOfSlots=0;
 			return false;
 		}
 	}
@@ -578,15 +582,39 @@ public class NavigationAT implements INavigation{
 	private float offsetCorrection() {
 		switch(parkingSlotAreaNumber){
 			case 1: 
-				return (float) 0.05; 
+				return 0.03f; 
 			case 2: 
-				return (float) -0.5;
+				return -0.05f;
 			case 3: 
-				return (float) +0.2;
+				return 0.05f;
 			case 4:
-				return (float) -1;
+				return -0.07f;
 		}
 		return 0;
+	}
+	
+	/**
+	 * saves the Back-Boundary of a parking slot, distinguishes between the vertical and horizontal slots for the offset correction
+	 */
+	private void saveBackBoundary () {
+		if (verticalSlot==true) {
+			newBackBoundaryPosition=new Point( (this.pose.getX()) , (this.pose.getY()+offsetCorrection()) );
+		}
+		else {
+			newBackBoundaryPosition=new Point( (this.pose.getX()+offsetCorrection()) , (this.pose.getY()) );
+		}
+	}
+	
+	/**
+	 * saves the Front-Boundary of a parking slot, distinguishes between the vertical and horizontal slots for the offset correction
+	 */
+	private void saveFrontBoundary () {
+		if (verticalSlot==true) {
+			newFrontBoundaryPosition=new Point( (this.pose.getX()) , (this.pose.getY()+offsetCorrection()) );
+		}
+		else {
+			newFrontBoundaryPosition=new Point( (this.pose.getX()+offsetCorrection()) , (this.pose.getY()) );
+		}
 	}
 	
 	/**
@@ -905,11 +933,11 @@ public class NavigationAT implements INavigation{
 		if (this.checkParkingSlotArea() == true) {
 			if ( (foundBackBoundary == false) && (detectBackBoundary() == true)) {
 				foundBackBoundary = true;
-				newBackBoundaryPosition=new Point( (this.pose.getX()+offsetCorrection()) , (this.pose.getY()+offsetCorrection()) );
+				this.saveBackBoundary();
 			}
 			if ( (foundBackBoundary == true) && (detectFrontBoundary() == true)) {
 				foundBackBoundary = false;
-				newFrontBoundaryPosition=new Point( (this.pose.getX()+offsetCorrection()) , (this.pose.getY()+offsetCorrection()) );
+				this.saveFrontBoundary();
 				if (checkDublicate() == false) this.addParkingSlot();
 				else this.overwriteParkingSlot();
 			}

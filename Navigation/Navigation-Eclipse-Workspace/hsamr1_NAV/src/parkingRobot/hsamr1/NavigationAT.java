@@ -593,6 +593,9 @@ public class NavigationAT implements INavigation{
 		return 0;
 	}
 	
+	/**
+	 * saves the Back-Boundary of a parking slot, distinguishes between the vertical and horizontal slots for the offset correction
+	 */
 	private void saveBackBoundary () {
 		if (verticalSlot==true) {
 			newBackBoundaryPosition=new Point( (this.pose.getX()) , (this.pose.getY()+offsetCorrection()) );
@@ -602,6 +605,9 @@ public class NavigationAT implements INavigation{
 		}
 	}
 	
+	/**
+	 * saves the Front-Boundary of a parking slot, distinguishes between the vertical and horizontal slots for the offset correction
+	 */
 	private void saveFrontBoundary () {
 		if (verticalSlot==true) {
 			newFrontBoundaryPosition=new Point( (this.pose.getX()) , (this.pose.getY()+offsetCorrection()) );

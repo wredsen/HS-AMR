@@ -270,12 +270,12 @@ if(p == True):
     print('sigma y '+str(gauss_velocity_array[3, 1]))
    
 
-params = {'legend.fontsize': 'x-large',
-          'figure.figsize': (15, 5),
-         'axes.labelsize': 'x-large',
-         'axes.titlesize':'x-large',
-         'xtick.labelsize':'x-large',
-         'ytick.labelsize':'x-large'}
+params = {'legend.fontsize': 25,
+          'figure.figsize': (20, 5),
+         'axes.labelsize': 28,
+         'axes.titlesize': 28,
+         'xtick.labelsize':28,
+         'ytick.labelsize':28 }
 pylab.rcParams.update(params)
 
 width=0.2
@@ -298,7 +298,7 @@ ax.set_ylabel('Messunsicherheit in [mm]')
 
 ax.set_xticks(ind+width)
 ax.set_xticklabels( ('schwarz','grau','weiß'))
-ax.legend( (rects1[0], rects2[0]), ('Horizontale', 'Vertikale'))
+ax.legend( (rects1[0], rects2[0]), ('Horizontale systematische MU', 'Vertikale systematische MU'))
 plt.axhline(0,color='black')
 plt.xlabel('Farbe des Untergrundes')
 
@@ -333,7 +333,7 @@ rects2 = ax.bar(ind+width/2,yval,width,yerr=yerr,capsize=10)
 
 ax.set_ylabel('Messunsicherheit in [mm]')
 ax.set_xticks(ind+width)
-ax.set_xticklabels( ('nomal','6,3','5,85','5,8','5,3') )
+ax.set_xticklabels( ('6','6,3','5,85','5,8','5,3') )
 ax.legend( (rects1[0], rects2[0]), ('Horizontale', 'Vertikale') )
 plt.axhline(0,color='black')
 plt.xlabel('Distanz in [mm]')

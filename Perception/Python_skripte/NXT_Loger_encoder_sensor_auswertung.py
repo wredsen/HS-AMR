@@ -1,6 +1,7 @@
 import numpy as np                      
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.pylab as pylab
 import os
 
 dirname = os.path.dirname(__file__)               #get absulute file path
@@ -81,6 +82,19 @@ mean_value_right[:,3] = (mean_value_right[:,1]/sample_time) * (60/360)
 
 #print(mean_value_left[:,3])
 #print(mean_value_right[:,3])
+
+
+
+params = {'legend.fontsize': 25,
+          'figure.figsize': (20, 5),
+         'axes.labelsize': 28,
+         'axes.titlesize': 28,
+         'xtick.labelsize':20,
+         'ytick.labelsize':28 }
+pylab.rcParams.update(params)
+
+
+
 
 if(func == 1):
 

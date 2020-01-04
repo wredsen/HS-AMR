@@ -39,7 +39,7 @@ import lejos.nxt.LCD;
  */
 public class CTR_D3 {
 	
-	static int presentationMode = 1;	// 0: Parking, 1: Move and Turn, 2: LineCTR
+	static int presentationMode = 1;	// 0: Parking, 1: Move and Turn
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different

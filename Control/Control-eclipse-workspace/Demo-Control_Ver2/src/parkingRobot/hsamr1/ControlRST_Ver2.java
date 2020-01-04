@@ -300,34 +300,41 @@ public class ControlRST_Ver2 implements IControl {
     /**
      * driving for destination with prior in setDriveFor-method set parameters
      * enables controlled sequences of driving forward
-     */
-    // PD-control with angularVelocity as output, deviating angle as input
-	PID_Ver2 omegaPIDForward = new PID_Ver2(0, SAMPLETIME, 12, 0, 0.01, 0, false);	
-    
+     */	
 	private void exec_SETPOSE_ALGO(){  	
+		// PD-control with angularVelocity as output, deviating angle as input
+		PID_Ver2 omegaPIDForward = new PID_Ver2(0, SAMPLETIME, 12, 0, 0.01, 0, false);
     	// signs of the initial pose data for checking if destination is reached and not driving beyond
     	double signX = Math.signum(this.destination.getX() - this.enteringPose.getX());
     	double signY = Math.signum(this.destination.getY() - this.enteringPose.getY());
     	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPose.getHeading());
     	double signEnterAng = Math.signum(this.enteringRouteAngle);
     	
-    	if (	(	signX*(this.destination.getX() - this.currentPosition.getX()) > 0.005 ||
-    				signY*(this.destination.getY() - this.currentPosition.getY()) > 0.005    )
-    			&& 	this.velocity != 0) 
+    	if (	(	(signX*(this.destination.getX() - this.currentPosition.getX()) > 0.005) ||
+    				(signY*(this.destination.getY() - this.currentPosition.getY()) > 0.005)    )
+    			&& 	(this.velocity != 0)) 
     	{
 		    // angle for driving straight to the destination and setting it as desired angle for control
-		    double routeAngle = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX()); 
-		   
-		    //TODO: Fixt das hier das rückwärts fahren?, eventuell noch Vorzeichen von omega bei Drive ändern falls v negativ
+    		double routeAngle = 0;
+    		if (this.velocity > 0) {
+    			routeAngle = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX()); 
+    		}
+    		
 		    // for driving backwards: emulate forward angle
-		    if (this.velocity < 0) {
-		    	routeAngle = (routeAngle + Math.PI) % (2*Math.PI);
+    		if (this.velocity < 0) {
+		    	routeAngle = Math.atan2((-1)*this.destination.getY()-this.currentPosition.getY(), (-1)*this.destination.getX()-this.currentPosition.getX());
 		    }
+    		// make angle orientation to shortest possible rotation way
+    		routeAngle = (routeAngle + 2*Math.PI) % (2*Math.PI);
+			if (routeAngle > 1.8*Math.PI) {
+				routeAngle = routeAngle - 2*Math.PI;
+			}
+		    
 		    omegaPIDForward.updateDesiredValue(routeAngle);
 		    	
 		    //TODO: Winkel von 5 grad auf 1 grad für toleranz?
 		    // first Rotate towards destination 
-		    if ((signEnterAng*(routeAngle - this.currentPosition.getHeading()) >  Math.toRadians(5)) && this.angularVelocity != 0) {
+		    if ((signEnterAng*(routeAngle - this.currentPosition.getHeading()) >  Math.toRadians(5)) && (this.angularVelocity != 0)) {
 		    	// for driving backwards: emulate forward omega control
 		    	drive(0, this.angularVelocity); // rotate only
 		    }
@@ -339,7 +346,7 @@ public class ControlRST_Ver2 implements IControl {
 	    }
     	
     	//	rotate only
-    	else if (signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(5) && this.angularVelocity != 0)
+    	else if ( ( signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(5) ) && ( this.angularVelocity != 0 ) )
     	{
     		drive(0,this.angularVelocity);
     	}

@@ -5,9 +5,9 @@ public class PID {
 	double desiredValue = 0;
 	double samplePeriod = 0;
 	
-	double Kr = 0;
-	double Ki = 0;
-	double Kd = 0;
+	double KP = 0;
+	double KI = 0;
+	double KD = 0;
 	double AIWR = 99999999;	//Anti-I-Reset-Windup
 	boolean ADWR = false;	//Anti-D-Reset-Windup	
 	
@@ -18,62 +18,53 @@ public class PID {
 	double controlOut = 0;
 	double controlOutOld = 0;
 	
-	//Konstanten wie in PID pdf
+	// constants like documentation
 	double c0 = 0;
 	double c1 = 0;
 	double c2 = 0;
 	
-	double c0i = 0;
-	double c1i = 0;
-	double c2i = 0;
+	double c0I = 0;
+	double c1I = 0;
+	double c2I = 0;
 	
-	double c0d = 0;
-	double c1d = 0;
-	double c2d = 0;
+	double c0D = 0;
+	double c1D = 0;
+	double c2D = 0;
 	
-	double c0id = 0;
-	double c1id = 0;
-	double c2id = 0;
+	double c0ID = 0;
+	double c1ID = 0;
+	double c2ID = 0;
 
-	/**
-	 * 
-	 * @param desiredValue
-	 * @param samplePeriod
-	 * @param Kr
-	 * @param Ki
-	 * @param Kd
-	 * @param AIWR
-	 * @param ADWR
-	 */
-	public PID(double desiredValue, double samplePeriod, double Kr, double Ki, double Kd, double AIWR, boolean ADWR) {
+	
+	public PID(double desiredValue, double samplePeriod, double KP, double KI, double KD, double AIWR, boolean ADWR) {
 		this.desiredValue = desiredValue;
 		this.samplePeriod = samplePeriod;
 		
-		this.Kr = Kr;
-		this.Ki = Ki;
-		this.Kd = Kd;
+		this.KP = KP;
+		this.KI = KI;
+		this.KD = KD;
 		
 		this.AIWR = AIWR;
 		
-		// kein Windup/
-		c0 = Kr*(1+(samplePeriod*Ki/2)+(Kd/samplePeriod));
-		c1 = Kr*(-1+(samplePeriod*Ki/2)-2*(Kd/samplePeriod));
-		c2 = Kr*(Kd/samplePeriod);
+		// no Windup/
+		c0 = KP*(1+(samplePeriod*KI/2)+(KD/samplePeriod));
+		c1 = KP*(-1+(samplePeriod*KI/2)-2*(KD/samplePeriod));
+		c2 = KP*(KD/samplePeriod);
 		
 		// I-Windup-Reset
-		c0i = Kr*(1+(Kd/samplePeriod));
-		c1i = Kr*(-1-2*(Kd/samplePeriod));
-		c2i = Kr*(Kd/samplePeriod);
+		c0I = KP*(1+(KD/samplePeriod));
+		c1I = KP*(-1-2*(KD/samplePeriod));
+		c2I = KP*(KD/samplePeriod);
 		
 		// D-Windup-Reset
-		c0d = Kr*(1+(samplePeriod*Ki/2));
-		c1d = Kr*(-1+(samplePeriod*Ki/2));
-		c2d = 0;
+		c0D = KP*(1+(samplePeriod*KI/2));
+		c1D = KP*(-1+(samplePeriod*KI/2));
+		c2D = 0;
 		
 		// I & D -Windup-Reset
-		c0id = Kr;
-		c1id = -1*Kr;
-		c2id = 0;
+		c0ID = KP;
+		c1ID = -1*KP;
+		c2ID = 0;
 		
 	}
 	
@@ -84,10 +75,10 @@ public class PID {
 		errorValue0 = desiredValue - measuredValue;
 		controlOutOld = controlOut;
 		
-		// AIWR-Massnahme: noch nicht perfekt
+		// checking for AWR
 		if(ADWR == false) {
 			if(desiredValue - measuredValue > AIWR) {
-				controlOut = c0i*errorValue0 + c1i*errorValue1 + c2i*errorValue2 + controlOutOld;	
+				controlOut = c0I*errorValue0 + c1I*errorValue1 + c2I*errorValue2 + controlOutOld;	
 			}
 			else {
 				controlOut = c0*errorValue0 + c1*errorValue1 + c2*errorValue2 + controlOutOld;
@@ -95,16 +86,16 @@ public class PID {
 		}
 		else {
 			if((desiredValue - measuredValue > AIWR) && (Math.signum(errorValue0) == Math.signum(errorValue2))) {
-				controlOut = c0i*errorValue0 + c1i*errorValue1 + c2i*errorValue2 + controlOutOld;	
+				controlOut = c0I*errorValue0 + c1I*errorValue1 + c2I*errorValue2 + controlOutOld;	
 			}
 			else if((desiredValue - measuredValue > AIWR) && (Math.signum(errorValue0) != Math.signum(errorValue2))) {
-				controlOut = c0id*errorValue0 + c1id*errorValue1 + c2id*errorValue2 + controlOutOld;
+				controlOut = c0ID*errorValue0 + c1ID*errorValue1 + c2ID*errorValue2 + controlOutOld;
 			}
 			else if((desiredValue - measuredValue < AIWR) && (Math.signum(errorValue0) == Math.signum(errorValue2))) {
 				controlOut = c0*errorValue0 + c1*errorValue1 + c2*errorValue2 + controlOutOld;
 			}
 			else if((desiredValue - measuredValue < AIWR) && (Math.signum(errorValue0) != Math.signum(errorValue2))) {
-				controlOut = c0d*errorValue0 + c1d*errorValue1 + c2d*errorValue2 + controlOutOld;
+				controlOut = c0D*errorValue0 + c1D*errorValue1 + c2D*errorValue2 + controlOutOld;
 			}		
 			
 		}

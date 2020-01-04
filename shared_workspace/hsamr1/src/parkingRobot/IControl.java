@@ -1,7 +1,6 @@
 package parkingRobot;
 
 import lejos.robotics.navigation.Pose;
-import parkingRobot.IControl.ControlMode;
 
 /**
  * interface for the main module 'Control', providing methods for executing the algorithms to
@@ -99,7 +98,7 @@ public interface IControl {
 	
 	
 	/**
-	 * set destination and speeds before entering parking-mode
+	 * set destination and calculate trajectory coefficients before parking-mode
 	 * 
 	 * @param startPose latest measured pose
 	 * @param endPose finishing pose of parking process 

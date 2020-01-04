@@ -158,7 +158,11 @@ public class ControlRST implements IControl {
 		this.enteringPose = enteringPose;
 		this.enteringRouteAngle = Math.atan2(this.destination.getY()-this.enteringPose.getY(), this.destination.getX()-this.enteringPose.getX());
 		if (this.velocity < 0) {
-			enteringRouteAngle = (enteringRouteAngle + Math.PI) % (2*Math.PI);
+			this.enteringRouteAngle = this.enteringRouteAngle + Math.PI;
+		}
+		this.enteringRouteAngle = (this.enteringRouteAngle + 2*Math.PI) % (2*Math.PI);
+		if (this.enteringRouteAngle > 1.8*Math.PI) {
+			this.enteringRouteAngle = this.enteringRouteAngle - 2*Math.PI;
 		}
 	}
 	
@@ -172,7 +176,7 @@ public class ControlRST implements IControl {
 	public void setParkingData(Pose startPose, Pose endPose) {
 		setDestination(startPose.getHeading(), endPose.getX(), endPose.getY());
 		// calculate central point of trajectory
-		this.centerPoint = endPose.getLocation().add(startPose.getLocation()).multiply((float) 0.5);
+		this.centerPoint = endPose.getLocation().add(startPose.getLocation()).multiply((float)0.5);
 		// local coordinates: translate absolute coordinates into centerPoint
 		endPose.setLocation(endPose.getLocation().subtract(this.centerPoint));
 		
@@ -188,10 +192,10 @@ public class ControlRST implements IControl {
 			endPose.setLocation(endPose.getLocation().reverse());
 		}
 		
-		// trajectory equation: y= a(x+b)^3+c(x+b)+d
-		// calculate a coefficient of trajectory
+		// trajectory equation: y= a*(x**3)+c*x
+		// calculate a-coefficient of trajectory
 		this.trajectory_a = endPose.getY()/(-2*Math.pow(endPose.getX(),3));
-		// calculate c coefficient of trajectory
+		// calculate c-coefficient of trajectory
 		this.trajectory_c = -this.trajectory_a*3*Math.pow(endPose.getX(),2);
 	}
 	
@@ -311,15 +315,20 @@ public class ControlRST implements IControl {
     	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPose.getHeading());
     	double signEnterAng = Math.signum(this.enteringRouteAngle);
     	
-    	if (	(	(signX*(Math.signum(this.velocity)*this.destination.getX() - this.currentPosition.getX()) > 0.005) ||
-    				(signY*(Math.signum(this.velocity)*this.destination.getY() - this.currentPosition.getY()) > 0.005)    )
-    			&& 	(this.velocity != 0)) 
-    	{
+    	if (	(	(signX*(this.destination.getX() - this.currentPosition.getX()) > 0.005) ||
+				(signY*(this.destination.getY() - this.currentPosition.getY()) > 0.005)    )
+			&& 	(this.velocity != 0)) 
+		{
 		    // angle for driving straight to the destination and setting it as desired angle for control
-    		double routeAngle = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX()); 
-    		
-    		// make angle orientation to shortest possible rotation way
-    		routeAngle = (routeAngle + 2*Math.PI) % (2*Math.PI);
+			double routeAngle = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX()); 
+			
+			// emulate forward angle for driving backwards
+			if (this.velocity < 0) {
+				routeAngle = routeAngle + Math.PI;
+			}
+			
+			// make angle orientation to shortest possible rotation way
+			routeAngle = (routeAngle + 2*Math.PI) % (2*Math.PI);
 			if (routeAngle > 1.8*Math.PI) {
 				routeAngle = routeAngle - 2*Math.PI;
 			}

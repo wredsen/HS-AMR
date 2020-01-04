@@ -39,7 +39,7 @@ import lejos.nxt.LCD;
  */
 public class CTR_D3 {
 	
-	static int presentationMode = 1;	// 0: Parking, 1: Move and Turn
+	static int presentationMode = 0;	// 0: Parking, 1: Move and Turn
 	
 	/**
 	 * states for the main finite state machine. This main states are requirements because they invoke different
@@ -63,6 +63,9 @@ public class CTR_D3 {
 		
 		
 		TURN_CCW,
+		
+		
+		TURN_CCW0,
 		
 		
 		LINE_FOLLOW_FAST,
@@ -137,11 +140,7 @@ public class CTR_D3 {
 		if (presentationMode == 0) {
 		
 		while(true) {
-			//showData(navigation, perception);
-			LCD.clear();
-		    LCD.drawString("Winkel" + Math.toDegrees(navigation.getPose().getHeading()), 0, 3);
-		    LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 4);
-			LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 5);
+			control.showCTRData();
 			
         	switch ( currentStatus )
         	{
@@ -154,7 +153,7 @@ public class CTR_D3 {
 						Pose startPose = navigation.getPose();
 						startPose.setHeading(0);
 						Pose endPose = new Pose(.60f,-.25f,0);
-						control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
+						//control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 						control.setParkingData(startPose, endPose);
 						control.setCtrlMode(ControlMode.PARK_CTRL);
 					}
@@ -168,7 +167,8 @@ public class CTR_D3 {
 					currentStatus = CurrentStatus.DRIVING1;
 				    lastStatus = currentStatus;
 				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
-				    	currentStatus = CurrentStatus.TURN_CCW;
+				    	Button.ENTER.waitForPressAndRelease();
+				    	currentStatus = CurrentStatus.DRIVING2;
 				    	Thread.sleep(500);
 				    }
 					
@@ -208,7 +208,7 @@ public class CTR_D3 {
 				case DRIVING2:
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING2 ){
-						control.setDriveFor(0, 0.3, 0, 5, 0, navigation.getPose());	// 0,3m @ 5cm/s
+						control.setDriveFor(-0.12, 0, 0, -10, 0, navigation.getPose());	// 0,3m @ 5cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
 						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
@@ -307,21 +307,32 @@ public class CTR_D3 {
 	
 	if (presentationMode == 1) {
 		while(true) {
-			//showData(navigation, perception);
-			LCD.clear();
-		    LCD.drawString("Winkel" + Math.toDegrees(navigation.getPose().getHeading()), 0, 3);
-		    LCD.drawString("X (in cm): " + (navigation.getPose().getX()*100), 0, 4);
-			LCD.drawString("Y (in cm): " + (navigation.getPose().getY()*100), 0, 5);
-			
+			control.showCTRData();
+		
         	switch ( currentStatus )
         	{
+        		case TURN_CCW0:
+					//Into action
+					if ( lastStatus != CurrentStatus.TURN_CCW0 ){
+						control.setDriveFor(0, 0, Math.toRadians(90), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
+						control.setCtrlMode(ControlMode.SETPOSE);
+					}
+					
+					//State transition check
+					currentStatus = CurrentStatus.TURN_CCW0;
+				    lastStatus = currentStatus;
+				    if ((control.getCtrlMode() == ControlMode.INACTIVE)) {
+				    	currentStatus = CurrentStatus.DRIVING1;
+				    	Thread.sleep(500);
+				    }
+				break;
         		
 				case DRIVING1:
 					
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING1 ){
-						control.setDriveFor(-1.20, 0, 0, -10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+						control.setDriveFor(0, 0.12, 0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
 						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
@@ -358,7 +369,7 @@ public class CTR_D3 {
 				case TURN_CCW:
 					//Into action
 					if ( lastStatus != CurrentStatus.TURN_CCW ){
-						control.setDriveFor(0, 0, Math.toRadians(90), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
+						control.setDriveFor(0, 0, Math.toRadians(0), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 					}
 					
@@ -376,7 +387,7 @@ public class CTR_D3 {
 				case DRIVING2:
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING2 ){
-						control.setDriveFor(0, 0.3, 0, 5, 0, navigation.getPose());	// 0,3m @ 5cm/s
+						control.setDriveFor(0, -0.12, 0, -10, 0, navigation.getPose());	// 0,3m @ 5cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
 						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
@@ -444,7 +455,7 @@ public class CTR_D3 {
 					lastStatus = currentStatus;
 							
 					if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.DRIVING1;
+						currentStatus = CurrentStatus.TURN_CCW0;
 						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;

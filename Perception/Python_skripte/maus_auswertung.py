@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
+import matplotlib.pylab as pylab
 import os
 
 dirname = os.path.dirname(__file__)  # get absulute file path
@@ -7,14 +8,14 @@ dirname = os.path.dirname(__file__)  # get absulute file path
 # array that contains the raw sample values extracted from the 3 diffrent surfaces
 sample_surface_array = np.arange(90, dtype=float).reshape((45, 2))
 # array that contains the raw sample values extracted from the 4 difrent hights
-sample_hight_array = np.arange(120, dtype=float).reshape((60, 2))
+sample_hight_array = np.arange(150, dtype=float).reshape((75, 2))
 # array that contains the raw sample
 sample_velocity_array = np.arange(120, dtype=float).reshape((60,2))
 
 # fist value expected value, second value variance
 gauss_surface_array = np.arange(12, dtype=float).reshape((6, 2))
 # fist value expected value, second value variance
-gauss_hight_array = np.arange(16, dtype=float).reshape((8, 2))
+gauss_hight_array = np.arange(20, dtype=float).reshape((10, 2))
 # fist value expected value, second value variance
 gauss_velocity_array = np.arange(16, dtype=float).reshape((8,2))
 
@@ -22,7 +23,7 @@ gauss_velocity_array = np.arange(16, dtype=float).reshape((8,2))
 # fist value expected value, second value variance
 uncertainty_surface_array = np.arange(6, dtype=float)
 # fist value expected value, second value variance
-uncertainty_hight_array = np.arange(8, dtype=float)
+uncertainty_hight_array = np.arange(10, dtype=float)
 # fist value expected value, second value variance
 uncertainty_velocity_array = np.arange(8, dtype=float)
 
@@ -66,7 +67,7 @@ for i in range(0, 6):
             print('next file')
 
 
-for i in range(0, 8):
+for i in range(0, 10):
 
     if(i % 2 == 1):
         direction = 'y'
@@ -162,7 +163,7 @@ while i < 5:
 # calculate expected value and variance and print them out
 
 i = 0
-while i < 7:
+while i < 9:
     
     gauss_hight_array[i, 0] = np.mean(sample_hight_array[((i//2)*15):((i//2)*15)+15, 0])            # mean value from x axis
     # mean value from y axis
@@ -222,29 +223,35 @@ if(p == True):
     print('sigma x '+str(gauss_surface_array[4, 1]))
     print('sigma y '+str(gauss_surface_array[5, 1]))
     print('')
-    print('Höhe 6,3 mm')
+    print('Höhe normal mm')
     print('Mittelwert x '+str(gauss_hight_array[0, 0]))
     print('Mittelwert y '+str(gauss_hight_array[1, 0]))
     print('sigma x '+str(gauss_hight_array[0, 1]))
     print('sigma y '+str(gauss_hight_array[1, 1]))
     print('')
-    print('Höhe 5,85 mm')
+    print('Höhe 6,3 mm')
     print('Mittelwert x '+str(gauss_hight_array[2, 0]))
     print('Mittelwert y '+str(gauss_hight_array[3, 0]))
     print('sigma x '+str(gauss_hight_array[2, 1]))
     print('sigma y '+str(gauss_hight_array[3, 1]))
     print('')
-    print('Höhe 5,8 mm')
+    print('Höhe 5,85 mm')
     print('Mittelwert x '+str(gauss_hight_array[4, 0]))
     print('Mittelwert y '+str(gauss_hight_array[5, 0]))
     print('sigma x '+str(gauss_hight_array[4, 1]))
     print('sigma y '+str(gauss_hight_array[5, 1]))
     print('')
-    print('Höhe 5,3 mm')
+    print('Höhe 5,8 mm')
     print('Mittelwert x '+str(gauss_hight_array[6, 0]))
     print('Mittelwert y '+str(gauss_hight_array[7, 0]))
     print('sigma x '+str(gauss_hight_array[6, 1]))
     print('sigma y '+str(gauss_hight_array[7, 1]))
+    print('')
+    print('Höhe 5,3 mm')
+    print('Mittelwert x '+str(gauss_hight_array[8, 0]))
+    print('Mittelwert y '+str(gauss_hight_array[9, 0]))
+    print('sigma x '+str(gauss_hight_array[8, 1]))
+    print('sigma y '+str(gauss_hight_array[9, 1]))
     print('')
     print('Geschwindigkeit 25cm/s')
     print('Mittelwert y '+str(gauss_velocity_array[0,0]))
@@ -263,7 +270,13 @@ if(p == True):
     print('sigma y '+str(gauss_velocity_array[3, 1]))
    
 
-
+params = {'legend.fontsize': 'x-large',
+          'figure.figsize': (15, 5),
+         'axes.labelsize': 'x-large',
+         'axes.titlesize':'x-large',
+         'xtick.labelsize':'x-large',
+         'ytick.labelsize':'x-large'}
+pylab.rcParams.update(params)
 
 width=0.2
 ind= np.arange(3)
@@ -282,9 +295,10 @@ rects2 = ax.bar(ind+width/2,yval,width,yerr=yerr,capsize=10)
 
 
 ax.set_ylabel('Messunsicherheit in [mm]')
+
 ax.set_xticks(ind+width)
-ax.set_xticklabels( ('schwarz','grau','weiß') )
-ax.legend( (rects1[0], rects2[0]), ('Horizontale', 'Vertikale') )
+ax.set_xticklabels( ('schwarz','grau','weiß'))
+ax.legend( (rects1[0], rects2[0]), ('Horizontale', 'Vertikale'))
 plt.axhline(0,color='black')
 plt.xlabel('Farbe des Untergrundes')
 
@@ -302,24 +316,24 @@ plt.show()
 
 
 width=0.2
-ind= np.arange(4)
+ind= np.arange(5)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-xval = [abs(uncertainty_hight_array[0]-31.5),abs(uncertainty_hight_array[2]-31.5),abs(uncertainty_hight_array[4]-31.5),abs(uncertainty_hight_array[6]-31.5)]
-xerr = [gauss_hight_array[0,1]/300,gauss_hight_array[2,1]/300,gauss_hight_array[4,1]/300,gauss_hight_array[6,1]/300]
+xval = [abs(uncertainty_hight_array[0]-31.5),abs(uncertainty_hight_array[2]-31.5),abs(uncertainty_hight_array[4]-31.5),abs(uncertainty_hight_array[6]-31.5),abs(uncertainty_hight_array[8]-31.5)]
+xerr = [gauss_hight_array[0,1]/300,gauss_hight_array[2,1]/300,gauss_hight_array[4,1]/300,gauss_hight_array[6,1]/300,gauss_hight_array[8,1]/300]
 
 rects1 = ax.bar(ind-width/2,xval,width,yerr=xerr,capsize=10)
 
-yval = [abs(uncertainty_hight_array[1]-31.5),abs(uncertainty_hight_array[3]-31.5),abs(uncertainty_hight_array[5]-31.5),abs(uncertainty_hight_array[7]-31.5)]
-yerr = [gauss_hight_array[1,1]/300,gauss_hight_array[3,1]/300,gauss_hight_array[5,1]/300,gauss_hight_array[7,1]/300]
+yval = [abs(uncertainty_hight_array[1]-31.5),abs(uncertainty_hight_array[3]-31.5),abs(uncertainty_hight_array[5]-31.5),abs(uncertainty_hight_array[7]-31.5),abs(uncertainty_hight_array[9]-31.5)]
+yerr = [gauss_hight_array[1,1]/300,gauss_hight_array[3,1]/300,gauss_hight_array[5,1]/300,gauss_hight_array[7,1]/300,gauss_hight_array[9,1]/300]
 
 rects2 = ax.bar(ind+width/2,yval,width,yerr=yerr,capsize=10)
 
 
 ax.set_ylabel('Messunsicherheit in [mm]')
 ax.set_xticks(ind+width)
-ax.set_xticklabels( ('6,3','5,85','5,8','5,3') )
+ax.set_xticklabels( ('nomal','6,3','5,85','5,8','5,3') )
 ax.legend( (rects1[0], rects2[0]), ('Horizontale', 'Vertikale') )
 plt.axhline(0,color='black')
 plt.xlabel('Distanz in [mm]')

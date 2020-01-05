@@ -186,7 +186,7 @@ public enum CurrentStatusParkOut {
 	 * All above defined lines are bundled in this array and to form the course map.
 	 */
 	static Line[] map = {line0, line1, line2, line3, line4, line5, line6, line7};
-
+	protected static CurrentStatus a;
 	private static boolean outside=false;
 	private static boolean anfahrt=false;
 	private static boolean correct=false;
@@ -205,7 +205,7 @@ public enum CurrentStatusParkOut {
 	 */
 	public static void main(String[] args) throws Exception {		
         currentStatus = CurrentStatus.INACTIVE;
-        lastStatus    = CurrentStatus.EXIT;
+        lastStatus    = CurrentStatus.DRIVING;
 		
 		// Generate objects
 		
@@ -309,7 +309,7 @@ public enum CurrentStatusParkOut {
 					//Into action
 					if ( lastStatus != CurrentStatus.INACTIVE ){
 						control.setCtrlMode(ControlMode.INACTIVE);
-						//CurrentStatus a = lastStatus;
+						 a = lastStatus;
 					}
 					
 					//While action
@@ -318,9 +318,9 @@ public enum CurrentStatusParkOut {
 					//State transition check
 					lastStatus = currentStatus;
 					if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
-						currentStatus = CurrentStatus.DRIVING;						
+						currentStatus = a;						
 					}else if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.DRIVING;
+						currentStatus = a;
 						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
 					}else if ( Button.ESCAPE.isDown() ){
 						currentStatus = CurrentStatus.EXIT;

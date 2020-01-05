@@ -335,7 +335,6 @@ public class ControlRST implements IControl {
 		    
 		    omegaPIDForward.updateDesiredValue(routeAngle);
 		    	
-		    //TODO: Winkel von 5 grad auf 1 grad für toleranz?
 		    // first Rotate towards destination 
 		    if ((signEnterAng*(routeAngle - this.currentPosition.getHeading()) >  Math.toRadians(5)) && (this.angularVelocity != 0)) {
 		    	// for driving backwards: emulate forward omega control
@@ -363,7 +362,7 @@ public class ControlRST implements IControl {
 	
     
     private double getTrajectory(double x) {
-		return this.trajectory_a*Math.pow(x,3)+ this.trajectory_c*x;
+		return this.trajectory_a*Math.pow(x, 3) + this.trajectory_c*x;
 	}
     
 	/**

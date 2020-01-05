@@ -229,6 +229,7 @@ public enum CurrentStatusParkOut {
 				
 		while(true) {
 			LCD.clear();
+			LCD.drawString("S " + currentStatus, 0, 3);
 			showData(navigation, perception);
 				
         	switch ( currentStatus )
@@ -371,6 +372,7 @@ public enum CurrentStatusParkOut {
 					break;
 				////////////////////////////////////////////////////////////////////////////////////////
 				case PARK_THIS:
+					LCD.drawString("SP " + currentStatusPark, 0, 4);
 					//Into action
 					if(lastStatus != CurrentStatus.PARK_THIS) {
 						if(anfahrt==false) {
@@ -378,8 +380,8 @@ public enum CurrentStatusParkOut {
 						}
 						parkplatz =hmi.getSelectedParkingSlot();
 						ParkingSlot[] parkingslots= navigation.getParkingSlots();
-						anfahrort=parkingslots[parkplatz-1].getBackBoundaryPosition(); //start
-						p2=parkingslots[parkplatz-1].getFrontBoundaryPosition();//ende 
+						anfahrort=parkingslots[parkplatz-1].getFrontBoundaryPosition(); //start
+						p2=parkingslots[parkplatz-1].getBackBoundaryPosition();//ende 
 						anfahrt=false;
 						correct=false;
 					}
@@ -467,49 +469,29 @@ public enum CurrentStatusParkOut {
 					
 					case BACKWARDS:
 						if(lastStatusParkOut!=currentStatusParkOut) {
-							/*if(perception.getFrontSensorDistance()<30) {
+							if(perception.getFrontSensorDistance()<30) {
 								double distance = perception.getBackSensorDistance();
 							
 								if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(20))){//wenn Winkel 90°
-									control.setDriveFor(0,-(distance*0.01),0, -10, 0, navigation.getPose());	
+									control.setDriveFor(0,-(distance*0.01),0, -10, 0, navigation.getPose());
+									Thread.sleep(50);
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(20))){ //wenn Winkel 0° 
-									control.setDriveFor((0-distance*0.01),0,0, -10, 0, navigation.getPose());	
+									control.setDriveFor((0-distance*0.01),0,0, -10, 0, navigation.getPose());
+									Thread.sleep(50);
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}else {//Winkel 180°
-									control.setDriveFor((distance*0.01),0,0, -10, 0, navigation.getPose());	
+									control.setDriveFor((distance*0.01),0,0, -10, 0, navigation.getPose());
+									Thread.sleep(50);
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}
-							}*/
-							
-							if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(20))) {
-								
-								if(Math.abs(navigation.getPose().getX()-p2.getX())<30){
-									double distance = perception.getBackSensorDistance();
-									control.setDriveFor(0,-(distance*0.01),0, -10, 0, navigation.getPose());	
-									control.setCtrlMode(ControlMode.SETPOSE);
-								}
-							}else{
-								if(Math.abs(navigation.getPose().getX()-p2.getX())<30) {
-									if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(20))){ //wenn Winkel 0° 
-										double distance = perception.getBackSensorDistance();
-										control.setDriveFor((0-distance*0.01),0,0, -10, 0, navigation.getPose());	
-										control.setCtrlMode(ControlMode.SETPOSE);
-									}else {//Winkel 180°
-										double distance = perception.getBackSensorDistance();
-										control.setDriveFor((distance*0.01),0,0, -10, 0, navigation.getPose());	
-										control.setCtrlMode(ControlMode.SETPOSE);
-									}
 							}
-							
-							
-							Thread.sleep(50);						
+							Thread.sleep(50);
 						}
 						if(control.getCtrlMode()==ControlMode.INACTIVE) {
 							back=true;
 						}
-					}
-					break;
+						break;
 					/////////////////////////////////////////////////////////////////////////////////////////////////////	
 					case PARKOUT:
 						if(lastStatusParkOut!=currentStatusParkOut) {

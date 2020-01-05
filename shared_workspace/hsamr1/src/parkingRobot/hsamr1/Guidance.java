@@ -389,11 +389,11 @@ public enum CurrentStatusParkOut {
 						case TO_SLOT:
 							anfahrt=true;
 							if(Math.abs(navigation.getPose().getHeading())<Math.toRadians(20)) {
-								anfahrort.x=(float)(anfahrort.x+0.05);
+								anfahrort.x=anfahrort.x+0.05f;
 							}else if(Math.abs(navigation.getPose().getHeading()-Math.PI/2)<Math.toRadians(20)) {
-								anfahrort.y=(float)(anfahrort.y+0.05);
+								anfahrort.y=anfahrort.y+0.05f;
 							}else if(Math.abs(navigation.getPose().getHeading()-Math.PI)<Math.toRadians(20)) {
-								anfahrort.x=(float)(anfahrort.x-0.05);
+								anfahrort.x=anfahrort.x-0.05f;
 							}
 													
 							currentStatus = CurrentStatus.DRIVING;
@@ -405,10 +405,10 @@ public enum CurrentStatusParkOut {
 								Pose startPose = navigation.getPose();
 									if(Math.abs(startPose.getHeading())<Math.toRadians(20)) {
 										startPose.setHeading(0);
-										endPose = new Pose(startPose.getX()+0.45f,startPose.getY()-.26f,0);
+										endPose = new Pose(startPose.getX()+0.45f,startPose.getY()-0.26f,0);
 									}else if(Math.abs(startPose.getHeading()-Math.PI/2)<Math.toRadians(20)) {
 										startPose.setHeading((float)Math.toRadians(90)); 
-										endPose = new Pose(startPose.getX()+0.26f,startPose.getY()+.45f,0);
+										endPose = new Pose(startPose.getX()+0.26f,startPose.getY()+0.45f,0);
 									}else if(Math.abs(startPose.getHeading()-Math.PI)<Math.toRadians(20)) {
 										startPose.setHeading((float)Math.PI);
 										endPose = new Pose((startPose.getX()-0.45f),startPose.getY()+0.26f,0);

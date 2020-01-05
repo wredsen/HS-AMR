@@ -365,108 +365,101 @@ public class ControlRST implements IControl {
 		return this.trajectory_a*Math.pow(x, 3) + this.trajectory_c*x;
 	}
     
+    // variable for storing of last controller output
+    double parkingOmega;
 	/**
 	 * parking along the generated trajectory
 	 */
-    double etaoldPose = 0;
-    double etasumPose = 0;
-    PID omegaPIDParking = new PID(0, SAMPLETIME, 12, 0, 0.01, 0, false);
-    
 	private void exec_PARKCTRL_ALGO(){
     	this.update_SETPOSE_Parameter();
-    	//omegaPIDParking.runControl(measuredValue);
-    	//omegaPIDParking.updateDesiredValue(desiredValue);
-		double omega;
-    	final double KP = 12;
-    	final double KI = 0;
-    	final double KD = .01;
-    	double eta;
-    	double x, y, x_next, y_next;
-    	double x_local, y_local;
     	
-    	x = this.currentPosition.getX();
-    	y = this.currentPosition.getY();
+    	// PD-control with angularVelocity as output, deviating angle as input
+    	PID omegaPIDParking = new PID(0, SAMPLETIME, 5, 0, 0.004, 0, false);
     	
-    	// local coordinates: translate absolute coordinates into centerPoint
-    	x_local = x - this.centerPoint.x;
-    	y_local = y - this.centerPoint.y;
-    	
+    	// transform into local coordinates by translating absolute coordinates into centerPoint
+    	// variables for x- and y-coordinates of the next track section-destination 
+    	double nextX = this.currentPosition.getX() - this.centerPoint.x;
+    	double nextY = this.currentPosition.getY() - this.centerPoint.y;	
     	// rotate local coordinates
-    	if(this.destination.getHeading() == 0 ) {
+    	if (this.destination.getHeading() == 0 ) {
     		// do not rotate
-    	}else if(Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
-    		double n = x_local;
-    		x_local = y_local;
-    		y_local = -n;
-    	}else if(Math.abs(this.destination.getHeading() - Math.PI) < 0.001) {
-    		x_local = -x_local;
-    		y_local = -y_local;
+    	}
+    	else if (Math.abs(this.destination.getHeading() - Math.PI) < 0.001) {
+    		nextX = -nextX;
+    		nextY = -nextY;
+    	}
+    	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
+    		double storing = nextX;
+    		nextX = nextY;
+    		nextY = -storing;
     	}
     	
     	//TODO: Das hier rausnehmen oder inkrement erhöhen -> von x abhängig machen?
     	// Check for driving direction
-    	if(Math.signum(this.velocity) == 1){
-    		x_local = x_local + 0.01;
-    	}else if(Math.signum(this.velocity) == -1) {
-    		x_local = x_local - 0.01;
+    	if (Math.signum(this.velocity) == 1){
+    		nextX = nextX + 0.01;
+    	}
+    	else if (Math.signum(this.velocity) == -1) {
+    		nextX = nextX - 0.01;
     	}
     	
-    	y_local = getTrajectory(x_local);
+    	nextY = getTrajectory(nextX);
     	
     	// back transformation to absolute coordinates
-    	if(this.destination.getHeading() == 0 ) {
+    	if (this.destination.getHeading() == 0 ) {
     		// do nothing
-    	}else if(Math.abs(this.destination.getHeading() - Math.PI/2) < 0.0001) {
-    		double n = x_local;
-    		x_local = -y_local;
-    		y_local = n;
-    	}else if(Math.abs(this.destination.getHeading() - Math.PI) < 0.0001) {
-    		x_local = -x_local;
-    		y_local = -y_local;
     	}
-    	y_next = y_local + this.centerPoint.y;
-    	x_next = x_local + this.centerPoint.x;
+    	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
+    		double store = nextX;
+    		nextX = -nextY;
+    		nextY = store;
+    	}
+    	else if (Math.abs(this.destination.getHeading() - Math.PI) < 0.001) {
+    		nextX = -nextX;
+    		nextY = -nextY;
+    	}
     	
+    	// translate back into absolute coordinates
+    	nextY = nextY + this.centerPoint.y;
+    	nextX = nextX + this.centerPoint.x;
     	
-    	if(Math.abs(this.destination.getHeading() - Math.PI) < 0.0001) {
-    		eta = Math.atan((y - y_next)/(x - x_next))- this.currentPosition.getHeading() + Math.PI;
-    	}else if(Math.abs(this.destination.getHeading() - Math.PI/2) < 0.0001) {
-    		if(Math.signum(this.velocity) == 1){
-    			eta = Math.atan((y + y_next)/(x - x_next))- this.currentPosition.getHeading() + Math.PI/2;
-        	}else  {
-        		eta = - ( Math.atan((y + y_next)/(x - x_next))- this.currentPosition.getHeading() + Math.PI/2);
+    	//TODO: PID-Regler einbauen -> routeAngle für eta ersetzen; obacht: this.currentPosition.getHeading()
+    	double routeAngle = 0;
+    	
+    	//check parking orientation
+    	if (Math.abs(this.destination.getHeading() - Math.PI) < 0.001) {
+    		routeAngle = Math.atan((this.currentPosition.getY() - nextY)/(this.currentPosition.getX() - nextX)) + Math.PI;
+    	}
+    	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
+    		if (Math.signum(this.velocity) == 1) {
+    			routeAngle = Math.atan((this.currentPosition.getY() + nextY)/(this.currentPosition.getX() - nextX)) + Math.PI/2;
+        	}
+    		else {
+    			routeAngle = - ( Math.atan((this.currentPosition.getY() + nextY)/(this.currentPosition.getX() - nextX)) + Math.PI/2);
         	}
     		
-    	}else {
-    		eta = Math.atan((y - y_next)/(x - x_next))- this.currentPosition.getHeading();
-    	}
-    	//	 Check if destination is reached
-    	if(this.currentPosition.getLocation().subtract(this.destination.getLocation()).length()<0.05) 
-    	{
-			eta = this.destination.getHeading() -this.currentPosition.getHeading();
-	    	omega = KP*eta ;
-	    	etaoldPose = eta;
-			drive(0,omega);
-			//TODO: Winkel verkleinern von 0.07 abwärts
-			if( Math.abs(eta) < 0.07 ){
-				this.setCtrlMode(ControlMode.INACTIVE);
-			}
-			
     	}
     	else {
-	    	etasumPose += eta;
-	    	omega = KP*eta + KI*etasumPose + KD*(etaoldPose-eta);
-	    	etaoldPose = eta;
-	    	RConsole.println("[control] Fehler: " + omega);
-	    	
-	    	//TODO: DIRTY FIX funktioniert?, sonst versuchen rauszunhemen und PD werte besser zu kalibrieren
-	    	if (Math.abs(this.destination.getHeading()-this.navigation.getPose().getHeading()) > Math.toRadians(50)) {
-	    		omega = -omega;
-	    	}if (Math.abs(omega) > Math.toRadians(40)) {
-	            omega = Math.signum(omega)*Math.toRadians(40);
-	        }
-	    	
-	    	drive(this.velocity,omega);
+    		routeAngle = Math.atan((this.currentPosition.getY() - nextY)/(this.currentPosition.getX() - nextX));
+    	}
+    	
+    	omegaPIDParking.updateDesiredValue(routeAngle);
+    	
+    	//	 Check if destination is reached
+    	if (this.currentPosition.getLocation().subtract(this.destination.getLocation()).length()<0.05) {
+    		routeAngle = this.destination.getHeading();
+	    	//etaoldPose = routeAngle - this.currentPosition.getHeading();
+    		drive(0, Math.signum(parkingOmega) * Math.toRadians(40));
+			if (Math.abs(routeAngle - this.currentPosition.getHeading()) < Math.toRadians(5)) {
+				Sound.beep();
+				this.setCtrlMode(ControlMode.INACTIVE);				
+			}
+    	}
+    	else {
+	    	//etasumPose += (routeAngle - currentPosition.getHeading());
+	    	parkingOmega = omegaPIDParking.runControl(this.currentPosition.getHeading());
+	    	//etaoldPose = (routeAngle - currentPosition.getHeading());
+	    	drive(this.velocity, parkingOmega);
 	    }
 
 	}

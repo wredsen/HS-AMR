@@ -710,11 +710,11 @@ public class NavigationAT implements INavigation{
 			switch(lastCornerNumber)
 				{
 				case 0: 
-						this.pose.setLocation((float)0.00,(float)0.00);
+						//this.pose.setLocation((float)0.00,(float)0.00);
 						nextCornerNumber = 1;
 					break; 
 				case 1: 
-						this.pose.setLocation((float)1.80,(float)0.00);
+						//this.pose.setLocation((float)1.80,(float)0.00);
 						nextCornerNumber = 2;
 						foundBackBoundary = false;
 					break; 
@@ -728,7 +728,7 @@ public class NavigationAT implements INavigation{
 						nextCornerNumber = 4;
 					break;
 				case 4:
-						this.pose.setLocation((float)1.50,(float)0.30);
+						//this.pose.setLocation((float)1.50,(float)0.30);
 						nextCornerNumber = 5;
 					break;
 				case 5:

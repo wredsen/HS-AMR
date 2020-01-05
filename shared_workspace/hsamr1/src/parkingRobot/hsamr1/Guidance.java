@@ -140,7 +140,7 @@ public enum CurrentStatusParkOut {
 	/**
 	 * state in which the main finite state machine was running before entering the actual state
 	 */
-	protected static CurrentStatus lastStatus		= CurrentStatus.PARK;
+	protected static CurrentStatus lastStatus		= CurrentStatus.DRIVING;
 	
 	
 	/**
@@ -309,6 +309,7 @@ public enum CurrentStatusParkOut {
 					//Into action
 					if ( lastStatus != CurrentStatus.INACTIVE ){
 						control.setCtrlMode(ControlMode.INACTIVE);
+						//CurrentStatus a = lastStatus;
 					}
 					
 					//While action
@@ -395,7 +396,7 @@ public enum CurrentStatusParkOut {
 							}else if(Math.abs(navigation.getPose().getHeading()-Math.PI/2)<Math.toRadians(20)) {
 								anfahrort.y=anfahrort.y+0.05f;
 							}else if(Math.abs(navigation.getPose().getHeading()-Math.PI)<Math.toRadians(20)) {
-								anfahrort.x=anfahrort.x-0.05f;
+								anfahrort.x=anfahrort.x-0.075f;
 							}
 													
 							currentStatus = CurrentStatus.DRIVING;
@@ -488,15 +489,15 @@ public enum CurrentStatusParkOut {
 								}
 							}else {
 								if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(20))){//wenn Winkel 90°
-									control.setDriveFor(0,-0.02,0, -10, 0, navigation.getPose());
+									control.setDriveFor(0,-0.2,0, -10, 0, navigation.getPose());
 									Thread.sleep(50);
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(20))){ //wenn Winkel 0° 
-									control.setDriveFor(-0.02,0,0, -10, 0, navigation.getPose());
+									control.setDriveFor(-0.2,0,0, -10, 0, navigation.getPose());
 									Thread.sleep(50);
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}else {//Winkel 180°
-									control.setDriveFor(0.02,0,0,-10, 0, navigation.getPose());
+									control.setDriveFor(0.2,0,0,-10, 0, navigation.getPose());
 									Thread.sleep(50);
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}

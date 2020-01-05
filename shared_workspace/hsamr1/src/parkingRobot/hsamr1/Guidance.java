@@ -293,7 +293,7 @@ public enum CurrentStatusParkOut {
 						currentStatus = CurrentStatus.EXIT;
 					}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS &&(anfahrt==false)){ //ausgewählter Parkplatz
 						currentStatus = CurrentStatus.PARK_THIS;
-					}else if (anfahrt==true && (Math.abs(navigation.getPose().getX()-anfahrort.getX())<0.05) && (Math.abs(navigation.getPose().getY()-anfahrort.getY())<0.05)) {
+					}else if (anfahrt==true && (Math.abs(navigation.getPose().getX()-anfahrort.getX())<0.05) && (Math.abs(navigation.getPose().getY()-anfahrort.getY())<0.10)) {
 						control.setCtrlMode(ControlMode.INACTIVE);
 						currentStatus = CurrentStatus.PARK_THIS;
 						currentStatusPark = CurrentStatusPark.REACHED_SLOT;
@@ -413,7 +413,7 @@ public enum CurrentStatusParkOut {
 										endPose = new Pose(startPose.getX()+0.26f,startPose.getY()+0.45f,0);
 									}else if(Math.abs(startPose.getHeading()-Math.PI)<Math.toRadians(20)) {
 										startPose.setHeading((float)Math.PI);
-										endPose = new Pose((startPose.getX()-0.45f),startPose.getY()+0.26f,0);
+										endPose = new Pose((startPose.getX()-0.45f),startPose.getY()+0.25f,0);
 									}
 								control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 								control.setParkingData(startPose,endPose);
@@ -471,13 +471,14 @@ public enum CurrentStatusParkOut {
 						if(lastStatusParkOut!=currentStatusParkOut) {
 							if(perception.getFrontSensorDistance()<30) {
 								double distance = perception.getBackSensorDistance();
+								distance = distance-2;
 							
 								if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(20))){//wenn Winkel 90°
-									control.setDriveFor(0,-(distance*0.01),0, -10, 0, navigation.getPose());
+									control.setDriveFor(0, distance*(-0.01),0, -10, 0, navigation.getPose());
 									Thread.sleep(50);
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(20))){ //wenn Winkel 0° 
-									control.setDriveFor((0-distance*0.01),0,0, -10, 0, navigation.getPose());
+									control.setDriveFor(distance*(-0.01),0,0, -10, 0, navigation.getPose());
 									Thread.sleep(50);
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}else {//Winkel 180°
@@ -485,7 +486,22 @@ public enum CurrentStatusParkOut {
 									Thread.sleep(50);
 									control.setCtrlMode(ControlMode.SETPOSE);
 								}
+							}else {
+								if((Math.abs(Math.toRadians(90)-navigation.getPose().getHeading())<Math.toRadians(20))){//wenn Winkel 90°
+									control.setDriveFor(0,-0.02,0, -10, 0, navigation.getPose());
+									Thread.sleep(50);
+									control.setCtrlMode(ControlMode.SETPOSE);
+								}else if((Math.abs(navigation.getPose().getHeading())<Math.toRadians(20))){ //wenn Winkel 0° 
+									control.setDriveFor(-0.02,0,0, -10, 0, navigation.getPose());
+									Thread.sleep(50);
+									control.setCtrlMode(ControlMode.SETPOSE);
+								}else {//Winkel 180°
+									control.setDriveFor(0.02,0,0,-10, 0, navigation.getPose());
+									Thread.sleep(50);
+									control.setCtrlMode(ControlMode.SETPOSE);
+								}
 							}
+							
 							Thread.sleep(50);
 						}
 						if(control.getCtrlMode()==ControlMode.INACTIVE) {
@@ -536,7 +552,8 @@ public enum CurrentStatusParkOut {
         			}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
         				currentStatus = CurrentStatus.EXIT;
         			}else if(control.getCtrlMode()==ControlMode.INACTIVE && outside){
-        				currentStatus=CurrentStatus.DRIVING;	
+        				currentStatus=CurrentStatus.DRIVING;
+        				outside=false;
         			}
 					
 					//Leave action

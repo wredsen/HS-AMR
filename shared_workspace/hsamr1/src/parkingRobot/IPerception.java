@@ -128,7 +128,7 @@ public interface IPerception {
 	 * the Value commes from the first Tri-Sensor connected to the Arduino 
 	 * (the order of the Sensorports is set in the Arduino-code)
 	 * 
-	 * @return Distance in mm from front sensor
+	 * @return Distance in cm from front sensor
 	 */
 	public double 		getFrontSensorDistance();	
 	/**
@@ -136,7 +136,7 @@ public interface IPerception {
 	 * the Value commes from the second Tri-Sensor connected to the Arduino
 	 * (the order of the Sensorports is set in the Arduino-code)
 	 * 
-	 * @return Distance in mm from front-side sensor
+	 * @return Distance in cm from front-side sensor
 	 */
 	public double 		getFrontSideSensorDistance();	
 	/**
@@ -144,7 +144,7 @@ public interface IPerception {
 	 * the Value commes from the third Tri-Sensor connected to the Arduino 
 	 * (the order of the Sensorports is set in the Arduino-code)
 	 * 
-	 * @return Distance in mm from back sensor
+	 * @return Distance in cm from back sensor
 	 */
 	public double       getBackSensorDistance();	
 	/**
@@ -152,7 +152,7 @@ public interface IPerception {
 	 * the Value commes from the fourth Tri-Sensor connected to the Arduino 
 	 * (the order of the Sensorports is set in the Arduino-code)
 	 * 
-	 * @return Distance in mm from back-side sensor
+	 * @return Distance in cm from back-side sensor
 	 */
 	public double 		getBackSideSensorDistance();
 

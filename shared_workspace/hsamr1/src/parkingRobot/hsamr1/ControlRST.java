@@ -113,7 +113,7 @@ public class ControlRST implements IControl {
 		
 		this.ctrlThread = new ControlThread(this);
 		
-		ctrlThread.setPriority(Thread.MAX_PRIORITY-1);
+		ctrlThread.setPriority(Thread.MAX_PRIORITY);
 		ctrlThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
 		ctrlThread.start();
 	}

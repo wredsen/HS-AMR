@@ -314,7 +314,7 @@ public class CTR_D3 {
         		case TURN_CCW0:
 					//Into action
 					if ( lastStatus != CurrentStatus.TURN_CCW0 ){
-						control.setDriveFor(0, 0, Math.toRadians(90), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
+						control.setDriveFor(0, 0, Math.toRadians(180), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 					}
 					
@@ -332,7 +332,7 @@ public class CTR_D3 {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING1 ){
-						control.setDriveFor(0, 0.12, 0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+						control.setDriveFor(-0.12, 0, 0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
 						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
@@ -387,7 +387,7 @@ public class CTR_D3 {
 				case DRIVING2:
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING2 ){
-						control.setDriveFor(0, -0.12, 0, -10, 0, navigation.getPose());	// 0,3m @ 5cm/s
+						control.setDriveFor(0.12, 0, 0, -10, 0, navigation.getPose());	// 0,3m @ 5cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
 						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s

@@ -378,9 +378,9 @@ public class ControlRST_Ver2 implements IControl {
     	//omegaPIDParking.runControl(measuredValue);
     	//omegaPIDParking.updateDesiredValue(desiredValue);
 		double omega;
-    	final double KP = 12;
+    	final double KP = 6;
     	final double KI = 0;
-    	final double KD = 0.01;
+    	final double KD = 0.005;
     	double eta;
     	
     	// transform into local coordinates by translating absolute coordinates into centerPoint
@@ -465,6 +465,7 @@ public class ControlRST_Ver2 implements IControl {
 	    	etaoldPose = eta;
 	    	RConsole.println("[control] Fehler: " + omega);
 	    	
+	    	/*
 	    	//TODO: DIRTY FIX funktioniert?, sonst versuchen rauszunhemen und PD werte besser zu kalibrieren
 	    	if (Math.abs(this.destination.getHeading()-this.navigation.getPose().getHeading()) > Math.toRadians(50)) {
 	    		omega = -omega;
@@ -472,6 +473,9 @@ public class ControlRST_Ver2 implements IControl {
 	    	if (Math.abs(omega) > Math.toRadians(40)) {
 	            omega = Math.signum(omega)*Math.toRadians(40);
 	        }
+	        /*
+	         * 
+	         */
 	    	drive(this.velocity, omega);
 	    }
 
@@ -517,19 +521,7 @@ public class ControlRST_Ver2 implements IControl {
 		this.rightMotor.stop();
 	}
 	
-	/* variables for drive method */
-	// one PID control for each motor, outputs pwm value, input RPM
-    PID_Ver2 leftPIDRPM = new PID_Ver2(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false);
-    PID_Ver2 rightPIDRPM = new PID_Ver2(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); 
-    int leftControlOut = 0;
-    int rightControlOut = 0;
-    double measuredRPMLeft = 0;
-    double measuredRPMRight = 0;
 	
-	double desiredRPMLeft = 0;
-	double desiredRPMRight = 0;
-	int desiredPowerLeft = 0;
-	int desiredPowerRight = 0;
     /**
      * calculates the left and right angle speed of the both motors with given velocity 
      * and angle velocity of the robot
@@ -537,7 +529,21 @@ public class ControlRST_Ver2 implements IControl {
      * @param desiredVelocity velocity of the robot in cm/s
      * @param desiredAngularVelocity angle velocity of the robot in rad/s
      */
-	private void drive(double desiredVelocity, double desiredAngularVelocity){	    
+	private void drive(double desiredVelocity, double desiredAngularVelocity){
+		/* variables for drive method */
+		// one PID control for each motor, outputs pwm value, input RPM
+	    PID_Ver2 leftPIDRPM = new PID_Ver2(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false);
+	    PID_Ver2 rightPIDRPM = new PID_Ver2(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); 
+	    int leftControlOut = 0;
+	    int rightControlOut = 0;
+	    double measuredRPMLeft = 0;
+	    double measuredRPMRight = 0;
+		
+		double desiredRPMLeft = 0;
+		double desiredRPMRight = 0;
+		int desiredPowerLeft = 0;
+		int desiredPowerRight = 0;
+		
 		AngleDifferenceMeasurement leftAngle = this.angleMeasurementLeft;
 		AngleDifferenceMeasurement rightAngle = this.angleMeasurementRight;
 		

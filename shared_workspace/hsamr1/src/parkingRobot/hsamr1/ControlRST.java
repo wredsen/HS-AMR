@@ -512,19 +512,7 @@ public class ControlRST implements IControl {
 		this.rightMotor.stop();
 	}
 	
-	/* variables for drive method */
-	// one PID control for each motor, outputs pwm value, input RPM
-    PID leftPIDRPM = new PID(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false);
-    PID rightPIDRPM = new PID(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); 
-    int leftControlOut = 0;
-    int rightControlOut = 0;
-    double measuredRPMLeft = 0;
-    double measuredRPMRight = 0;
-	
-	double desiredRPMLeft = 0;
-	double desiredRPMRight = 0;
-	int desiredPowerLeft = 0;
-	int desiredPowerRight = 0;
+
     /**
      * calculates the left and right angle speed of the both motors with given velocity 
      * and angle velocity of the robot
@@ -532,7 +520,21 @@ public class ControlRST implements IControl {
      * @param desiredVelocity velocity of the robot in cm/s
      * @param desiredAngularVelocity angle velocity of the robot in rad/s
      */
-	private void drive(double desiredVelocity, double desiredAngularVelocity){	    
+	private void drive(double desiredVelocity, double desiredAngularVelocity){	
+		/* variables for drive method */
+		// one PID control for each motor, outputs pwm value, input RPM
+	    PID leftPIDRPM = new PID(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false);
+	    PID rightPIDRPM = new PID(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); 
+	    int leftControlOut = 0;
+	    int rightControlOut = 0;
+	    double measuredRPMLeft = 0;
+	    double measuredRPMRight = 0;
+		
+		double desiredRPMLeft = 0;
+		double desiredRPMRight = 0;
+		int desiredPowerLeft = 0;
+		int desiredPowerRight = 0;
+		
 		AngleDifferenceMeasurement leftAngle = this.angleMeasurementLeft;
 		AngleDifferenceMeasurement rightAngle = this.angleMeasurementRight;
 		

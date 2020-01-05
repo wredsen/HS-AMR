@@ -380,7 +380,7 @@ public class ControlRST_Ver2 implements IControl {
 		double omega;
     	final double KP = 6;
     	final double KI = 0;
-    	final double KD = 0.005;
+    	final double KD = 0.005; 	// 0.005
     	double eta;
     	
     	// transform into local coordinates by translating absolute coordinates into centerPoint
@@ -454,8 +454,7 @@ public class ControlRST_Ver2 implements IControl {
 	    	omega = KP*eta ;
 	    	etaoldPose = eta;
 			drive(0, omega);
-			//TODO: Winkel verkleinern von 0.07 abwärts
-			if (Math.abs(eta) < 0.07) {
+			if (Math.abs(eta) < 0.05) {
 				this.setCtrlMode(ControlMode.INACTIVE);
 			}
     	}
@@ -464,18 +463,6 @@ public class ControlRST_Ver2 implements IControl {
 	    	omega = KP*eta + KI*etasumPose + KD*(etaoldPose-eta);
 	    	etaoldPose = eta;
 	    	RConsole.println("[control] Fehler: " + omega);
-	    	
-	    	/*
-	    	//TODO: DIRTY FIX funktioniert?, sonst versuchen rauszunhemen und PD werte besser zu kalibrieren
-	    	if (Math.abs(this.destination.getHeading()-this.navigation.getPose().getHeading()) > Math.toRadians(50)) {
-	    		omega = -omega;
-	    	}
-	    	if (Math.abs(omega) > Math.toRadians(40)) {
-	            omega = Math.signum(omega)*Math.toRadians(40);
-	        }
-	        /*
-	         * 
-	         */
 	    	drive(this.velocity, omega);
 	    }
 

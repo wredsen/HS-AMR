@@ -27,6 +27,7 @@ import parkingRobot.hsamr1.Guidance.CurrentStatusDrive;
 
 
 
+
 /**
  * Main class for 'Hauptseminar AMR' project 'autonomous parking' for students of electrical engineering
  * with specialization 'automation, measurement and control'.
@@ -189,7 +190,7 @@ public enum CurrentStatusDrive {
 				//120 - 10 cm/s
 				if(currentStatus!=lastStatus) {
 					Pose startPose = navigation.getPose();
-					Pose endPose = new Pose(0.50f, -0.25f, 0f);
+					Pose endPose = new Pose(0.60f, -0.26f, 0f);
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 					control.setParkingData(startPose,endPose);
 					control.setCtrlMode(ControlMode.PARK_CTRL);
@@ -206,7 +207,7 @@ public enum CurrentStatusDrive {
 				//90°- 15 °/s math. pos
 				if(currentStatus!=lastStatus) {
 					Pose startPose = navigation.getPose();
-					Pose endPose = new Pose(1.00f, 0f, 0f);
+					Pose endPose = new Pose(1.20f, 0f, 0f);
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 					control.setParkingData(startPose,endPose);
 					control.setCtrlMode(ControlMode.PARK_CTRL);
@@ -215,76 +216,87 @@ public enum CurrentStatusDrive {
 				}
 				if(control.getCtrlMode()==ControlMode.INACTIVE) {
 					currentStatus=CurrentStatus.LINE_FOLLOW;
+					anfahrt=true;
+					anfahrort = new Point(1.80f, 0.1f);
 					Thread.sleep(500);
 				}
 				break;
 			/////////////////////////////////////////////////////////////////
 			case LINE_FOLLOW:
-				if(lastStatus!=currentStatus) {
+				// Into action
+				if (lastStatus != currentStatus) {
 					Sound.beep();
-					if(navigation.getCornerArea()==true) {
+					if (navigation.getCornerArea() == true) {
 						control.setCtrlMode(ControlMode.SLOW);
-					}
-					else {
+					} else {
 						control.setCtrlMode(ControlMode.FAST);
 					}
-				if(anfahrt==false) {
 					navigation.setDetectionState(true);
 				}
-				}
-				//While action	
-				switch(currentStatusDrive)
-				{
-					case SLOW:
-						//LCD.drawString("SLOW",0,1);
-							if(lastStatusDrive!=currentStatusDrive) {
-								control.setCtrlMode(ControlMode.SLOW);
-							}
-						break;
-						
-					case FAST:
-							//Into action
-							//LCD.drawString("FAST",0,1);
-							if(lastStatusDrive!=currentStatusDrive) {
-								control.setCtrlMode(ControlMode.FAST);		
-							}
-							//While action														
-						break;					
-				}
-				
-				//State transition check DRIVE
-				lastStatusDrive = currentStatusDrive;
-				if(navigation.getCornerArea()==false) {
-					currentStatusDrive=CurrentStatusDrive.FAST;						
-				}
-				if(navigation.getCornerArea()==true) {
-					currentStatusDrive=CurrentStatusDrive.SLOW;
-				}
-					
+				// While action
+				// sub finite state machine DRIVE
+				switch (currentStatusDrive) {
+				case SLOW:
+					// LCD.drawString("SLOW",0,1);
+					if (lastStatusDrive != currentStatusDrive) {
+						control.setCtrlMode(ControlMode.SLOW);
+					}
+					break;
 
-				//State transition check
+				case FAST:
+					// Into action
+					// LCD.drawString("FAST",0,1);
+					if (lastStatusDrive != currentStatusDrive) {
+						control.setCtrlMode(ControlMode.FAST);
+					}
+					// While action
+					break;
+				}
+
+				// State transition check DRIVE
+				lastStatusDrive = currentStatusDrive;
+				if (navigation.getCornerArea() == false) {
+					currentStatusDrive = CurrentStatusDrive.FAST;
+				}
+				if (navigation.getCornerArea() == true) {
+					currentStatusDrive = CurrentStatusDrive.SLOW;
+				}
+
+				// State transition check
 				lastStatus = currentStatus;
-				if(outside==false) {
-					if ((Math.abs(1.80-navigation.getPose().getX())<0.05) && (0.07-Math.abs(navigation.getPose().getY())<0.05)) {
-						currentStatus=CurrentStatus.EINPARK_2;
-						Thread.sleep(500);
-						}
-				}else if(outside==true) {
-				if ( Button.ENTER.isDown() ){
+				if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE && (anfahrt != true)) {
 					currentStatus = CurrentStatus.INACTIVE;
-					while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-    			}else if ( Button.ESCAPE.isDown() ){
-    				currentStatus = CurrentStatus.EXIT;
-    				while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
-    			}
-				}				
+				} else if (Button.ENTER.isDown()) {
+					currentStatus = CurrentStatus.INACTIVE;
+					while (Button.ENTER.isDown()) {
+						Thread.sleep(1);
+					} // wait for button release
+				} else if (Button.ESCAPE.isDown()) {
+					currentStatus = CurrentStatus.EXIT;
+					while (Button.ESCAPE.isDown()) {
+						Thread.sleep(1);
+					} // wait for button release
+				//} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT) {
+					//	currentStatus = CurrentStatus.EXIT;
+				} else if (anfahrt == true && (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.05)
+						&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.07)) {
+					control.setCtrlMode(ControlMode.INACTIVE);
+					currentStatus = CurrentStatus.EINPARK_2;
+					Sound.twoBeeps();
+					Thread.sleep(400);
+				}
+
+				// Leave action
+				if (currentStatus != CurrentStatus.LINE_FOLLOW) {
+					navigation.setDetectionState(false);
+				}
 				break;
 			/////////////////////////////////////////////////////////////////
 			case EINPARK_2:
 				//180°-  max. °/s math. pos
 				if(currentStatus!=lastStatus) {
 					Pose startPose = navigation.getPose();
-					Pose endPose = new Pose(navigation.getPose().getX()+0.25f,navigation.getPose().getY()+0.45f,(float)Math.toRadians(90));
+					Pose endPose = new Pose(navigation.getPose().getX()+0.25f,navigation.getPose().getY()+0.40f,(float)Math.toRadians(90));
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 					control.setParkingData(startPose,endPose);
 					control.setCtrlMode(ControlMode.PARK_CTRL);

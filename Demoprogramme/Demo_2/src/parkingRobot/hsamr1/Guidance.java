@@ -81,6 +81,10 @@ public class Guidance {
 		DREHUNG_3,
 
 		PARK,
+		
+		INACTIVE,
+		
+		EXIT,
 
 		ELSE;
 	}
@@ -142,7 +146,7 @@ public class Guidance {
 	 * array and to form the course map.
 	 */
 	static Line[] map = { line0, line1, line2, line3, line4, line5, line6, line7 };
-
+	protected static CurrentStatus a;
 	//private static boolean outside = false;
 	private static boolean anfahrt = false;
 	//private static boolean correct = false;
@@ -199,6 +203,7 @@ public class Guidance {
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.DREHUNG_1;
 					Thread.sleep(500);
+					Sound.beep();
 				}
 				break;
 			/////////////////////////////////////////////////////////////////
@@ -213,20 +218,22 @@ public class Guidance {
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.DRIVING_2;
 					Thread.sleep(500);
+					Sound.beep();
 				}
 				break;
 			/////////////////////////////////////////////////////////////////
 			case DRIVING_2:
 				// 30 cm - 5 cm/s
 				if (currentStatus != lastStatus) {
-					control.setDriveFor(0, 0.3, 0, 5, 0, navigation.getPose());
-					control.setCtrlMode(ControlMode.SETPOSE);
-					lastStatus = CurrentStatus.DRIVING_2;
+					control.setDriveFor(0, 0.3, 0, 10, 0, navigation.getPose());
 					Thread.sleep(50);
+					control.setCtrlMode(ControlMode.SETPOSE);
+					lastStatus = currentStatus;
 				}
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.DREHUNG_2;
 					Thread.sleep(500);
+					Sound.beep();
 				}
 				break;
 			/////////////////////////////////////////////////////////////////
@@ -241,22 +248,23 @@ public class Guidance {
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.LINE_FOLLOW;
 					Thread.sleep(500);
+					Sound.twoBeeps();
 				}
 				break;
 			/////////////////////////////////////////////////////////////////
 			case LINE_FOLLOW:
+				// Into action
 				if (lastStatus != currentStatus) {
-					Sound.beep();
+					//Sound.beep();
 					if (navigation.getCornerArea() == true) {
 						control.setCtrlMode(ControlMode.SLOW);
 					} else {
 						control.setCtrlMode(ControlMode.FAST);
 					}
-					if (anfahrt == false) {
-						navigation.setDetectionState(true);
-					}
+					navigation.setDetectionState(true);
 				}
 				// While action
+				// sub finite state machine DRIVE
 				switch (currentStatusDrive) {
 				case SLOW:
 					// LCD.drawString("SLOW",0,1);
@@ -286,10 +294,31 @@ public class Guidance {
 
 				// State transition check
 				lastStatus = currentStatus;
-				if ((Math.abs(navigation.getPose().getX()) < 0.05) && (Math.abs(navigation.getPose().getY()) < 0.05)
-						&& (Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) {
+				if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE && (anfahrt != true)) {
+					currentStatus = CurrentStatus.INACTIVE;
+				} else if (Button.ENTER.isDown()) {
+					currentStatus = CurrentStatus.INACTIVE;
+					while (Button.ENTER.isDown()) {
+						Thread.sleep(1);
+					} // wait for button release
+				} else if (Button.ESCAPE.isDown()) {
+					currentStatus = CurrentStatus.EXIT;
+					while (Button.ESCAPE.isDown()) {
+						Thread.sleep(1);
+					} // wait for button release
+				//} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT) {
+					//	currentStatus = CurrentStatus.EXIT;
+				} else if (anfahrt == true && (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.05)
+						&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.07)) {
+					control.setCtrlMode(ControlMode.INACTIVE);
 					currentStatus = CurrentStatus.DREHUNG_3;
-					Thread.sleep(500);
+					Sound.twoBeeps();
+					Thread.sleep(400);
+				}
+
+				// Leave action
+				if (currentStatus != CurrentStatus.LINE_FOLLOW) {
+					navigation.setDetectionState(false);
 				}
 				break;
 			/////////////////////////////////////////////////////////////////
@@ -320,6 +349,39 @@ public class Guidance {
 					Thread.sleep(500);
 				}
 				break;
+			//////////////////////////////////////////////////////////////////////
+			case INACTIVE:
+				//Into action
+				if ( lastStatus != CurrentStatus.INACTIVE ){
+						control.setCtrlMode(ControlMode.INACTIVE);
+						a = lastStatus;
+				}
+
+				//While action
+
+
+				//State transition check
+				lastStatus = currentStatus;
+				if ( hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT ){
+					currentStatus = a;						
+				}else if ( Button.ENTER.isDown() ){
+					currentStatus = a;
+					while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
+				}else if ( Button.ESCAPE.isDown() ){
+					currentStatus = CurrentStatus.EXIT;
+					while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
+				}else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT){
+					currentStatus = CurrentStatus.EXIT;
+				}
+
+				//Leave action
+
+				break;
+		////////////////////////////////////////////////////////////////////////////////////////
+		case EXIT:
+			hmi.disconnect();
+			System.exit(0);
+			break;
 			}
 			Thread.sleep(100);
 		}

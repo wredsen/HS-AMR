@@ -25,6 +25,8 @@ public interface INavigation {
 	 */
 	public void setMap(Line[] map);
 	
+	
+	public void setPose(Pose pose);
 	/**
 	 * switches parking slot detection on or off. While a parking maneuver active parking slot detection can lead to unexpected
 	 * parking slot initializations or measurements. The detection should only be activated while the robot is in an explicit
@@ -67,28 +69,10 @@ public interface INavigation {
 	public boolean getCorner();
 	
 	/**
-	 * Getter method for other modules to get the ID of the last corner 
-	 * @return ID of the last detected corner
-	 */
-	public int getLastCornerNumber();
-	
-	/**
-	 * Getter method for other modules to get the ID of the next Corner the robot will reach
-	 * @return ID of the next corner
-	 */
-	public int getNextCornerNumber();
-	
-	/**
 	 * Checks whether the robot is in the near of a corner or not.
 	 * @return safety: true if a corner is close, false if not
 	 */
 	public boolean getCornerArea();
-	
-	/**
-	 * 
-	 * @return corner index
-	 */
-	public int getCornerIndex();
 	
 	/**
 	 * Gives information about the Type of the Corner
@@ -96,7 +80,17 @@ public interface INavigation {
 	 */
 	public boolean getCornerType();
 	
-	public int getNumberOfSlots();
+	/**
+	 * Gives information about the Type of the current / last corner
+	 * @return true --> detected corner is a left Corner
+	 */
+	public boolean getLeftCorner();
+	
+	/**
+	 * Gives information about the Type of the current / last corner
+	 * @return true --> detected corner is a right Corner
+	 */
+	public boolean getRightCorner();
 	
 	// Subclasses
 	

@@ -245,7 +245,7 @@ public class Guidance {
 			LCD.clear();
 			//LCD.drawString("S " + currentStatus, 0, 3);
 			showData(navigation, perception);
-			showBoundary(navigation, perception, hmi);
+			//showBoundary(navigation, perception, hmi);
 			
 			// Main finite state machine
 			switch (currentStatus) {
@@ -642,10 +642,10 @@ public class Guidance {
 	    
 	    if(hmi.getSelectedParkingSlot() != 0) {
 	    
-	      parkplatz =hmi.getSelectedParkingSlot();
+	      int ID =hmi.getSelectedParkingSlot();
 	      ParkingSlot[] parkingslots= navigation.getParkingSlots();
-	      Point FrontBoundary = parkingslots[parkplatz-1].getFrontBoundaryPosition(); //start
-	      Point BackBoundary = parkingslots[parkplatz-1].getBackBoundaryPosition();//ende 
+	      Point FrontBoundary = parkingslots[ID-1].getFrontBoundaryPosition(); //start
+	      Point BackBoundary = parkingslots[ID-1].getBackBoundaryPosition();//ende 
 	      
 	      LCD.drawString("FB x "+ FrontBoundary.getX(), 0, 4);
 	      LCD.drawString("FB Y "+ FrontBoundary.getY(), 0, 5);

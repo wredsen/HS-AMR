@@ -492,6 +492,11 @@ public class NavigationAT implements INavigation{
 		
 		double parkingSlotLength = Math.abs(frontValue-backValue);
 		
+		if(this.newBackBoundaryPosition.getY() == this.newFrontBoundaryPosition.getY()) {
+			
+			return false;
+		}
+		
 		if (parkingSlotLength>0.45) return true;
 		else return false;
 	}
@@ -500,30 +505,38 @@ public class NavigationAT implements INavigation{
 	 * Adds new parking slots to the array "Slots"
 	 */
 	private void addParkingSlot() {
-		ParkingSlotStatus status= ParkingSlotStatus.SUITABLE_FOR_PARKING;
-		if (checkSuitability() == false) status = ParkingSlotStatus.NOT_SUITABLE_FOR_PARKING;
-		
-		INavigation.ParkingSlot slot = new ParkingSlot(ID,newFrontBoundaryPosition,newBackBoundaryPosition,status,slotMeasurementQuality);
-		slotList.add(slot);
-		Slots = new ParkingSlot[slotList.size()];
-		for (int i=0;i<slotList.size();i++) {
-			Slots[i] = slotList.get(i);
+		if(this.newBackBoundaryPosition.getY() == this.newFrontBoundaryPosition.getY()) {	/*do nothing*/	}
+
+		else {
+			ParkingSlotStatus status= ParkingSlotStatus.SUITABLE_FOR_PARKING;
+			if (checkSuitability() == false) status = ParkingSlotStatus.NOT_SUITABLE_FOR_PARKING;
+			
+			INavigation.ParkingSlot slot = new ParkingSlot(ID,newFrontBoundaryPosition,newBackBoundaryPosition,status,slotMeasurementQuality);
+			slotList.add(slot);
+			Slots = new ParkingSlot[slotList.size()];
+			for (int i=0;i<slotList.size();i++) {
+				Slots[i] = slotList.get(i);
+			}
+			ID++;
 		}
-		ID++;
 	}
 	
 	/**
 	 * overwrites a parking slot if one of its boundaries is already known to the roboter
 	 */
 	private void overwriteParkingSlot () {
-		ParkingSlotStatus status= ParkingSlotStatus.SUITABLE_FOR_PARKING;
-		if (checkSuitability() == false) status = ParkingSlotStatus.NOT_SUITABLE_FOR_PARKING;
+		if(this.newBackBoundaryPosition.getY() == this.newFrontBoundaryPosition.getY()) {	/*do nothing*/	}
 		
-		INavigation.ParkingSlot slot = new ParkingSlot((slotListIndex+1),newFrontBoundaryPosition,newBackBoundaryPosition,status,slotMeasurementQuality);
-		slotList.set(slotListIndex,slot);
-		Slots = new ParkingSlot[slotList.size()];
-		for (int i=0;i<slotList.size();i++) {
-			Slots[i] = slotList.get(i);
+		else {
+			ParkingSlotStatus status= ParkingSlotStatus.SUITABLE_FOR_PARKING;
+			if (checkSuitability() == false) status = ParkingSlotStatus.NOT_SUITABLE_FOR_PARKING;
+			
+			INavigation.ParkingSlot slot = new ParkingSlot((slotListIndex+1),newFrontBoundaryPosition,newBackBoundaryPosition,status,slotMeasurementQuality);
+			slotList.set(slotListIndex,slot);
+			Slots = new ParkingSlot[slotList.size()];
+			for (int i=0;i<slotList.size();i++) {
+				Slots[i] = slotList.get(i);
+			}
 		}
 	}
 	
@@ -701,7 +714,7 @@ public class NavigationAT implements INavigation{
 			switch(lastCornerNumber)
 				{
 				case 0: 
-						if (Guidance.getAnfahrt() == false)	this.pose.setLocation((float)0.00,(float)0.00);
+						//if (Guidance.getAnfahrt() == false)	this.pose.setLocation((float)0.00,(float)0.00);
 						nextCornerNumber = 1;
 					break; 
 				case 1: 

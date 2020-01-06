@@ -243,9 +243,10 @@ public class Guidance {
 
 		while (true) {
 			LCD.clear();
-			LCD.drawString("S " + currentStatus, 0, 3);
+			//LCD.drawString("S " + currentStatus, 0, 3);
 			showData(navigation, perception);
-
+			showBoundary(navigation, perception, hmi);
+			
 			// Main finite state machine
 			switch (currentStatus) {
 			/////////////////////////////////////////////////////////////////
@@ -613,7 +614,15 @@ public class Guidance {
 	public static CurrentStatus getCurrentStatus() {
 		return Guidance.currentStatus;
 	}
-
+	
+	/**
+	   * return true if "Anfahrt" true
+	   * @return
+	   */
+	  public static boolean getAnfahrt() {
+	    return Guidance.anfahrt;
+	  }
+	
 	/**
 	 * plots the actual pose on the robots display
 	 * 
@@ -628,5 +637,20 @@ public class Guidance {
 		LCD.drawString("Phi (grd): " + (navigation.getPose().getHeading() / Math.PI * 180), 0, 2);
 
 	}
-
+	
+	protected static void showBoundary(INavigation navigation, IPerception perception, INxtHmi hmi) {
+	    
+	    if(hmi.getSelectedParkingSlot() != 0) {
+	    
+	      parkplatz =hmi.getSelectedParkingSlot();
+	      ParkingSlot[] parkingslots= navigation.getParkingSlots();
+	      Point FrontBoundary = parkingslots[parkplatz-1].getFrontBoundaryPosition(); //start
+	      Point BackBoundary = parkingslots[parkplatz-1].getBackBoundaryPosition();//ende 
+	      
+	      LCD.drawString("FB x "+ FrontBoundary.getX(), 0, 4);
+	      LCD.drawString("FB Y "+ FrontBoundary.getY(), 0, 5);
+	      LCD.drawString("BB x "+ BackBoundary.getX(), 0, 6);
+	      LCD.drawString("BB y "+ BackBoundary.getY(), 0, 7);
+	    }
+	}
 }

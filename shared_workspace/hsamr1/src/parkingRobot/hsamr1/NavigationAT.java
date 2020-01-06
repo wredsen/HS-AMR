@@ -476,18 +476,9 @@ public class NavigationAT implements INavigation{
 				double x_Front = slot.getBackBoundaryPosition().getX();
 				double y_Front = slot.getBackBoundaryPosition().getY();
 				slotListIndex =  i;
-				
-				if ((x_new_Back < 1.70)) {										//((y_new_Back < 0.1) ||(y_new_Back>0.2)) && 		// check x-values if the detected slot is horizontal
-					if (Math.abs(x_new_Back - x_Back)< 0.05) return true;			
-					if (Math.abs(x_new_Front - x_Front)< 0.05) return true;
-				}
-				
-				if ((x_new_Back > 1.70)) {																		// check y-values if the detected slot is vertical
-					if ((Math.abs(x_new_Front - x_Front)< 0.05) && (Math.abs(y_new_Front - y_Front)< 0.05)) {
-						numberOfSlots++;
-						return true;			
-					}
-				}
+													
+					if ((Math.abs(x_new_Back - x_Back)< 0.05) && (Math.abs(y_new_Back - y_Back)< 0.05)) return true;			
+					if ((Math.abs(x_new_Front - x_Front)< 0.05) && (Math.abs(y_new_Front - y_Front)< 0.05)) return true;
 			}
 		}
 		else return false;

@@ -167,8 +167,8 @@ public class ControlRST implements IControl {
 	}
 	
 	Point centerPoint;
-	double trajectory_a = 0.0;
-	double trajectory_c = 0.0;
+	double trajectoryParamA = 0.0;
+	double trajectoryParamC = 0.0;
 	/**
 	 * set parking data
 	 * @see parkingRobot.IControl#setParkingData(Pose startPose, Pose endPose)
@@ -194,9 +194,9 @@ public class ControlRST implements IControl {
 		
 		// trajectory equation: y= a*(x**3)+c*x
 		// calculate a-coefficient of trajectory
-		this.trajectory_a = endPose.getY()/(-2*Math.pow(endPose.getX(),3));
+		this.trajectoryParamA = endPose.getY()/(-2*Math.pow(endPose.getX(),3));
 		// calculate c-coefficient of trajectory
-		this.trajectory_c = -this.trajectory_a*3*Math.pow(endPose.getX(),2);
+		this.trajectoryParamC = -this.trajectoryParamA*3*Math.pow(endPose.getX(),2);
 	}
 	
 	/**
@@ -362,7 +362,7 @@ public class ControlRST implements IControl {
 	
     
     private double getTrajectory(double x) {
-		return this.trajectory_a*Math.pow(x, 3) + this.trajectory_c*x;
+		return this.trajectoryParamA*Math.pow(x, 3) + this.trajectoryParamC*x;
 	}
     
     // variable for storing of last controller output
@@ -407,7 +407,7 @@ public class ControlRST implements IControl {
     	
     	// back transformation to absolute coordinates
     	if (this.destination.getHeading() == 0 ) {
-    		// do nothing
+    		// do not rotate
     	}
     	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
     		double store = nextX;
@@ -432,7 +432,7 @@ public class ControlRST implements IControl {
     	}
     	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
     		if (Math.signum(this.velocity) == 1) {
-    			routeAngle = Math.atan((this.currentPosition.getY() + nextY)/(this.currentPosition.getX() - nextX)) + Math.PI/2;
+    			routeAngle = Math.atan((this.currentPosition.getY() - nextY)/(this.currentPosition.getX() - nextX));
         	}
     		else {
     			routeAngle = - ( Math.atan((this.currentPosition.getY() + nextY)/(this.currentPosition.getX() - nextX)) + Math.PI/2);
@@ -449,7 +449,7 @@ public class ControlRST implements IControl {
     	if (this.currentPosition.getLocation().subtract(this.destination.getLocation()).length()<0.05) {
     		routeAngle = this.destination.getHeading();
 	    	//etaoldPose = routeAngle - this.currentPosition.getHeading();
-    		drive(0, Math.signum(parkingOmega) * Math.toRadians(40));
+    		drive(0,Math.signum(parkingOmega) * Math.toRadians(40));
 			if (Math.abs(routeAngle - this.currentPosition.getHeading()) < Math.toRadians(5)) {
 				Sound.beep();
 				this.setCtrlMode(ControlMode.INACTIVE);				
@@ -458,10 +458,13 @@ public class ControlRST implements IControl {
     	else {
 	    	//etasumPose += (routeAngle - currentPosition.getHeading());
 	    	parkingOmega = omegaPIDParking.runControl(this.currentPosition.getHeading());
+	    	RConsole.println("Istwinkel: "+ Math.toDegrees(this.currentPosition.getHeading()));
+	    	RConsole.println("Sollwinkel: "+ Math.toDegrees(routeAngle));
+	    	RConsole.println("nX=: "+ 100*nextX + ", nY=: " + 100*nextY);
+	    	
 	    	//etaoldPose = (routeAngle - currentPosition.getHeading());
 	    	drive(this.velocity, parkingOmega);
 	    }
-
 	}
 	
     private void exec_INACTIVE(){

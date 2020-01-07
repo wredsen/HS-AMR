@@ -212,6 +212,7 @@ public class Guidance {
 	static Point anfahrort;
 	static Point p2;
 	static Pose endPose;
+	static double heading;
 
 	/**
 	 * main method of project 'ParkingRobot'
@@ -310,9 +311,12 @@ public class Guidance {
 				} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS && (anfahrt == false)) { // ausgewählter
 																											// Parkplatz
 					currentStatus = CurrentStatus.PARK_THIS;
-				} else if (anfahrt == true && (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.05)
-						&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.10)) {
+				} else if (anfahrt == true 
+							&& ( (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.1)
+								&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.1) 
+								&& (Math.abs(navigation.getPose().getHeading() - heading)    < Math.toRadians(25)) ) ){
 					control.setCtrlMode(ControlMode.INACTIVE);
+					Sound.twoBeeps();
 					currentStatus = CurrentStatus.PARK_THIS;
 					currentStatusPark = CurrentStatusPark.REACHED_SLOT;
 				}
@@ -417,12 +421,25 @@ public class Guidance {
 				switch (currentStatusPark) {
 				case TO_SLOT:
 					anfahrt = true;
-					if (Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20)) {
+					
+						//Winkelberechnung
+						if(Math.abs(anfahrort.getX()-p2.getX())<0.05){ //deltaX small -> Angle 90°
+							heading=Math.PI/2;
+						}else if((anfahrort.getY()-p2.getY())<0.05) { //deltaY small -> Angle 180° or 0°
+							if(anfahrort.getX()<p2.getX()) {//if startpose global smaller than endpose -> 0° 
+								heading=0;
+							}else if(anfahrort.getX()>p2.getX()) {//If startpose global greater than endpose -> 180°
+								heading=Math.PI;
+							}
+						}
+					
+					
+					if (Math.abs(heading) < Math.toRadians(20)) { //0°
 						anfahrort.x = anfahrort.x + 0.05f;
-					} else if (Math.abs(navigation.getPose().getHeading() - Math.PI / 2) < Math.toRadians(20)) {
+					} else if (Math.abs(heading - Math.PI / 2) < Math.toRadians(20)) { //90°
 						anfahrort.y = anfahrort.y + 0.05f;
-					} else if (Math.abs(navigation.getPose().getHeading() - Math.PI) < Math.toRadians(20)) {
-						anfahrort.x = anfahrort.x - 0.075f;
+					} else if (Math.abs(heading - Math.PI) < Math.toRadians(20)) { //180°
+						anfahrort.x = anfahrort.x - 0.05f;
 					}
 
 					currentStatus = CurrentStatus.DRIVING;
@@ -612,6 +629,14 @@ public class Guidance {
 	 */
 	public static CurrentStatus getCurrentStatus() {
 		return Guidance.currentStatus;
+	}
+	
+	/**
+	 * return true if "Anfahrt" true
+	 * @return anfahrt
+	 */
+	public static boolean getAnfahrt() {
+		return Guidance.anfahrt;
 	}
 
 	/**

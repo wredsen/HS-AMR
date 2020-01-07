@@ -225,7 +225,7 @@ public class Guidance {
 			case DRIVING_2:
 				// 30 cm - 5 cm/s
 				if (currentStatus != lastStatus) {
-					control.setDriveFor(0, 0.3, 0, 10, 0, navigation.getPose());
+					control.setDriveFor(0, 0.27, 0, 10, 0, navigation.getPose());
 					Thread.sleep(50);
 					control.setCtrlMode(ControlMode.SETPOSE);
 					lastStatus = currentStatus;
@@ -248,6 +248,7 @@ public class Guidance {
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.LINE_FOLLOW;
 					Thread.sleep(500);
+					anfahrort= new Point(0.07f,0f);
 					Sound.twoBeeps();
 				}
 				break;
@@ -308,8 +309,8 @@ public class Guidance {
 					} // wait for button release
 				//} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT) {
 					//	currentStatus = CurrentStatus.EXIT;
-				} else if (anfahrt == true && (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.05)
-						&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.07)) {
+				} else if (anfahrt == true && (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.1)
+						&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.1)) {
 					control.setCtrlMode(ControlMode.INACTIVE);
 					currentStatus = CurrentStatus.DREHUNG_3;
 					Sound.twoBeeps();

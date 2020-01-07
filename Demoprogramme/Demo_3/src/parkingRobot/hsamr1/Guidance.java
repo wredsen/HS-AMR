@@ -182,7 +182,7 @@ public enum CurrentStatusDrive {
 		while(true) {
 			LCD.clear();
 			showData(navigation, perception);
-				
+			LCD.drawString("S"+currentStatus, 0, 5);	
         	switch ( currentStatus )
         	{
         	/////////////////////////////////////////////////////////////////
@@ -215,9 +215,9 @@ public enum CurrentStatusDrive {
 											
 				}
 				if(control.getCtrlMode()==ControlMode.INACTIVE) {
-					currentStatus=CurrentStatus.LINE_FOLLOW;
 					anfahrt=true;
-					anfahrort = new Point(1.80f, 0.1f);
+					anfahrort = new Point(1.80f, 0.2f);
+					currentStatus=CurrentStatus.LINE_FOLLOW;
 					Thread.sleep(500);
 				}
 				break;
@@ -279,10 +279,10 @@ public enum CurrentStatusDrive {
 				//} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT) {
 					//	currentStatus = CurrentStatus.EXIT;
 				} else if (anfahrt == true && (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.05)
-						&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.07)) {
+						&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.05)) {
+					Sound.twoBeeps();
 					control.setCtrlMode(ControlMode.INACTIVE);
 					currentStatus = CurrentStatus.EINPARK_2;
-					Sound.twoBeeps();
 					Thread.sleep(400);
 				}
 
@@ -296,7 +296,8 @@ public enum CurrentStatusDrive {
 				//180°-  max. °/s math. pos
 				if(currentStatus!=lastStatus) {
 					Pose startPose = navigation.getPose();
-					Pose endPose = new Pose(navigation.getPose().getX()+0.25f,navigation.getPose().getY()+0.40f,(float)Math.toRadians(90));
+					startPose.setHeading((float) Math.toRadians(90));
+					Pose endPose = new Pose(navigation.getPose().getX()+0.25f,navigation.getPose().getY()+0.40f, (float) Math.PI/2);
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 					control.setParkingData(startPose,endPose);
 					control.setCtrlMode(ControlMode.PARK_CTRL);
@@ -306,6 +307,7 @@ public enum CurrentStatusDrive {
 				if(control.getCtrlMode()==ControlMode.INACTIVE) {
 					currentStatus=CurrentStatus.RUECKWAERTS;
 					Thread.sleep(500);
+					Sound.beep();
 				}
 				break;
 			//////////////////////////////////////////////////////////////////
@@ -318,13 +320,15 @@ public enum CurrentStatusDrive {
 				if(control.getCtrlMode()==ControlMode.INACTIVE) {
 					currentStatus=CurrentStatus.AUSPARK_2;
 					Thread.sleep(500);
+					Sound.beep();
 				}
 				break;
 			//////////////////////////////////////////////////////////////////////
 			case AUSPARK_2:
 				if(currentStatus!=lastStatus) {
 					Pose startPose = navigation.getPose();
-					Pose endPose = new Pose(navigation.getPose().getX()-0.25f, navigation.getPose().getY()+0.4f, (float)Math.toRadians(90));
+					startPose.setHeading((float) Math.toRadians(90));
+					Pose endPose = new Pose(navigation.getPose().getX()-0.25f, navigation.getPose().getY()+0.4f, (float)Math.PI/2);
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 					control.setParkingData(startPose,endPose);
 					control.setCtrlMode(ControlMode.PARK_CTRL);
@@ -334,7 +338,8 @@ public enum CurrentStatusDrive {
 				if(control.getCtrlMode()==ControlMode.INACTIVE) {
 					currentStatus=CurrentStatus.LINE_FOLLOW;
 					outside=true;
-					Thread.sleep(500);
+					Sound.twoBeeps();
+					Thread.sleep(500);		
 				}
 				break;
 				/////////////////////////////////////////////////////////////////////////////////	

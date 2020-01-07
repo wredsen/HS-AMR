@@ -432,7 +432,7 @@ public class ControlRST implements IControl {
     	}
     	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
     		if (Math.signum(this.velocity) == 1) {
-    			routeAngle = Math.atan((this.currentPosition.getY() + nextY)/(this.currentPosition.getX() - nextX)) + Math.PI/2;
+    			routeAngle = Math.atan2((this.currentPosition.getY() - nextY), -Math.abs(this.currentPosition.getX() - nextX)) + Math.PI/2;
         	}
     		else {
     			routeAngle = - ( Math.atan((this.currentPosition.getY() + nextY)/(this.currentPosition.getX() - nextX)) + Math.PI/2);

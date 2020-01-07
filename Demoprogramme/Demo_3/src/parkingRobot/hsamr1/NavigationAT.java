@@ -410,12 +410,12 @@ public class NavigationAT implements INavigation{
 				fastAreaIndex = 0;
 				area = false;
 			}
-			
+			/*
 			if ((this.pose.getX()>=1.7)&&(this.pose.getY()>=0.10)&&(this.pose.getY()<=0.45)) {
 				fastAreaIndex = 1;
 				area = false;
 			}
-	
+			*/
 			if ((this.pose.getX()>=0.5)&&(this.pose.getX()<=1.3)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.40)) {
 				fastAreaIndex = 2;
 				area = false;
@@ -719,7 +719,7 @@ public class NavigationAT implements INavigation{
 						foundBackBoundary = false;
 					break; 
 				case 2:
-						this.pose.setLocation((float)1.80,(float)0.60);	
+						//this.pose.setLocation((float)1.80,(float)0.60);	
 						nextCornerNumber = 3;
 						//foundBackBoundary = false;
 					break; 
@@ -728,7 +728,7 @@ public class NavigationAT implements INavigation{
 						nextCornerNumber = 4;
 					break;
 				case 4:
-						//this.pose.setLocation((float)1.50,(float)0.30);
+						this.pose.setLocation((float)1.50,(float)0.30);
 						nextCornerNumber = 5;
 					break;
 				case 5:

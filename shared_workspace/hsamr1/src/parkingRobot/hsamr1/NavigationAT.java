@@ -749,6 +749,7 @@ public class NavigationAT implements INavigation{
 						nextCornerNumber = 0;
 					break;
 				default:
+					
 				}
 		}
 		if (mapModus==2) {

@@ -563,7 +563,7 @@ public class NavigationAT implements INavigation{
 				return true;
 			}
 			
-			if ((this.pose.getY()>=0.20) && (this.pose.getY()<=0.40) && (Math.abs(this.pose.getHeading()-Math.PI)<=0.15*Math.PI)) {
+			if ((this.pose.getY()>=0.20) && (this.pose.getY()<=0.40) && (this.pose.getX()<=1.45) && (Math.abs(this.pose.getHeading()-Math.PI)<=0.15*Math.PI)) {
 				verticalSlot = false;
 				parkingSlotAreaNumber = 4;
 				return true;

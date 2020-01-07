@@ -157,6 +157,7 @@ public class Guidance {
 	static Point p2;
 	//private static float differenz = 0;
 	static Pose endPose;
+	static double heading;
 
 	/**
 	 * main method of project 'ParkingRobot'
@@ -248,7 +249,8 @@ public class Guidance {
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.LINE_FOLLOW;
 					Thread.sleep(500);
-					anfahrort= new Point(0.07f,0f);
+					anfahrort= new Point(0.30f,-0.025f);
+					heading = Math.PI;
 					Sound.twoBeeps();
 				}
 				break;
@@ -309,8 +311,10 @@ public class Guidance {
 					} // wait for button release
 				//} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT) {
 					//	currentStatus = CurrentStatus.EXIT;
-				} else if (anfahrt == true && (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.1)
-						&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.1)) {
+				} else if (anfahrt == true 
+							&& ( (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.1)
+								&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.15) 
+								&& (Math.abs(-navigation.getPose().getHeading() - heading)    < Math.toRadians(25)) ) ) {
 					control.setCtrlMode(ControlMode.INACTIVE);
 					currentStatus = CurrentStatus.DREHUNG_3;
 					Sound.twoBeeps();
@@ -346,7 +350,7 @@ public class Guidance {
 
 				}
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
-					currentStatus = CurrentStatus.ELSE;
+					currentStatus = CurrentStatus.INACTIVE;
 					Thread.sleep(500);
 				}
 				break;

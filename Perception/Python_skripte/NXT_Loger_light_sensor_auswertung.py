@@ -114,9 +114,12 @@ ax = fig.add_subplot(111)
 
 
 yvals=[mean_value_left[0,0],mean_value_left[1,0],mean_value_left[2,0],mean_value_left[3,0],mean_value_left[4,0],mean_value_left[5,0]]
-rects1 = ax.bar(ind,yvals,width)
+y_err=[mean_value_left[0,1],mean_value_left[1,1],mean_value_left[2,1],mean_value_left[3,1],mean_value_left[4,1],mean_value_left[5,1]]
+rects1 = ax.bar(ind,yvals,width,yerr=y_err,capsize=10)
 zvals=[mean_value_right[0,0],mean_value_right[1,0],mean_value_right[2,0],mean_value_right[3,0],mean_value_right[4,0],mean_value_right[5,0]]
-rects2 = ax.bar(ind+width,zvals,width)
+z_err=[mean_value_right[0,1],mean_value_right[1,1],mean_value_right[2,1],mean_value_right[3,1],mean_value_right[4,1],mean_value_right[5,1]]
+
+rects2 = ax.bar(ind+width,zvals,width,yerr=z_err,capsize=10)
 
 ax.set_ylabel('Helligkeit in [%]')
 ax.set_xticks(ind+width)
@@ -127,32 +130,6 @@ def autolabel(rects):
     for rect in rects:
         h = rect.get_height()
         ax.text(rect.get_x()+rect.get_width()/2.,h-0.2, '%d'%int(h),
-                ha='center', va='bottom')
-
-autolabel(rects1)
-autolabel(rects2)
-
-
-width=0.2
-ind= np.arange(6)
-fig = plt.figure()
-ax = fig.add_subplot(111)
-
-
-yvals=[mean_value_left[0,1],mean_value_left[1,1],mean_value_left[2,1],mean_value_left[3,1],mean_value_left[4,1],mean_value_left[5,1]]
-rects1 = ax.bar(ind,yvals,width)
-zvals=[mean_value_right[0,1],mean_value_right[1,1],mean_value_right[2,1],mean_value_right[3,1],mean_value_right[4,1],mean_value_right[5,1]]
-rects2 = ax.bar(ind+width,zvals,width)
-
-ax.set_ylabel('Messunsicherheit in [%]')
-ax.set_xticks(ind+width)
-ax.set_xticklabels( ('schwarz hell','schwarz dunkel', 'grau hell','grau dunkel','weiß hell', 'weiß dunkel') )
-ax.legend( (rects1[0], rects2[0]), ('linker Sensor', 'rechter Sensor') )
-
-def autolabel(rects):
-    for rect in rects:
-        h = rect.get_height()
-        ax.text(rect.get_x()+rect.get_width()/2.,h, '%.2f'%float(h),
                 ha='center', va='bottom')
 
 autolabel(rects1)

@@ -62,7 +62,7 @@ public class PerceptionPMP implements IPerception {
 	
 	
 	byte[] readBuffer = new byte[14];
-	byte[] sendBuffer = {30};
+	byte[] sendBuffer = {23};
 	int readBytes = 0;
 	
 	PerceptionThread perThread = new PerceptionThread(this);
@@ -247,6 +247,7 @@ public class PerceptionPMP implements IPerception {
 		// MONITOR (example)
 //		monitor.writePerceptionComment("Perception");
 	}
+	
 	private void updateArduinoSensors() {
 		//get all actual Measurements from Arduino
 		//send 23 to get the data
@@ -256,13 +257,12 @@ public class PerceptionPMP implements IPerception {
 		byte[] sensorBytes = new byte[14];
 		//wait for an answer
 		
-
-			
 			
 			try {
-				readBytes = RS485.hsRead(readBuffer, 0, readBuffer.length);
 			         
-				while (readBytesSumm < 14 && timeoutc<20) {
+				while (readBytesSumm < 14 && timeoutc<30) {
+					
+					readBytes = RS485.hsRead(readBuffer, 0, readBuffer.length);
 					
 					if(readBytes>0)	//arduino sends Data
 					{
@@ -277,7 +277,8 @@ public class PerceptionPMP implements IPerception {
 						readBytesSumm=0;
 					}
 				}
-				if(timeoutc==20) return;
+				if(timeoutc==30) return;
+				
 				this.UOdmometry		=	(double)(((sensorBytes[1])<<8) | (sensorBytes[0] & 0xff));
 				this.VOdometry		=	(double)(((sensorBytes[3])<<8) | (sensorBytes[2] & 0xff));
 				this.OdometryT		=   (int)((readBuffer[5]<<8) | (readBuffer[4] & 0xff));
@@ -289,7 +290,7 @@ public class PerceptionPMP implements IPerception {
 				this.controlOdo.addShift(this.UOdmometry,this.VOdometry,this.OdometryT);
 				this.navigationOdo.addShift(this.UOdmometry,this.VOdometry,this.OdometryT); 
 				
-		      } catch (ArrayIndexOutOfBoundsException e) {
+			} catch (ArrayIndexOutOfBoundsException e) {
 		    	  return;
 		      }
 			

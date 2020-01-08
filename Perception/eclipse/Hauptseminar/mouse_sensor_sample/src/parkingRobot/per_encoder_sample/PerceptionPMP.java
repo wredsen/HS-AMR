@@ -114,36 +114,18 @@ public class PerceptionPMP implements IPerception {
 	}
 	
 	public int getLeftLineSensorValue(){
-		//the next line gives bin output, remove in the next version
-		//return ((this.LeftLineSensor-this.LSlblack)/(this.LSlwhite-this.LSlblack))*100;
-		if(this.LSlwhite-this.LSlblack == 0) {
-			return getLeftLineSensorValueRaw();	
-		}
-		return (((this.LeftLineSensor-this.LSlblack) *100)/(this.LSlwhite-this.LSlblack));
+		
+		return leftLight.readValue();
 	}
 	
-	public int getLeftLineSensorValueRaw(){
-		//the next line gives bin output, remove in the next version
-		//return ((this.LeftLineSensor-this.LSlblack)/(this.LSlwhite-this.LSlblack))*100;
-		return this.LeftLineSensor;
-	}
 	
 	public int getRightLineSensorValue(){
-		//the next line gives bin output, remove in the next version
-		//return ((this.RightLineSensor-this.LSrblack)/(this.LSrwhite-this.LSrblack))*100;
-		if(this.LSrwhite-this.LSrblack == 0) {
-			return getRightLineSensorValueRaw();	
-		}
-		return ((this.RightLineSensor-this.LSrblack) *100/(this.LSrwhite-this.LSrblack));
-	}
 	
-	public int getRightLineSensorValueRaw(){
-		//the next line gives bin output, remove in the next version
-		//return ((this.RightLineSensor-this.LSrblack)/(this.LSrwhite-this.LSrblack))*100;
-		return this.RightLineSensor;
+		return rightLight.readValue();
 	}
 	
 	public synchronized void calibrateLineSensors(){
+		Button.ENTER.waitForPressAndRelease();
 		LCD.clear();
 		LCD.drawString("Kalibriere", 0, 0);
 		LCD.drawString("Liniensensor", 0, 1);
@@ -156,8 +138,21 @@ public class PerceptionPMP implements IPerception {
 			updateSensors();
 		}
 		Button.ENTER.waitForPressAndRelease();
+		
+		try {
+		    Thread.sleep(1000);
+		}
+		catch(InterruptedException e){
+			e.printStackTrace();
+		}
+		/*
 		this.LSrwhite = this.RightLineSensor;
 		this.LSlwhite = this.LeftLineSensor;
+		*/
+		
+		leftLight.setHigh(this.LeftLineSensor);
+		rightLight.setHigh(this.RightLineSensor);
+		
 		LCD.clear();
 		LCD.drawString("Kalibriere", 0, 0);
 		LCD.drawString("Liniensensor", 0, 1);
@@ -170,8 +165,14 @@ public class PerceptionPMP implements IPerception {
 			updateSensors();
 		}
 		Button.ENTER.waitForPressAndRelease();
-		this.LSrblack = this.RightLineSensor;
-		this.LSlblack = this.LeftLineSensor;
+		try {
+		    Thread.sleep(1000);
+		}
+		catch(InterruptedException e){
+			e.printStackTrace();
+		}
+		leftLight.setLow(this.LeftLineSensor);
+		rightLight.setLow(this.RightLineSensor);
 	}
 	
 	public void showSensorData() {
@@ -254,42 +255,53 @@ public class PerceptionPMP implements IPerception {
 		int timeoutc =0;
 		byte[] sensorBytes = new byte[14];
 		//wait for an answer
-		while (readBytesSumm < 14 && timeoutc<20) {
-
-			readBytes = RS485.hsRead(readBuffer, 0, readBuffer.length);
-			if(readBytes>0)	//arduino sends Data
-			{
-				for (int i = 0; i < readBytes; i++) {
-					sensorBytes[readBytesSumm+i]= readBuffer[i];
+		
+			
+			try {
+			         
+				while (readBytesSumm < 14 && timeoutc<30) {
+					
+					readBytes = RS485.hsRead(readBuffer, 0, readBuffer.length);
+					
+					if(readBytes>0)	//arduino sends Data
+					{
+						for (int i = 0; i < readBytes; i++) {
+							sensorBytes[readBytesSumm+i]= readBuffer[i];
+						}
+						readBytesSumm+=readBytes;
+					}
+					timeoutc ++;
+					if(timeoutc>10){	//if timeout - 2nd. try
+						RS485.hsWrite(sendBuffer,0,sendBuffer.length);
+						readBytesSumm=0;
+					}
 				}
-				readBytesSumm+=readBytes;
-			}
-			timeoutc ++;
-			if(timeoutc>10){	//if timeout - 2nd. try
-				RS485.hsWrite(sendBuffer,0,sendBuffer.length);
-				readBytesSumm=0;
-			}
-		}
-		if(timeoutc==20) return;
-		this.UOdmometry		=	(double)(((sensorBytes[1])<<8) | (sensorBytes[0] & 0xff));
-		this.VOdometry		=	(double)(((sensorBytes[3])<<8) | (sensorBytes[2] & 0xff));
-		this.OdometryT		=   (int)((readBuffer[5]<<8) | (readBuffer[4] & 0xff));
-		this.FrontSensorDistance		=	(double)(((sensorBytes[7] & 0xff)<<8) | (sensorBytes[6] & 0xff));
-		this.FrontSideSensorDistance	=	(double)(((sensorBytes[9] & 0xff)<<8) | (sensorBytes[8] & 0xff));
-		this.BackSensorDistance		=		(double)(((sensorBytes[11] & 0xff)<<8) | (sensorBytes[10] & 0xff));
-		this.BackSideSensorDistance	=		(double)(((sensorBytes[13] & 0xff)<<8) | (sensorBytes[12] & 0xff));		
-
-		this.controlOdo.addShift(this.UOdmometry,this.VOdometry,this.OdometryT);
-		this.navigationOdo.addShift(this.UOdmometry,this.VOdometry,this.OdometryT);
+				if(timeoutc==30) return;
+				
+				this.UOdmometry		=	(double)(((sensorBytes[1])<<8) | (sensorBytes[0] & 0xff));
+				this.VOdometry		=	(double)(((sensorBytes[3])<<8) | (sensorBytes[2] & 0xff));
+				this.OdometryT		=   (int)((readBuffer[5]<<8) | (readBuffer[4] & 0xff));
+				this.FrontSensorDistance		=	(double)(((sensorBytes[7] & 0xff)<<8) | (sensorBytes[6] & 0xff));
+				this.FrontSideSensorDistance	=	(double)(((sensorBytes[9] & 0xff)<<8) | (sensorBytes[8] & 0xff));
+				this.BackSensorDistance		=		(double)(((sensorBytes[11] & 0xff)<<8) | (sensorBytes[10] & 0xff));
+				this.BackSideSensorDistance	=		(double)(((sensorBytes[13] & 0xff)<<8) | (sensorBytes[12] & 0xff));		
+	
+				this.controlOdo.addShift(this.UOdmometry,this.VOdometry,this.OdometryT);
+				this.navigationOdo.addShift(this.UOdmometry,this.VOdometry,this.OdometryT); 
+				
+			} catch (ArrayIndexOutOfBoundsException e) {
+		    	  return;
+		      }
+			
 	}
 
 	
 	private void updateLeftLightSensor() {
-		LeftLineSensor = leftLight.getLightValue();
+		LeftLineSensor = leftLight.readNormalizedValue();
 	}
 
 	private void updateRightLightSensor() {
-		RightLineSensor = rightLight.getLightValue();
+		RightLineSensor = rightLight.readNormalizedValue();
 		
 	}
 
@@ -311,8 +323,21 @@ public class PerceptionPMP implements IPerception {
 		
 		this.controlRightEncoder.addAngle((double)deltaPhi);
 		this.navigationRightEncoder.addAngle((double)deltaPhi);		
+	}
+
+
+	@Override
+	public int getLeftLineSensorValueRaw() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public int getRightLineSensorValueRaw() {
+		// TODO Auto-generated method stub
+		return 0;
 	}	
 }
-
 
 

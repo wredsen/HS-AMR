@@ -7,6 +7,7 @@ import parkingRobot.IMonitor;
 import parkingRobot.IPerception;
 import parkingRobot.IControl.ControlMode;
 import parkingRobot.IPerception.*;
+import parkingRobot.hsamr1.Guidance.CurrentStatus;
 import lejos.nxt.LCD;
 import lejos.nxt.NXTMotor;
 import parkingRobot.INavigation;
@@ -431,19 +432,16 @@ public class ControlRST implements IControl {
     		routeAngle = Math.atan((this.currentPosition.getY() - nextY)/(this.currentPosition.getX() - nextX)) + Math.PI;
     	}
     	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
-    		if (Math.signum(this.velocity) == 1) {
-    			routeAngle = Math.atan((this.currentPosition.getY() - nextY)/(this.currentPosition.getX() - nextX));
-    			if ((this.currentPosition.getX() - nextX) > 0) {
-    				routeAngle = routeAngle + (Math.PI/2.);
-    			}
-        	}
+    		if (Guidance.getCurrentStatus() == CurrentStatus.PARK_OUT) {
+    			routeAngle = Math.atan2(-(this.currentPosition.getY() - nextY), -(this.currentPosition.getX() - nextX));
+    		}
     		else {
-    			routeAngle = - ( Math.atan((this.currentPosition.getY() + nextY)/(this.currentPosition.getX() - nextX)) + Math.PI/2);
-        	}
+    			routeAngle = Math.atan2(-(this.currentPosition.getY() - nextY), -(this.currentPosition.getX() - nextX));
+    		}
     		
     	}
     	else {
-    		routeAngle = Math.atan((this.currentPosition.getY() - nextY)/(this.currentPosition.getX() - nextX));
+    		routeAngle = Math.atan2(-(this.currentPosition.getY() - nextY), -(this.currentPosition.getX() - nextX));
     	}
     	
     	omegaPIDParking.updateDesiredValue(routeAngle);
@@ -453,7 +451,7 @@ public class ControlRST implements IControl {
     		routeAngle = this.destination.getHeading();
 	    	//etaoldPose = routeAngle - this.currentPosition.getHeading();
     		drive(0,Math.signum(parkingOmega) * Math.toRadians(40));
-			if (Math.abs(routeAngle - this.currentPosition.getHeading()) < Math.toRadians(5)) {
+			if (Math.abs(destination.getHeading() - this.currentPosition.getHeading()) < Math.toRadians(5)) {
 				Sound.beep();
 				this.setCtrlMode(ControlMode.INACTIVE);				
 			}

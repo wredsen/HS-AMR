@@ -122,7 +122,7 @@ public class CTR_D3 {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
-		RConsole.open();
+		//RConsole.open();
         currentStatus = CurrentStatus.INACTIVE;
         lastStatus    = CurrentStatus.EXIT;
     
@@ -309,7 +309,7 @@ public class CTR_D3 {
 						RConsole.println("AUSPARKEN!!!!!!!!!!!!!!");
 						Pose startPose = navigation.getPose();
 						startPose.setHeading((float) Math.toRadians(90));
-						Pose endPose = new Pose(startPose.getX() - 0.25f, startPose.getY() + .45f, 90);
+						Pose endPose = new Pose(startPose.getX() - 0.25f, startPose.getY() + .45f, (float) Math.toRadians(90));
 						RConsole.println("____________________________________________________");
 						RConsole.println("EndX=: "+ 100*endPose.getX() + ", EndY=: " + 100*endPose.getY());
 						control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());

@@ -8,6 +8,7 @@ import parkingRobot.IMonitor;
 import parkingRobot.IPerception;
 import parkingRobot.IControl.ControlMode;
 import parkingRobot.IPerception.*;
+import parkingRobot.hsamr1.CTR_D3.CurrentStatus;
 import lejos.nxt.LCD;
 import lejos.nxt.NXT;
 import lejos.nxt.NXTMotor;
@@ -438,12 +439,13 @@ public class ControlRST_Ver2 implements IControl {
     		routeAngle = Math.atan((this.currentPosition.getY() - nextY)/(this.currentPosition.getX() - nextX)) + Math.PI;
     	}
     	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
-    		if (Math.signum(this.velocity) == 1) {
-    			routeAngle = Math.atan((this.currentPosition.getY() - nextY)/(this.currentPosition.getX() - nextX));
-        	}
+    		
+    		if (CTR_D3.getCurrentStatus() == parkingRobot.hsamr1.CTR_D3.CurrentStatus.ParkOut) {
+    			 routeAngle = Math.atan2(-(this.currentPosition.getY() - nextY), -(this.currentPosition.getX() - nextX));
+    		}
     		else {
-    			routeAngle = - ( Math.atan((this.currentPosition.getY() + nextY)/(this.currentPosition.getX() - nextX)) + Math.PI/2);
-        	}
+    			routeAngle = Math.atan((this.currentPosition.getY() - nextY) / (this.currentPosition.getX() - nextX));
+    		}
     		
     	}
     	else {

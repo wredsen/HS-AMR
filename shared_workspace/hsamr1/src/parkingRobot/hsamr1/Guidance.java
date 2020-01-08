@@ -318,7 +318,7 @@ public class Guidance {
 					} // wait for button release
 				} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT) {
 					currentStatus = CurrentStatus.EXIT;
-				} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS && (anfahrt == false)) { // ausgewählter Parkplatz
+				} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS && (anfahrt == false)) { // ausgewï¿½hlter Parkplatz
 					currentStatus = CurrentStatus.PARK_THIS;
 				} else if (anfahrt == true 
 							&& ( (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.1)
@@ -444,22 +444,22 @@ public class Guidance {
 					anfahrt = true;
 					
 						//Winkelberechnung
-						if(Math.abs(anfahrort.getX()-p2.getX())<0.05){ //deltaX small -> Angle 90°
+						if(Math.abs(anfahrort.getX()-p2.getX())<0.05){ //deltaX small -> Angle 90ï¿½
 							heading=Math.PI/2;
-						}else if((anfahrort.getY()-p2.getY())<0.05) { //deltaY small -> Angle 180° or 0°
-							if(anfahrort.getX()<p2.getX()) {//if startpose global smaller than endpose -> 0° 
+						}else if((anfahrort.getY()-p2.getY())<0.05) { //deltaY small -> Angle 180ï¿½ or 0ï¿½
+							if(anfahrort.getX()<p2.getX()) {//if startpose global smaller than endpose -> 0ï¿½ 
 								heading=0;
-							}else if(anfahrort.getX()>p2.getX()) {//If startpose global greater than endpose -> 180°
+							}else if(anfahrort.getX()>p2.getX()) {//If startpose global greater than endpose -> 180ï¿½
 								heading=Math.PI;
 							}
 						}
 					
 					
-					if (Math.abs(heading) < Math.toRadians(20)) { //0°
+					if (Math.abs(heading) < Math.toRadians(20)) { //0ï¿½
 						anfahrort.x = anfahrort.x + 0.05f;
-					} else if (Math.abs(heading - Math.PI / 2) < Math.toRadians(20)) { //90°
-						anfahrort.y = anfahrort.y + 0.05f;
-					} else if (Math.abs(heading - Math.PI) < Math.toRadians(20)) { //180°
+					} else if (Math.abs(heading - Math.PI / 2) < Math.toRadians(20)) { //90ï¿½
+						anfahrort.y = anfahrort.y + 0.1f;
+					} else if (Math.abs(heading - Math.PI) < Math.toRadians(20)) { //180ï¿½
 						anfahrort.x = anfahrort.x - 0.05f;
 					}
 
@@ -473,13 +473,13 @@ public class Guidance {
 						if(lastStatus!=CurrentStatus.INACTIVE) {
 						if (Math.abs(startPose.getHeading()) < Math.toRadians(20)) {
 							startPose.setHeading(0);
-							endPose = new Pose(startPose.getX() + 0.45f, startPose.getY() - 0.26f, 0);
+							endPose = new Pose(startPose.getX() + 0.40f, startPose.getY() - 0.25f, 0);
 						} else if (Math.abs(startPose.getHeading() - Math.PI / 2) < Math.toRadians(20)) {
 							startPose.setHeading((float) Math.toRadians(90));
-							endPose = new Pose(startPose.getX() + 0.26f, startPose.getY() + 0.45f, 0);
+							endPose = new Pose(startPose.getX() + 0.20f, startPose.getY() + 0.40f, 0);
 						} else if (Math.abs(startPose.getHeading() - Math.PI) < Math.toRadians(20)) {
 							startPose.setHeading((float) Math.PI);
-							endPose = new Pose((startPose.getX() - 0.45f), startPose.getY() + 0.25f, 0);
+							endPose = new Pose((startPose.getX() - 0.40f), startPose.getY() + 0.25f, 0);
 						}
 						
 						
@@ -551,32 +551,32 @@ public class Guidance {
 								distance = distance - 2;
 
 								if ((Math.abs(Math.toRadians(90) - navigation.getPose().getHeading()) < Math
-										.toRadians(20))) {// wenn Winkel 90°
+										.toRadians(20))) {// wenn Winkel 90ï¿½
 									control.setDriveFor(0, distance * (-0.01), 0, -10, 0, navigation.getPose());
-								} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) { // wenn Winkel 0°
+								} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) { // wenn Winkel 0ï¿½
 									control.setDriveFor(distance * (-0.01), 0, 0, -10, 0, navigation.getPose());
-								} else {// Winkel 180°
+								} else {// Winkel 180ï¿½
 									control.setDriveFor((distance * 0.01), 0, 0, -10, 0, navigation.getPose());
 								}
 							} else {
 								if ((Math.abs(Math.toRadians(90) - navigation.getPose().getHeading()) < Math
-										.toRadians(20))) {// wenn Winkel 90°
+										.toRadians(20))) {// wenn Winkel 90ï¿½
 									control.setDriveFor(0, -0.2, 0, -10, 0, navigation.getPose());
 								} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) { // wenn
 																												// Winkel
-																												// 0°
+																												// 0ï¿½
 									control.setDriveFor(-0.2, 0, 0, -10, 0, navigation.getPose());
-								} else {// Winkel 180°
+								} else {// Winkel 180ï¿½
 									control.setDriveFor(0.2, 0, 0, -10, 0, navigation.getPose());
 								}
 							}
 						}else if(lastStatus==CurrentStatus.INACTIVE) {
 							Sound.twoBeeps();
-							if ((Math.abs(Math.toRadians(90) - navigation.getPose().getHeading()) < Math.toRadians(20))) {// wenn Winkel 90°
+							if ((Math.abs(Math.toRadians(90) - navigation.getPose().getHeading()) < Math.toRadians(20))) {// wenn Winkel 90ï¿½
 								control.setDriveFor(0, -0.2, 0, -10, 0, navigation.getPose());
-							} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) { // wenn Winkel 0°
+							} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) { // wenn Winkel 0ï¿½
 								control.setDriveFor(-0.2, 0, 0, -10, 0, navigation.getPose());
-							} else {// Winkel 180°
+							} else {// Winkel 180ï¿½
 								control.setDriveFor(0.2, 0, 0, -10, 0, navigation.getPose());
 							}
 						}
@@ -599,13 +599,13 @@ public class Guidance {
 							Pose startPose = navigation.getPose();
 							if (Math.abs(startPose.getHeading()) < Math.toRadians(20)) {
 								startPose.setHeading(0);
-								endPose = new Pose(startPose.getX() + 0.45f, startPose.getY() + 0.25f, 0);
+								endPose = new Pose(startPose.getX() + 0.40f, startPose.getY() + 0.25f, 0);
 							} else if (Math.abs(startPose.getHeading() - Math.PI / 2) < Math.toRadians(20)) {
 								startPose.setHeading((float) Math.PI / 2);
-								endPose = new Pose(startPose.getX() - 0.25f, startPose.getY() + .45f, 0);
+								endPose = new Pose(startPose.getX() - 0.20f, startPose.getY() + .40f, 0);
 							} else if (Math.abs(startPose.getHeading() - Math.PI) < Math.toRadians(20)) {
 								startPose.setHeading((float) Math.PI);
-								endPose = new Pose(startPose.getX() - 0.45f, startPose.getY() - 0.25f, 0);
+								endPose = new Pose(startPose.getX() - 0.40f, startPose.getY() - 0.25f, 0);
 							}
 							control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
 							control.setParkingData(startPose, endPose);

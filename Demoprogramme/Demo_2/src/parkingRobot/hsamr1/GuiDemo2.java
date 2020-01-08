@@ -21,8 +21,8 @@ import parkingRobot.hsamr1.ControlRST;
 import parkingRobot.hsamr1.HmiPLT;
 import parkingRobot.hsamr1.NavigationAT;
 import parkingRobot.hsamr1.PerceptionPMP;
-import parkingRobot.hsamr1.Guidance.CurrentStatus;
-import parkingRobot.hsamr1.Guidance.CurrentStatusDrive;
+import parkingRobot.hsamr1.GuiDemo2.CurrentStatus;
+import parkingRobot.hsamr1.GuiDemo2.CurrentStatusDrive;
 
 /**
  * Main class for 'Hauptseminar AMR' project 'autonomous parking' for students
@@ -47,7 +47,7 @@ import parkingRobot.hsamr1.Guidance.CurrentStatusDrive;
  * class thread is only handled in a synchronized context to avoid inconsistent
  * or corrupt data!
  */
-public class Guidance {
+public class GuiDemo2 {
 
 	/**
 	 * states for the main finite state machine. This main states are requirements
@@ -248,8 +248,10 @@ public class Guidance {
 				}
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.LINE_FOLLOW;
+					
 					Thread.sleep(500);
-					anfahrort= new Point(0.30f,-0.025f);
+					anfahrt=true;
+					anfahrort= new Point(0f,0f);
 					heading = Math.PI;
 					Sound.twoBeeps();
 				}
@@ -399,7 +401,7 @@ public class Guidance {
 	 * @return actual state of the main finite state machine
 	 */
 	public static CurrentStatus getCurrentStatus() {
-		return Guidance.currentStatus;
+		return GuiDemo2.currentStatus;
 	}
 
 	/**

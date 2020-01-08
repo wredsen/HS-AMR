@@ -11,8 +11,8 @@ import parkingRobot.IPerception;
 import parkingRobot.INavigation.ParkingSlot;
 import parkingRobot.INavigation.ParkingSlot.ParkingSlotStatus;
 import parkingRobot.hsamr1.NavigationThread;
-import parkingRobot.hsamr1.Guidance;
-import parkingRobot.hsamr1.Guidance.CurrentStatus;
+import parkingRobot.hsamr1.GuiDemo3;
+import parkingRobot.hsamr1.GuiDemo3.CurrentStatus;
 import parkingRobot.IMonitor;
 
 import java.util.*;
@@ -842,7 +842,7 @@ public class NavigationAT implements INavigation{
 			//xResult=xResult+0.09;
 		}
 
-		if((CurrentStatus.ELSE==Guidance.currentStatus) && (mapModus==1)){
+		if((CurrentStatus.ELSE==GuiDemo3.currentStatus) && (mapModus==1)){
 			
 			//	Linie 1
 			if(this.pose.getX()>0.10&&this.pose.getX()<1.70&&this.pose.getY()<0.10) { 

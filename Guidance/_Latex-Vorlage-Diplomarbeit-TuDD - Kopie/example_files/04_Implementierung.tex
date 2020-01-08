@@ -11,36 +11,6 @@ Ausgangspunkt für die Implementierung ist das gegebene Beispielprogramm. In die
 Zusammen mit dem Controlmodul wurde entschieden, dass im Guidancemodul die Start- und Zielpose, die Geschwindigkeit übergeben wird und zum Schluss der richtige Controlmodus aktiviert wird. Alle Berechnungen werden im Controlmodul getätigt.\\
 
 
-Damit das Polynom richtig berechnet wird und anschließend dieses abgefahren werden kann, muss zwischen dem lokalem und globalem Koordinatensystem transformiert werden.
-
-\newpage
-
-\begin{lstlisting}[language=java, frame=single]
-// transform coordinates
-if(this.destination.getHeading() == 0 ) {
-	// do nothing
-}else if(Math.abs(this.destination.getHeading() - Math.PI/2) < 0.0001) {
-	double n = x_local;
-	x_local = y_local;
-	y_local = -n;
-}else if(Math.abs(this.destination.getHeading() - Math.PI) < 0.0001) {
-	x_local = -x_local;
-	y_local = -y_local;
-}
-\end{lstlisting}
-
-\noindent und
- 
-\begin{lstlisting}[language=java, frame=single]
-// back transformation
-if(this.destination.getHeading() == 0 ) {
-	// do nothing
-}else if(Math.abs(this.destination.getHeading() - Math.PI/2) < 0.0001) {
-	double n = x_local;
-	x_local = -y_local;
-	y_local = n;
-}else if(Math.abs(this.destination.getHeading() - Math.PI) < 0.0001) {
-	x_local = -x_local;
-	y_local = -y_local;
-}
-\end{lstlisting}
+\noindent Damit das Polynom richtig berechnet wird und anschließend dieses abgefahren werden kann, muss zwischen dem lokalem und globalem Koordinatensystem transformiert werden. Wenn das Fahrzeug im Parkbereich eins einparken muss, wie in Abbildung \ref{img:grafik-Parkluecke} zusehen ist, muss nichts geändert werden. 
+Im Parkbereich zwei müssen die x- und y-Achse vertauscht werden. Zusätzlich ist zu beachten, dass die y-Achse gespiegelt werden muss. 
+Im Parkbereich drei müssen beide Achsen gespiegelt werden.

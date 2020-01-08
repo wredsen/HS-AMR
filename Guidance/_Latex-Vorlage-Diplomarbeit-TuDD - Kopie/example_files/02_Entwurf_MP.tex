@@ -14,25 +14,24 @@ Die geforderten Funktionen können in fünf Kategorien eingeteilt werden.
 
 \noindent Diese Kategorien definieren die Hauptzustände.\\
 
-\noindent Was der Roboter in jener Kategorie machen soll, ist in den Unterzuständen definiert.\\
+\noindent Was das Fahrzeug in jener Kategorie machen soll, ist in den Unterzuständen definiert.\\
 
 
-\noindent Scout-Modus bedeutet, dass das Fahrzeug einem Parcours abfährt. Dabei wird einer Linie gefolgt. Wenn eine Ecke detektiert wird, muss die Geschwindigkeit reduziert werden. Das Ziel dabei ist, dass die Regelung genauer arbeiten kann und die Kurve abgefahren wird. Während dem Abfahren sucht der Roboter nach Parklücken.\\
+\noindent Scout-Modus bedeutet, dass das Fahrzeug einen Parcours abfährt. Dabei wird einer Linie gefolgt. Wenn eine Ecke detektiert wird, muss die Geschwindigkeit reduziert werden. Das Ziel dabei ist, dass die Regelung genauer arbeiten kann und die Kurve abgefahren wird. Während dem Abfahren sucht der Roboter nach Parklücken.\\
 
+\noindent In dem Zustand \glqq Einparken\grqq{} wird als erstes die Startpose angefahren. Danach wird ein Polynom abgefahren. Wenn die Zielpose in der Lücke erreicht ist, wechselt der Automat automatisch in den Zustand Park. In diesem wird gewartet, bis über die App das Ausparksignal übermittelt wird.\\
 
-\noindent In dem Zustand "Einparken" wird als erstes die Startpose angefahren. Danach wird ein Polynom abgefahren. Wenn die Zielpose in der Lücke erreicht ist, wechselt der Automat automatisch in den Zustand Park. In diesem wird gewartet, bis über die App das Ausparksignal übermittelt wird.\\
+\noindent Beim Ausparken folgt der Roboter erneut einem Polynom zurück auf die Linie. Dabei muss sichergestellt werden, dass nach vorne genügen Freiraum vorhanden ist, sonst gibt es einen Unfall mit der Bande.\\
 
+\noindent Vor allem für das Ein - und Ausparken müssen neben den Hauptzuständen die jeweiligen Unterzustände abgespeichert werden, damit beim Fortsetzen die richtigen Aktionen ausgeführt werden. Bei den Abfahrtspolynomen muss beachtet werden, dass kein neues Polynom berechnet wird. 
 
-\noindent Beim Ausparken folgt der Apparat erneut einem Polynom zurück auf die Linie. Dabei muss sichergestellt werden, dass nach vorne genügen Freiraum vorhanden ist, sonst gibt es einen Unfall.
-
-\\
 
 
 \section{Hauptzustandsmaschine}
 
-Für den Entwurf der folgenden Zustandsmaschinen wurde sich an den geforderten Funktionen orientiert. Dabei wurde beachtet, dass die Aufteilung so getätigt wird, dass die Zustandsübergange möglichst einfach sind.
+Für den Entwurf der folgenden Zustandsmaschinen wurde sich an den geforderten Funktionen orientiert. Dabei wurde beachtet, dass die Aufteilung so getätigt wird, dass die Zustandsübergange möglichst einfach sind.\\
 
-\begin{tabular}{|p{1.5cm}|p{4cm}|p{3.8cm}|p{3cm}|}
+\noindent \begin{tabular}{|p{1.5cm}|p{4cm}|p{3.8cm}|p{3cm}|}
 	\hline 
 	Zustand & Eingangsaktion & Nominalaktion & Ausgangsaktion \\ 
 	\hline 

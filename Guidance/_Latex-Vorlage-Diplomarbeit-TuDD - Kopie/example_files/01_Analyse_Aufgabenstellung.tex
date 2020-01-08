@@ -7,15 +7,15 @@ Das Ziel des Moduls Guidance (deutsch Führung) ist die anderen Module miteinand
 Damit dies möglich ist, wurde mit den Modulverantwortlichen alle Funktionalitäten besprochen. \\
 
 \noindent Die Hauptfunktion des Roboters ist das Abfahren eines Parcours. Dabei wird nach passenden Parklücken gesucht. Dieser Zustand heißt Scout-Modus.
-In eine der gefundenen Lücken soll anschließend eingeparkt werden. Mit Hilfe einer Android-App werden Steuersignale übermittelt. Wenn zum Beispiel das Ausparksignal übertragen wird, folgt der Roboter einem Polynom und wechselt anschließend in den Scout-Modus.
+In eine der gefundenen Lücken soll anschließend eingeparkt werden. Mit Hilfe einer Android-App werden Steuersignale übermittelt. Wenn zum Beispiel das Ausparksignal übertragen wird, folgt der Roboter einem Polynom und wechselt anschließend in den Scout-Modus. Gefordert ist zusätzlich, dass von jeder Aktion das Fahrzeug in einen Pause-Modus gewechselt werden kann.
 
 \section{Geplantes Vorgehen}
 
-Um den Missionsplaner und Pfadgenerator zeit effektiv zu implementieren, wurde als erster Schritt eine theoretische Vorbetrachtung getätigt. Dabei wurde ein Zustandsdiagramm mit entsprechenden Aktionstabellen und die Berechnungsvorschrift für das Pfadpolynom entworfen. Anschließend wurden die Modelle implementiert.
+Um den Missionsplaner und Pfadgenerator zeit effektiv zu implementieren, wurde als erster Schritt eine theoretische Vorbetrachtung getätigt. Dabei wurde ein Zustandsdiagramm mit entsprechenden Aktionstabellen und die Berechnungsvorschrift für das Pfadpolynom entworfen. Anschließend wurden die Modelle implementiert. Beim Programmieren sollte regelmäßig der aktuelle Stand in ein \glqq GitHub Repository\grqq{} geladen werden, damit die anderen Module ihre Funktionen testen können.
 
 \section{Schnittstellen und Zusammenarbeit zu/mit anderen Modulen/Modulverantwortlichen}
 
-Das Projekt wurde in der objektorientierten Programmiersprache Java umgesetzt. Dies ermöglicht eine klare Modultrennung.\\
+Das Projekt wurde in der objektorientierten Programmiersprache Java umgesetzt. Dies ermöglicht eine klare Modultrennung. Damit unsere Gruppe eine Versionsverwaltung besitzt, entschieden wir uns für ein \glqq GitHub Repository\grqq{}.\\
 
 
 \noindent Mit Hilfe von Setter-Methoden ist es möglich festzulegen, welche Funktionen in den entsprechenden Modulen ausgeführt werden sollen.
@@ -23,4 +23,4 @@ Im Gegenzug kann mit den Getter-Methoden aktuelle Eigenschaften des Roboters abg
 
 \noindent Unsere Gruppe hat sich regelmäßig getroffen. Dabei wurden Etappenziele gesetzt und wichtige Änderung besprochen. Zum Beispiel sollte bis Ende 2019 alles implementiert sein, damit in den letzten zwei Wochen ein ausführlicher Funktionstest durchgeführt werden kann und alle auftretenden Fehler beseitigt werden können.\\
 
-\noindent Beim Programmieren war es auch oft notwendig zusammen zu arbeiten, weil man allein nicht alles überschauen konnte.
+\noindent Beim Programmieren war es auch oft notwendig zusammen zu arbeiten, weil man allein nicht alles überschauen konnte. Vor allem die Demoprogramme zwei und drei wurden zusammen mit der Control implementiert. Ich programmierte alle notwendigen Befehle und Zustandswechsel. Der Controlverantwortliche konnte seine Regler testen und anpassen, sodass alle Manöver abfahrbar waren.

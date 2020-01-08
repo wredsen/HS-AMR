@@ -251,7 +251,7 @@ public class GuiDemo2 {
 					
 					Thread.sleep(500);
 					anfahrt=true;
-					anfahrort= new Point(0f,0f);
+					anfahrort= new Point(0.05f,0f);
 					heading = Math.PI;
 					Sound.twoBeeps();
 				}
@@ -321,6 +321,7 @@ public class GuiDemo2 {
 					currentStatus = CurrentStatus.DREHUNG_3;
 					Sound.twoBeeps();
 					Thread.sleep(400);
+					anfahrt=false;
 				}
 
 				// Leave action
@@ -339,20 +340,26 @@ public class GuiDemo2 {
 				}
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.PARK;
+					Sound.twoBeeps();
 					Thread.sleep(500);
 				}
 				break;
 			//////////////////////////////////////////////////////////////////
 			case PARK:
 				if (currentStatus != lastStatus) {
-					endPose = new Pose(navigation.getPose().getX() + 0.60f, navigation.getPose().getY() - .26f, 0);
+					Sound.beep();
+					endPose = new Pose(navigation.getPose().getX() + 0.60f, navigation.getPose().getY() - 0.26f, 0f);
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
-					control.setParkingData(navigation.getPose(), endPose);
+					Pose startPose = new Pose(navigation.getPose().getX(), navigation.getPose().getY(),0f);
+					control.setParkingData(startPose, endPose);
+					Thread.sleep(50);
 					control.setCtrlMode(ControlMode.PARK_CTRL);
-
+					lastStatus=currentStatus;
 				}
+				lastStatus=currentStatus;
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.INACTIVE;
+					Sound.twoBeeps();
 					Thread.sleep(500);
 				}
 				break;

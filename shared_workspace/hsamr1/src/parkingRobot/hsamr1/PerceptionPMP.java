@@ -62,7 +62,7 @@ public class PerceptionPMP implements IPerception {
 	
 	
 	byte[] readBuffer = new byte[14];
-	byte[] sendBuffer = {23};
+	byte[] sendBuffer = {30};
 	int readBytes = 0;
 	
 	PerceptionThread perThread = new PerceptionThread(this);
@@ -255,33 +255,44 @@ public class PerceptionPMP implements IPerception {
 		int timeoutc =0;
 		byte[] sensorBytes = new byte[14];
 		//wait for an answer
-		while (readBytesSumm < 14 && timeoutc<20) {
+		
 
-			readBytes = RS485.hsRead(readBuffer, 0, readBuffer.length);
-			if(readBytes>0)	//arduino sends Data
-			{
-				for (int i = 0; i < readBytes; i++) {
-					sensorBytes[readBytesSumm+i]= readBuffer[i];
+			
+			
+			try {
+				readBytes = RS485.hsRead(readBuffer, 0, readBuffer.length);
+			         
+				while (readBytesSumm < 14 && timeoutc<20) {
+					
+					if(readBytes>0)	//arduino sends Data
+					{
+						for (int i = 0; i < readBytes; i++) {
+							sensorBytes[readBytesSumm+i]= readBuffer[i];
+						}
+						readBytesSumm+=readBytes;
+					}
+					timeoutc ++;
+					if(timeoutc>10){	//if timeout - 2nd. try
+						RS485.hsWrite(sendBuffer,0,sendBuffer.length);
+						readBytesSumm=0;
+					}
 				}
-				readBytesSumm+=readBytes;
-			}
-			timeoutc ++;
-			if(timeoutc>10){	//if timeout - 2nd. try
-				RS485.hsWrite(sendBuffer,0,sendBuffer.length);
-				readBytesSumm=0;
-			}
-		}
-		if(timeoutc==20) return;
-		this.UOdmometry		=	(double)(((sensorBytes[1])<<8) | (sensorBytes[0] & 0xff));
-		this.VOdometry		=	(double)(((sensorBytes[3])<<8) | (sensorBytes[2] & 0xff));
-		this.OdometryT		=   (int)((readBuffer[5]<<8) | (readBuffer[4] & 0xff));
-		this.FrontSensorDistance		=	(double)(((sensorBytes[7] & 0xff)<<8) | (sensorBytes[6] & 0xff));
-		this.FrontSideSensorDistance	=	(double)(((sensorBytes[9] & 0xff)<<8) | (sensorBytes[8] & 0xff));
-		this.BackSensorDistance		=		(double)(((sensorBytes[11] & 0xff)<<8) | (sensorBytes[10] & 0xff));
-		this.BackSideSensorDistance	=		(double)(((sensorBytes[13] & 0xff)<<8) | (sensorBytes[12] & 0xff));		
-
-		this.controlOdo.addShift(this.UOdmometry,this.VOdometry,this.OdometryT);
-		this.navigationOdo.addShift(this.UOdmometry,this.VOdometry,this.OdometryT);
+				if(timeoutc==20) return;
+				this.UOdmometry		=	(double)(((sensorBytes[1])<<8) | (sensorBytes[0] & 0xff));
+				this.VOdometry		=	(double)(((sensorBytes[3])<<8) | (sensorBytes[2] & 0xff));
+				this.OdometryT		=   (int)((readBuffer[5]<<8) | (readBuffer[4] & 0xff));
+				this.FrontSensorDistance		=	(double)(((sensorBytes[7] & 0xff)<<8) | (sensorBytes[6] & 0xff));
+				this.FrontSideSensorDistance	=	(double)(((sensorBytes[9] & 0xff)<<8) | (sensorBytes[8] & 0xff));
+				this.BackSensorDistance		=		(double)(((sensorBytes[11] & 0xff)<<8) | (sensorBytes[10] & 0xff));
+				this.BackSideSensorDistance	=		(double)(((sensorBytes[13] & 0xff)<<8) | (sensorBytes[12] & 0xff));		
+	
+				this.controlOdo.addShift(this.UOdmometry,this.VOdometry,this.OdometryT);
+				this.navigationOdo.addShift(this.UOdmometry,this.VOdometry,this.OdometryT); 
+				
+		      } catch (ArrayIndexOutOfBoundsException e) {
+		    	  return;
+		      }
+			
 	}
 
 	

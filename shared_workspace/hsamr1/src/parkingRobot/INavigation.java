@@ -59,34 +59,27 @@ public interface INavigation {
 	 */
 	public ParkingSlot[] getParkingSlots();
 	
-	
-	/**
-	 * Getter method for other modules to decide whether there is a corner or not 
-	 * @return Corner detected --> true, No Corner --> false
-	 */
-	public boolean getCorner();
-	
 	/**
 	 * Getter method for other modules to get the ID of the last corner 
-	 * @return ID of the last detected corner
+	 * @return integer ID of the last detected corner
 	 */
 	public int getLastCornerNumber();
 	
 	/**
 	 * Getter method for other modules to get the ID of the next Corner the robot will reach
-	 * @return ID of the next corner
+	 * @return integer ID of the next corner
 	 */
 	public int getNextCornerNumber();
 	
 	/**
 	 * Checks whether the robot is in the near of a corner or not.
-	 * @return safety: true if a corner is close, false if not
+	 * @return safety: boolean true if a corner is close, false if not
 	 */
 	public boolean getCornerArea();
 	
 	/**
-	 * 
-	 * @return corner index
+	 * Getter method that delivers the index of the corner in which the robot currently is.
+	 * @return integer corner index
 	 */
 	public int getCornerIndex();
 	
@@ -95,8 +88,6 @@ public interface INavigation {
 	 * @return true if a left corner is close, false if a right corner is close 
 	 */
 	public boolean getCornerType();
-	
-	public int getNumberOfSlots();
 	
 	// Subclasses
 	

@@ -1,8 +1,11 @@
 package parkingRobot.hsamr1;
 
 import lejos.nxt.Button;
+import lejos.nxt.comm.RConsole;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
+import lejos.nxt.Sound;
+import lejos.nxt.comm.RConsole;
 import lejos.robotics.navigation.Pose;
 import parkingRobot.IControl;
 import parkingRobot.IControl.*;
@@ -61,13 +64,13 @@ public class CTR_D3 {
 		INACTIVE,
 		
 		
-		TURN_CW,
+		ParkOut,
 		
 		
-		TURN_CCW,
+		PARK_IN,
 		
 		
-		TURN_CCW0,
+		PARK_IN0,
 		
 		
 		LINE_FOLLOW_FAST,
@@ -119,6 +122,7 @@ public class CTR_D3 {
 	 * @throws Exception exception for thread management
 	 */
 	public static void main(String[] args) throws Exception {		
+		RConsole.open();
         currentStatus = CurrentStatus.INACTIVE;
         lastStatus    = CurrentStatus.EXIT;
     
@@ -139,173 +143,6 @@ public class CTR_D3 {
 		
 		monitor.startLogging();
 		
-		if (presentationMode == 0) {
-		
-		while(true) {
-			control.showCTRData();
-			
-        	switch ( currentStatus )
-        	{
-        		
-				case DRIVING1:
-					
-					
-					//Into action
-					if ( lastStatus != CurrentStatus.DRIVING1 ){
-						Pose startPose = navigation.getPose();
-						startPose.setHeading(0);
-						Pose endPose = new Pose(.60f,-.25f,0);
-						//control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
-						control.setParkingData(startPose, endPose);
-						control.setCtrlMode(ControlMode.PARK_CTRL);
-					}
-					
-					
-					//While action				
-						
-					//showData_linesensor(perception);
-					
-					//State transition check
-					currentStatus = CurrentStatus.DRIVING1;
-				    lastStatus = currentStatus;
-				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
-				    	Button.ENTER.waitForPressAndRelease();
-				    	currentStatus = CurrentStatus.DRIVING2;
-				    	Thread.sleep(500);
-				    }
-					
-				    
-					if ( Button.ENTER.isDown() ){
-	  	        		currentStatus = CurrentStatus.INACTIVE;
-						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-					}else if ( Button.ESCAPE.isDown() ){
-						currentStatus = CurrentStatus.EXIT;
-						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
-					}
-				    
-					//Leave action
-					if ( currentStatus != CurrentStatus.DRIVING1 ){
-						//nothing to do here
-					}
-					break;	
-				
-				case TURN_CCW:
-					//Into action
-					if ( lastStatus != CurrentStatus.TURN_CCW ){
-						control.setDriveFor(0, 0, Math.toRadians(90), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
-						control.setCtrlMode(ControlMode.SETPOSE);
-					}
-					
-					//State transition check
-					currentStatus = CurrentStatus.TURN_CCW;
-				    lastStatus = currentStatus;
-				    if ((control.getCtrlMode() == ControlMode.INACTIVE)) {
-				    	currentStatus = CurrentStatus.DRIVING2;
-				    	Thread.sleep(500);
-				    }
-				    
-					
-					break;	
-					
-				case DRIVING2:
-					//Into action
-					if ( lastStatus != CurrentStatus.DRIVING2 ){
-						control.setDriveFor(-0.12, 0, 0, -10, 0, navigation.getPose());	// 0,3m @ 5cm/s
-						control.setCtrlMode(ControlMode.SETPOSE);
-						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
-						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
-					}
-					
-					
-					//While action				
-						
-					//showData_linesensor(perception);
-					
-					//State transition check
-					currentStatus = CurrentStatus.DRIVING2;
-				    lastStatus = currentStatus;
-				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
-				    	currentStatus = CurrentStatus.TURN_CW;
-				    	Thread.sleep(500);
-				    }
-					
-				    
-					if ( Button.ENTER.isDown() ){
-	  	        		currentStatus = CurrentStatus.INACTIVE;
-						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-					}else if ( Button.ESCAPE.isDown() ){
-						currentStatus = CurrentStatus.EXIT;
-						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
-					}
-				    
-					//Leave action
-					if ( currentStatus != CurrentStatus.DRIVING2 ){
-						//nothing to do here
-					}
-					break;	
-					
-				case TURN_CW:
-					//Into action
-					if ( lastStatus != CurrentStatus.TURN_CW ){
-						control.setDriveFor(0, 0, Math.toRadians(-90), 0, Math.toRadians(-90), navigation.getPose()); // -90deg @ -30deg/s
-						control.setCtrlMode(ControlMode.SETPOSE);
-					}
-					
-					//State transition check
-					currentStatus = CurrentStatus.TURN_CW;
-				    lastStatus = currentStatus;
-				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
-				    	currentStatus = CurrentStatus.INACTIVE;
-				    }
-						
-					break;
-					
-				case INACTIVE:
-					
-					//Into action
-					if ( lastStatus != CurrentStatus.INACTIVE ){
-						control.setCtrlMode(ControlMode.INACTIVE);
-						LCD.drawString("Pause!", 0, 0);
-					}
-					
-					//While action
-					{
-						//nothing to do here
-					}
-					
-					
-					//State transition check
-					lastStatus = currentStatus;
-							
-					if ( Button.ENTER.isDown() ){
-						currentStatus = CurrentStatus.DRIVING1;
-						while(Button.ENTER.isDown()){Thread.sleep(1);} //wait for button release
-					}else if ( Button.ESCAPE.isDown() ){
-						currentStatus = CurrentStatus.EXIT;
-						while(Button.ESCAPE.isDown()){Thread.sleep(1);} //wait for button release
-					}
-					
-					//Leave action
-					if ( currentStatus != CurrentStatus.INACTIVE ){
-						//nothing to do here
-					}
-									
-					break;
-				case EXIT:
-				
-					/** NOTE: RESERVED FOR FUTURE DEVELOPMENT (PLEASE DO NOT CHANGE)
-					// monitor.sendOfflineLog();
-					*/
-					monitor.stopLogging();
-					System.exit(0);
-					break;
-			default:
-				break;
-        	}
-        		
-        	Thread.sleep(100);        	
-		}
-		}
 	
 	if (presentationMode == 1) {
 		while(true) {
@@ -318,7 +155,7 @@ public class CTR_D3 {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING0 ){
-						control.setDriveFor(1.0, 0, 0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+						control.setDriveFor(0.2, 0, 0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
 						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
@@ -333,7 +170,7 @@ public class CTR_D3 {
 					currentStatus = CurrentStatus.DRIVING0;
 				    lastStatus = currentStatus;
 				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
-				    	currentStatus = CurrentStatus.TURN_CCW0;
+				    	currentStatus = CurrentStatus.PARK_IN0;
 				    	Thread.sleep(500);
 				    }
 					
@@ -352,15 +189,15 @@ public class CTR_D3 {
 					}
 					break;
 					
-        		case TURN_CCW0:
+        		case PARK_IN0:
 					//Into action
-					if ( lastStatus != CurrentStatus.TURN_CCW0 ){
-						control.setDriveFor(0, 0, Math.toRadians(200), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
+					if ( lastStatus != CurrentStatus.PARK_IN0 ){
+						control.setDriveFor(0, 0, Math.toRadians(90), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 					}
 					
 					//State transition check
-					currentStatus = CurrentStatus.TURN_CCW0;
+					currentStatus = CurrentStatus.PARK_IN0;
 				    lastStatus = currentStatus;
 				    if ((control.getCtrlMode() == ControlMode.INACTIVE)) {
 				    	currentStatus = CurrentStatus.DRIVING1;
@@ -373,7 +210,7 @@ public class CTR_D3 {
 					
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING1 ){
-						control.setDriveFor(-0.30, 0, 0, 10, 0, navigation.getPose());	// 1,2m @ 10cm/s
+						control.setDriveFor(0, 0.15, 0, 8, 0, navigation.getPose());	// 1,2m @ 10cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
 						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
@@ -388,7 +225,7 @@ public class CTR_D3 {
 					currentStatus = CurrentStatus.DRIVING1;
 				    lastStatus = currentStatus;
 				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
-				    	currentStatus = CurrentStatus.TURN_CCW;
+				    	currentStatus = CurrentStatus.PARK_IN;
 				    	Thread.sleep(500);
 				    }
 					
@@ -407,15 +244,19 @@ public class CTR_D3 {
 					}
 					break;	
 				
-				case TURN_CCW:
+				case PARK_IN:
 					//Into action
-					if ( lastStatus != CurrentStatus.TURN_CCW ){
-						control.setDriveFor(0, 0, Math.toRadians(0), 0, Math.toRadians(60), navigation.getPose()); // 90deg @ 15deg/s
-						control.setCtrlMode(ControlMode.SETPOSE);
+					if ( lastStatus != CurrentStatus.PARK_IN ){
+						Pose startPose = navigation.getPose();
+						
+						Pose endPose = new Pose(startPose.getX() + 0.26f, startPose.getY() + 0.45f, (float) Math.toRadians(90));
+						control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
+						control.setParkingData(startPose, endPose);
+						control.setCtrlMode(ControlMode.PARK_CTRL);
 					}
 					
 					//State transition check
-					currentStatus = CurrentStatus.TURN_CCW;
+					currentStatus = CurrentStatus.PARK_IN;
 				    lastStatus = currentStatus;
 				    if ((control.getCtrlMode() == ControlMode.INACTIVE)) {
 				    	currentStatus = CurrentStatus.DRIVING2;
@@ -428,7 +269,7 @@ public class CTR_D3 {
 				case DRIVING2:
 					//Into action
 					if ( lastStatus != CurrentStatus.DRIVING2 ){
-						control.setDriveFor(0.12, 0, 0, -10, 0, navigation.getPose());	// 0,3m @ 5cm/s
+						control.setDriveFor(0, -0.1, 0, -10, 0, navigation.getPose());	// 0,3m @ 5cm/s
 						control.setCtrlMode(ControlMode.SETPOSE);
 						//control.setDriveFor(0, 0, Math.toRadians(120), 0, Math.toRadians(35), navigation.getPose()); // 90deg @ 15deg/s
 						//control.setDriveFor(0, 0, Math.toRadians(-120), 0, Math.toRadians(-50), navigation.getPose()); // -90deg @ -30deg/s
@@ -443,7 +284,7 @@ public class CTR_D3 {
 					currentStatus = CurrentStatus.DRIVING2;
 				    lastStatus = currentStatus;
 				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
-				    	currentStatus = CurrentStatus.TURN_CW;
+				    	currentStatus = CurrentStatus.ParkOut;
 				    	Thread.sleep(500);
 				    }
 					
@@ -462,15 +303,22 @@ public class CTR_D3 {
 					}
 					break;	
 					
-				case TURN_CW:
+				case ParkOut:
 					//Into action
-					if ( lastStatus != CurrentStatus.TURN_CW ){
-						control.setDriveFor(0, 0, Math.toRadians(-90), 0, Math.toRadians(-90), navigation.getPose()); // -90deg @ -30deg/s
-						control.setCtrlMode(ControlMode.SETPOSE);
+					if ( lastStatus != CurrentStatus.ParkOut ){
+						RConsole.println("AUSPARKEN!!!!!!!!!!!!!!");
+						Pose startPose = navigation.getPose();
+						startPose.setHeading((float) Math.toRadians(90));
+						Pose endPose = new Pose(startPose.getX() - 0.25f, startPose.getY() + .45f, 90);
+						RConsole.println("____________________________________________________");
+						RConsole.println("EndX=: "+ 100*endPose.getX() + ", EndY=: " + 100*endPose.getY());
+						control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
+						control.setParkingData(startPose, endPose);
+						control.setCtrlMode(ControlMode.PARK_CTRL);	
 					}
 					
 					//State transition check
-					currentStatus = CurrentStatus.TURN_CW;
+					currentStatus = CurrentStatus.ParkOut;
 				    lastStatus = currentStatus;
 				    if (control.getCtrlMode() == ControlMode.INACTIVE) {
 				    	currentStatus = CurrentStatus.INACTIVE;
@@ -511,6 +359,8 @@ public class CTR_D3 {
 					break;
 				case EXIT:
 				
+					RConsole.print("\n done");
+			    	RConsole.close();
 					/** NOTE: RESERVED FOR FUTURE DEVELOPMENT (PLEASE DO NOT CHANGE)
 					// monitor.sendOfflineLog();
 					*/
@@ -563,4 +413,5 @@ public class CTR_D3 {
 		//LCD.drawString("s side: " + perception.getFrontSideSensorDistance(), 0, 3);
 		
 	}
+	
 }

@@ -216,7 +216,7 @@ public enum CurrentStatusDrive {
 				}
 				if(control.getCtrlMode()==ControlMode.INACTIVE) {
 					anfahrt=true;
-					anfahrort = new Point(1.80f, 0.2f);
+					anfahrort = new Point(1.80f, 0.15f);
 					currentStatus=CurrentStatus.LINE_FOLLOW;
 					Thread.sleep(500);
 				}
@@ -278,7 +278,7 @@ public enum CurrentStatusDrive {
 					} // wait for button release
 				//} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT) {
 					//	currentStatus = CurrentStatus.EXIT;
-				} else if (anfahrt == true && (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.05)
+				} else if (anfahrt == true && (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.1)
 						&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.05)) {
 					Sound.twoBeeps();
 					control.setCtrlMode(ControlMode.INACTIVE);

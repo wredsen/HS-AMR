@@ -219,7 +219,7 @@ public class NavigationAT implements INavigation{
 	public synchronized boolean getCornerArea() {
 		boolean area = true;
 			if ( (this.pose.getX()>=0.10) && (this.pose.getX()<=1.70) && (this.pose.getY()<=0.10) ) area = false;
-			if ( (this.pose.getX()>=1.70) && (this.pose.getY()>=0.10) && (this.pose.getY()<=0.45) ) area = false;
+			if ( (this.pose.getX()>=1.70) && (this.pose.getY()>=0.15) && (this.pose.getY()<=0.50) ) area = false;
 			if ( (this.pose.getX()>=0.50) && (this.pose.getX()<=1.30) && (this.pose.getY()>=0.20) && (this.pose.getY()<=0.40) ) area = false;
 			if ( (this.pose.getX()>=-0.1) && (this.pose.getX()<=0.10) && (this.pose.getY()>=0.20) && (this.pose.getY()<=0.50) ) area = false;
 		return area;

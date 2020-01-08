@@ -336,7 +336,8 @@ public class NavigationAT implements INavigation{
 	}
 	
 	/**
-	 * detects corner, determines type of corner and returns boolean value: corner detected --> true ; no corner detected --> false
+	 * Checks the current distance from the front sharp sensor for detecting a corner.
+	 * @return true if the robot is close to a wall/a corner
 	 */
 	public boolean detectCorner() {
 		
@@ -352,7 +353,8 @@ public class NavigationAT implements INavigation{
 	}
 	
 	/**
-	 * checks if the robot has finished the rotation in the corners
+	 * Checks if the robot has finished the rotation in the corners.
+	 * @return true if the rotation is finished
 	 */
 	public boolean getAngleCrit() {
 		switch(cornerIndexNumber)
@@ -402,6 +404,10 @@ public class NavigationAT implements INavigation{
 		return false;
 	}
 	
+	/**
+	 * Signals when the robot is in the near of a corner
+	 * @return false if the robot is not in the near of a corner, true if it is
+	 */
 	public synchronized boolean getCornerArea() {
 		boolean area = true;
 		
@@ -486,16 +492,16 @@ public class NavigationAT implements INavigation{
 		return false;
 	}
 	
+	/**
+	 * Checks if the current registered parking slot has a suitable length.
+	 * @return true if the parking slot is longer than 45 centimeters
+	 */
 	private boolean checkSuitability() {
 		double frontValue = Math.abs(this.newFrontBoundaryPosition.getX())+Math.abs(this.newFrontBoundaryPosition.getY());
 		double backValue = Math.abs(this.newBackBoundaryPosition.getX())+Math.abs(this.newBackBoundaryPosition.getY());
-		
 		double parkingSlotLength = Math.abs(frontValue-backValue);
 		
-		if(this.newBackBoundaryPosition.getY() == this.newFrontBoundaryPosition.getY()) {
-			
-			return false;
-		}
+		if(this.newBackBoundaryPosition.getY() == this.newFrontBoundaryPosition.getY()) return false;
 		
 		if (parkingSlotLength>0.45) return true;
 		else return false;

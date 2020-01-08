@@ -460,7 +460,7 @@ public class Guidance {
 					} else if (Math.abs(heading - Math.PI / 2) < Math.toRadians(20)) { //90�
 						anfahrort.y = anfahrort.y + 0.1f;
 					} else if (Math.abs(heading - Math.PI) < Math.toRadians(20)) { //180�
-						anfahrort.x = anfahrort.x - 0.05f;
+						anfahrort.x = anfahrort.x - 0.1f;		// geaendert auf 
 					}
 
 					currentStatus = CurrentStatus.DRIVING;
@@ -472,18 +472,18 @@ public class Guidance {
 						Pose startPose = navigation.getPose();
 						if(lastStatus!=CurrentStatus.INACTIVE) {
 						if (Math.abs(startPose.getHeading()) < Math.toRadians(20)) {
-							startPose.setHeading(0);
+							startPose.setHeading((float) Math.toRadians(0));
 							endPose = new Pose(startPose.getX() + 0.40f, startPose.getY() - 0.25f, 0);
 						} else if (Math.abs(startPose.getHeading() - Math.PI / 2) < Math.toRadians(20)) {
 							startPose.setHeading((float) Math.toRadians(90));
-							endPose = new Pose(startPose.getX() + 0.20f, startPose.getY() + 0.40f, 0);
+							endPose = new Pose(startPose.getX() + 0.20f, startPose.getY() + 0.40f, (float) Math.toRadians(90));
 						} else if (Math.abs(startPose.getHeading() - Math.PI) < Math.toRadians(20)) {
-							startPose.setHeading((float) Math.PI);
-							endPose = new Pose((startPose.getX() - 0.40f), startPose.getY() + 0.25f, 0);
+							startPose.setHeading((float) Math.toRadians(180));
+							endPose = new Pose((startPose.getX() - 0.40f), startPose.getY() + 0.20f, (float) Math.toRadians(180));
 						}
 						
 						
-						control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
+						control.setVelocity(10);
 						control.setParkingData(startPose, endPose);
 						}
 						control.setCtrlMode(ControlMode.PARK_CTRL);
@@ -601,13 +601,13 @@ public class Guidance {
 								startPose.setHeading(0);
 								endPose = new Pose(startPose.getX() + 0.40f, startPose.getY() + 0.25f, 0);
 							} else if (Math.abs(startPose.getHeading() - Math.PI / 2) < Math.toRadians(20)) {
-								startPose.setHeading((float) Math.PI / 2);
-								endPose = new Pose(startPose.getX() - 0.20f, startPose.getY() + .40f, 0);
+								startPose.setHeading((float) Math.toRadians(90));
+								endPose = new Pose(startPose.getX() - 0.20f, startPose.getY() + .40f, (float) Math.toRadians(90));
 							} else if (Math.abs(startPose.getHeading() - Math.PI) < Math.toRadians(20)) {
-								startPose.setHeading((float) Math.PI);
-								endPose = new Pose(startPose.getX() - 0.40f, startPose.getY() - 0.25f, 0);
+								startPose.setHeading((float) Math.toRadians(180));
+								endPose = new Pose(startPose.getX() - 0.40f, startPose.getY() - 0.20f, (float) Math.toRadians(180));
 							}
-							control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
+							control.setVelocity(10);
 							control.setParkingData(startPose, endPose);
 						}
 						control.setCtrlMode(ControlMode.PARK_CTRL);

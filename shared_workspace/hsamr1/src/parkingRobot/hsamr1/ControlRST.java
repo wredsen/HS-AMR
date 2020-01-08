@@ -175,7 +175,7 @@ public class ControlRST implements IControl {
 	 * @see parkingRobot.IControl#setParkingData(Pose startPose, Pose endPose)
 	 */
 	public void setParkingData(Pose startPose, Pose endPose) {
-		setDestination(startPose.getHeading(), endPose.getX(), endPose.getY());
+		setDestination(endPose.getHeading(), endPose.getX(), endPose.getY());
 		// calculate central point of trajectory
 		this.centerPoint = endPose.getLocation().add(startPose.getLocation()).multiply((float)0.5);
 		// local coordinates: translate absolute coordinates into centerPoint
@@ -195,9 +195,9 @@ public class ControlRST implements IControl {
 		
 		// trajectory equation: y= a*(x**3)+c*x
 		// calculate a-coefficient of trajectory
-		this.trajectoryParamA = endPose.getY()/(-2*Math.pow(endPose.getX(),3));
+		this.trajectoryParamA = endPose.getY()/(-2*Math.pow(endPose.getX(), 3));
 		// calculate c-coefficient of trajectory
-		this.trajectoryParamC = -this.trajectoryParamA*3*Math.pow(endPose.getX(),2);
+		this.trajectoryParamC = -this.trajectoryParamA*3*Math.pow(endPose.getX(), 2);
 	}
 	
 	/**
@@ -375,7 +375,7 @@ public class ControlRST implements IControl {
     	this.update_SETPOSE_Parameter();
     	
     	// PD-control with angularVelocity as output, deviating angle as input
-    	PID omegaPIDParking = new PID(0, SAMPLETIME, 5, 0, 0.004, 0, false);
+    	PID omegaPIDParking = new PID(0, SAMPLETIME, 3.0, 0, 0.002, 0, false);
     	
     	// transform into local coordinates by translating absolute coordinates into centerPoint
     	// variables for x- and y-coordinates of the next track section-destination 
@@ -451,7 +451,7 @@ public class ControlRST implements IControl {
     		routeAngle = this.destination.getHeading();
 	    	//etaoldPose = routeAngle - this.currentPosition.getHeading();
     		drive(0,Math.signum(parkingOmega) * Math.toRadians(40));
-			if (Math.abs(destination.getHeading() - this.currentPosition.getHeading()) < Math.toRadians(5)) {
+			if (Math.abs(destination.getHeading() - this.currentPosition.getHeading()) < Math.toRadians(2)) {
 				Sound.beep();
 				this.setCtrlMode(ControlMode.INACTIVE);				
 			}

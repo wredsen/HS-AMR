@@ -251,7 +251,7 @@ public class GuiDemo2 {
 					
 					Thread.sleep(500);
 					anfahrt=true;
-					anfahrort= new Point(0.05f,0f);
+					anfahrort= new Point(0f,0f);
 					heading = Math.PI;
 					Sound.twoBeeps();
 				}
@@ -321,7 +321,6 @@ public class GuiDemo2 {
 					currentStatus = CurrentStatus.DREHUNG_3;
 					Sound.twoBeeps();
 					Thread.sleep(400);
-					anfahrt=false;
 				}
 
 				// Leave action
@@ -333,33 +332,27 @@ public class GuiDemo2 {
 			case DREHUNG_3:
 				// 180°- max. °/s math. pos
 				if (currentStatus != lastStatus) {
-					control.setDriveFor(0, 0, Math.toRadians(180), 0, Math.toRadians(120), navigation.getPose());
+					control.setDriveFor(0, 0, Math.toRadians(179), 0, Math.toRadians(120), navigation.getPose());
 					control.setCtrlMode(ControlMode.SETPOSE);
 					lastStatus = CurrentStatus.DREHUNG_3;
 					Thread.sleep(50);
 				}
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.PARK;
-					Sound.twoBeeps();
 					Thread.sleep(500);
 				}
 				break;
 			//////////////////////////////////////////////////////////////////
 			case PARK:
 				if (currentStatus != lastStatus) {
-					Sound.beep();
-					endPose = new Pose(navigation.getPose().getX() + 0.60f, navigation.getPose().getY() - 0.26f, 0f);
+					endPose = new Pose(navigation.getPose().getX() + 0.60f, navigation.getPose().getY() - .26f, 0);
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
-					Pose startPose = new Pose(navigation.getPose().getX(), navigation.getPose().getY(),0f);
-					control.setParkingData(startPose, endPose);
-					Thread.sleep(50);
+					control.setParkingData(navigation.getPose(), endPose);
 					control.setCtrlMode(ControlMode.PARK_CTRL);
 					lastStatus=currentStatus;
 				}
-				lastStatus=currentStatus;
 				if (control.getCtrlMode() == ControlMode.INACTIVE) {
 					currentStatus = CurrentStatus.INACTIVE;
-					Sound.twoBeeps();
 					Thread.sleep(500);
 				}
 				break;

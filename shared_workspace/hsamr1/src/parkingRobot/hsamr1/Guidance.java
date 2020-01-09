@@ -458,7 +458,7 @@ public class Guidance {
 					if (Math.abs(heading) < Math.toRadians(20)) { //0�
 						anfahrort.x = anfahrort.x + 0.05f;
 					} else if (Math.abs(heading - Math.PI / 2) < Math.toRadians(20)) { //90�
-						anfahrort.y = anfahrort.y + 0.08f;
+						anfahrort.y = anfahrort.y + 0.1f;
 					} else if (Math.abs(heading - Math.PI) < Math.toRadians(20)) { //180�
 						anfahrort.x = anfahrort.x - 0.08f;		// geaendert auf 
 					}

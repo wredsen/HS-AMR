@@ -260,7 +260,7 @@ public class PerceptionPMP implements IPerception {
 			
 			try {
 			         
-				while (readBytesSumm < 14 && timeoutc<30) {
+				while (readBytesSumm < 14 && timeoutc<10) {
 					
 					readBytes = RS485.hsRead(readBuffer, 0, readBuffer.length);
 					
@@ -277,7 +277,7 @@ public class PerceptionPMP implements IPerception {
 						readBytesSumm=0;
 					}
 				}
-				if(timeoutc==30) return;
+				if(timeoutc==10) return;
 				
 				this.UOdmometry		=	(double)(((sensorBytes[1])<<8) | (sensorBytes[0] & 0xff));
 				this.VOdometry		=	(double)(((sensorBytes[3])<<8) | (sensorBytes[2] & 0xff));

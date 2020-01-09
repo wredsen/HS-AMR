@@ -375,7 +375,7 @@ public class ControlRST implements IControl {
     	this.update_SETPOSE_Parameter();
     	
     	// PD-control with angularVelocity as output, deviating angle as input
-    	PID omegaPIDParking = new PID(0, SAMPLETIME, 1.0, 0, 0.001, 0, false);
+    	PID omegaPIDParking = new PID(0, SAMPLETIME, 2.0, 0, 0.02, 0, false);
     	
     	// transform into local coordinates by translating absolute coordinates into centerPoint
     	// variables for x- and y-coordinates of the next track section-destination 

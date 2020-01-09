@@ -5,10 +5,8 @@ import lejos.robotics.navigation.Pose;
 import parkingRobot.IControl;
 import parkingRobot.IMonitor;
 import parkingRobot.IPerception;
-import parkingRobot.IControl.ControlMode;
 import parkingRobot.IPerception.*;
 import parkingRobot.hsamr1.Guidance.CurrentStatus;
-import lejos.nxt.LCD;
 import lejos.nxt.NXTMotor;
 import parkingRobot.INavigation;
 import lejos.nxt.Sound;
@@ -25,6 +23,7 @@ public class ControlRST implements IControl {
 	final double WHEELDIA = 56; // in mm
 	final double WHEELDISTANCE = 150; // in mm
 	
+	/* time between each linesensor sample */
 	final double SAMPLETIME = 0.032; // in seconds
 	
 	/**
@@ -64,25 +63,30 @@ public class ControlRST implements IControl {
 	IPerception perception = null;
 	INavigation navigation = null;
 	IMonitor monitor = null;
-	ControlThread ctrlThread = null;
+	ControlThread ctrlThread = null;	
+	ControlMode currentCTRLMODE = null;
 	
-	/* class variables of desired velocities */
+	EncoderSensor controlRightEncoder    = null;
+	EncoderSensor controlLeftEncoder     = null;
+
+	/* storing start time */
+	int lastTime = 0;
+	
+	/* class variables for desired velocities */
 	double velocity = 10.0;	// in cm/s
 	double angularVelocity = 1.0;	// in rad/s
 	
 	Pose currentPosition = new Pose();
 	Pose destination = new Pose();
 	
-	/* pose Data while entering the SETPOSE-mode */ 
+	/* current pose while entering the SETPOSE-mode */ 
 	Pose enteringPose = new Pose();
 	double enteringRouteAngle = 0;
 	
-	ControlMode currentCTRLMODE = null;
-	
-	EncoderSensor controlRightEncoder    = null;
-	EncoderSensor controlLeftEncoder     = null;
-
-	int lastTime = 0;
+	/* center point and coefficients of calculated trajectory for parking-mode */
+	Point centerPoint;
+	double trajectoryCoeffA = 0.0;
+	double trajectoryCoeffC = 0.0;
 	
 	/**
 	 * provides the reference transfer so that the class knows its corresponding navigation object (to obtain the current 
@@ -120,7 +124,7 @@ public class ControlRST implements IControl {
 	}
 	
 
-	// Inputs
+	/************************* public input methods *****************************/ 
 	
 	/**
 	 * set velocity
@@ -149,8 +153,13 @@ public class ControlRST implements IControl {
 	}
 	
 	/**
-	 * set drive for
-	 * @see parkingRobot.IControl#setDriveFor(double x, double y, double phi, double v, double w, Pose startPose)
+	 * sets destination and speed for straight trajectory of SETPOSE-mode
+	 * @param x relative x destination in m
+	 * @param y relative y destination in m
+	 * @param phi relative heading in rad
+	 * @param v translatory velocity in cm/s
+	 * @param w angular velocity in rad/s
+	 * @param enteringPose current position while starting SETPOSE-mode
 	 */
 	public void setDriveFor(double x, double y, double phi, double v, double w, Pose enteringPose) {
 		setDestination(enteringPose.getHeading()+phi, enteringPose.getX() + x, enteringPose.getY() + y);
@@ -167,12 +176,10 @@ public class ControlRST implements IControl {
 		}
 	}
 	
-	Point centerPoint;
-	double trajectoryParamA = 0.0;
-	double trajectoryParamC = 0.0;
 	/**
-	 * set parking data
-	 * @see parkingRobot.IControl#setParkingData(Pose startPose, Pose endPose)
+	 * sets destination and start for polynomial trajectory of parking-mode
+	 * @param startPose start pose of the polynom
+	 * @param endPose end pose of the polynom
 	 */
 	public void setParkingData(Pose startPose, Pose endPose) {
 		setDestination(endPose.getHeading(), endPose.getX(), endPose.getY());
@@ -183,21 +190,18 @@ public class ControlRST implements IControl {
 		
 		
 		// rotate local coordinates
-		if(startPose.getHeading() == 0) {
-			// do not rotate
-		}
-		else if(Math.abs(startPose.getHeading() - Math.PI/2) < 0.001) {
+		if(Math.abs(startPose.getHeading() - Math.PI/2) < 0.001) {
 			endPose.getLocation().makeRightOrth();
 		}
-		else if(Math.abs(startPose.getHeading() - Math.PI) < 0.001) {
+		if(Math.abs(startPose.getHeading() - Math.PI) < 0.001) {
 			endPose.setLocation(endPose.getLocation().reverse());
 		}
 		
 		// trajectory equation: y= a*(x**3)+c*x
 		// calculate a-coefficient of trajectory
-		this.trajectoryParamA = endPose.getY()/(-2*Math.pow(endPose.getX(), 3));
+		this.trajectoryCoeffA = endPose.getY()/(-2*Math.pow(endPose.getX(), 3));
 		// calculate c-coefficient of trajectory
-		this.trajectoryParamC = -this.trajectoryParamA*3*Math.pow(endPose.getX(), 2);
+		this.trajectoryCoeffC = -this.trajectoryCoeffA*3*Math.pow(endPose.getX(), 2);
 	}
 	
 	/**
@@ -263,7 +267,7 @@ public class ControlRST implements IControl {
 
 	}
 	
-	// Private methods
+	/**************** Private methods ************************/
 	
 	/**
 	 * update parameters during VW Control Mode
@@ -363,7 +367,7 @@ public class ControlRST implements IControl {
 	
     
     private double getTrajectory(double x) {
-		return this.trajectoryParamA*Math.pow(x, 3) + this.trajectoryParamC*x;
+		return this.trajectoryCoeffA*Math.pow(x, 3) + this.trajectoryCoeffC*x;
 	}
     
     // variable for storing of last controller output

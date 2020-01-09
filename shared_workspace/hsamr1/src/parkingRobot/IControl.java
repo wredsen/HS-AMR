@@ -101,7 +101,7 @@ public interface IControl {
 	 * @param startPose start pose of the trajectory
 	 * @param endPose finishing pose of the trajectory 
 	 */
-	public void setParkingData(Pose startPose, Pose endPose);
+	public void setParkingFor(Pose startPose, Pose endPose);
 	
 	
 	/**

@@ -812,4 +812,11 @@ public class NavigationAT implements INavigation{
 		}
 	}
 	
+	private boolean checkSafety() {
+		if (Math.abs(this.newBackBoundaryPosition.getY() - this.newFrontBoundaryPosition.getY()) <= 0.03) {
+			if (Math.abs(this.newBackBoundaryPosition.getX() - this.newFrontBoundaryPosition.getX()) <= 0.03) return false;
+		}
+		return true;
+	}
+	
 }

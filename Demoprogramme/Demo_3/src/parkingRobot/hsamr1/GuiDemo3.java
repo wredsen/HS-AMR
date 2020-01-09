@@ -217,7 +217,7 @@ public enum CurrentStatusDrive {
 				}
 				if(control.getCtrlMode()==ControlMode.INACTIVE) {
 					anfahrt=true;
-					anfahrort = new Point(1.80f, 0.07f);
+					anfahrort = new Point(1.80f, 0.08f);
 					heading = Math.PI/2;
 					currentStatus=CurrentStatus.LINE_FOLLOW;
 					Thread.sleep(500);

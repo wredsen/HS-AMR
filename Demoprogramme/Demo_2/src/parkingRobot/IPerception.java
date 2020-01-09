@@ -1,5 +1,8 @@
 package parkingRobot;
 
+import parkingRobot.IPerception.EncoderSensor;
+import parkingRobot.IPerception.OdoSensor;
+
 /**
  * interface for the main module 'Perception', providing methods for getting all measuring data
  * from the robot sensors

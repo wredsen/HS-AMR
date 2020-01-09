@@ -6,6 +6,7 @@ import lejos.robotics.navigation.Pose;
 import parkingRobot.INavigation;
 import parkingRobot.IPerception;
 import parkingRobot.hsamr1.NavigationThread;
+import parkingRobot.hsamr1.GuiDemo2.CurrentStatus;
 import parkingRobot.IMonitor;
 
 
@@ -21,10 +22,6 @@ import parkingRobot.IMonitor;
  * @author IfA
  */
 public class NavigationAT implements INavigation{
-	
-	public boolean getCornerArea() {
-		return true;
-	}
 	
 	public boolean getCornerType() {
 		return true;
@@ -215,6 +212,18 @@ public class NavigationAT implements INavigation{
 		return null;
 	}
 	
+	/**
+	 * Signals when the robot is in the near of a corner
+	 * @return false if the robot is not in the near of a corner, true if it is
+	 */
+	public synchronized boolean getCornerArea() {
+		boolean area = true;
+			if ( (this.pose.getX()>=0.10) && (this.pose.getX()<=1.70) && (this.pose.getY()<=0.10) ) area = false;
+			if ( (this.pose.getX()>=1.70) && (this.pose.getY()>=0.15) && (this.pose.getY()<=0.50) ) area = false;
+			if ( (this.pose.getX()>=0.50) && (this.pose.getX()<=1.30) && (this.pose.getY()>=0.20) && (this.pose.getY()<=0.40) ) area = false;
+			if ( (this.pose.getX()>=-0.1) && (this.pose.getX()<=0.10) && (this.pose.getY()>=0.20) && (this.pose.getY()<=0.50) ) area = false;
+		return area;
+	}
 	
 	// Private methods
 	
@@ -275,8 +284,92 @@ public class NavigationAT implements INavigation{
 			angleResult 	= this.pose.getHeading() + w * deltaT;
 		}
 		
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////Lokalisierungsauswertung
+		
+		if(angleResult>=2*Math.PI)	angleResult= angleResult-2*Math.PI;	
+
+		if(CurrentStatus.LINE_FOLLOW==GuiDemo2.currentStatus){
+			
+			//	Linie 1
+			if( this.pose.getX()>0.10 && this.pose.getX()<1.70 && this.pose.getY()<0.04 ) { 
+				double yDiff=yResult-0;  																		
+				if(yDiff>=0.01) {                                             
+					yResult=0;    	   
+					this.pose.setLocation((float)xResult,(float)yResult);                         
+					this.pose.setHeading((float)angleResult);   
+				} 	
+				if(yDiff<=-0.01) {                               
+					yResult=0;
+					this.pose.setLocation((float)xResult,(float)yResult);                          
+					this.pose.setHeading((float)angleResult);
+				}
+				else {                                                									
+					this.pose.setLocation((float)xResult,(float)yResult);                            
+					this.pose.setHeading((float)angleResult);
+				}
+			}
+			
+			// Linie 2	
+			if( this.pose.getY()>0.10 && this.pose.getY()<0.50 && this.pose.getX()>1.75 && this.pose.getX()<1.85 ){
+				double xDiff=xResult-1.8;																						
+				if(xDiff<=-0.005) { 	   																
+					xResult=1.8; 	   		
+					this.pose.setLocation((float)xResult,(float)yResult);                         
+					this.pose.setHeading((float)angleResult);
+				}
+				if(xDiff>=0.005) {
+					xResult=1.8;
+					this.pose.setLocation((float)xResult,(float)yResult);                         
+					this.pose.setHeading((float)angleResult);
+				}
+				else {                                                									//direkt ausgeben
+					this.pose.setLocation((float)xResult,(float)yResult);                            
+					this.pose.setHeading((float)angleResult);
+				}
+			}
+			
+			//Linie 5
+			if( this.pose.getX()>0.40 && this.pose.getX()<1.40 && this.pose.getY()>0.20 && this.pose.getY()<0.35 ) {				
+				double yDiff=yResult-0.3;                               																						//Abweichung korriegieren
+		    	if(yDiff<=-0.005) {
+		    		yResult=0.3;
+			   	    this.pose.setLocation((float)xResult,(float)yResult);                          
+			       	this.pose.setHeading((float)angleResult);	
+			   	}
+		    	if(yDiff>=0.005) {
+		    		yResult=0.3;	
+			   	    this.pose.setLocation((float)xResult,(float)yResult);                          
+			       	this.pose.setHeading((float)angleResult);
+		    	}
+		    	else {                                                									
+		    		this.pose.setLocation((float)xResult,(float)yResult);                            
+		    		this.pose.setHeading((float)angleResult); 	
+				}
+			}
+			
+			//Linie 8
+			   if( this.pose.getX()<0.5 && this.pose.getX()>-0.05 && this.pose.getY()>0.10 && this.pose.getY()<0.50 ) {//
+			   	   double xDiff=xResult-0;
+				   if(xDiff>=0.01) {                                    								
+					   xResult=0;
+					   this.pose.setLocation((float)xResult,(float)yResult);                         
+					   this.pose.setHeading((float)angleResult);
+				   }
+				   	
+				   if(xDiff<=-0.01) {
+					   xResult=0;
+					   this.pose.setLocation((float)xResult,(float)yResult);                         
+					   this.pose.setHeading((float)angleResult);
+				   }
+			       																						//direkt ausgeben
+				   this.pose.setLocation((float)xResult,(float)yResult);                            
+			       this.pose.setHeading((float)angleResult);
+			   }
+		}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		this.pose.setLocation((float)xResult, (float)yResult);
-		this.pose.setHeading((float)angleResult);		 
+		this.pose.setHeading((float)angleResult);	
 	}
 
 

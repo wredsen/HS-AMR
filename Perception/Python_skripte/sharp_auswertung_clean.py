@@ -18,7 +18,7 @@ for i in range(10,81): #itterate thru all files
    j=0
    k=0
    l=0
-   filename = os.path.join(dirname, '../Sharp Sensoren/sharp_2_3_dig/output_'+str(i)+'cm.txt')
+   filename = os.path.join(dirname, '../Sharp Sensoren/sharp_4_3_dig/output_'+str(i)+'cm.txt')
    with open(filename,"r") as file: #open i'ten file 
         if file.mode == 'r': #check if file is readable
            for j, line in enumerate(file): #itterate thru file i 

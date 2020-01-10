@@ -309,7 +309,7 @@ public class ControlRST implements IControl {
      */    
 	private void exec_SETPOSE_ALGO(){  	
 		// PD-control with angularVelocity as output, deviating angle as input
-		PID omegaPIDForward = new PID(0, SAMPLETIME, 8, 0, 0.01, 0, false);
+		PID omegaPIDForward = new PID(0, SAMPLETIME, 12, 0, 0.01, 0, false);
     	// signs of the initial pose data for checking if destination is reached and not driving beyond
     	double signX = Math.signum(this.destination.getX() - this.enteringPose.getX());
     	double signY = Math.signum(this.destination.getY() - this.enteringPose.getY());
@@ -375,7 +375,7 @@ public class ControlRST implements IControl {
     	this.update_SETPOSE_Parameter();
     	
     	// PD-control with angularVelocity as output, deviating angle as input
-    	PID omegaPIDParking = new PID(0, SAMPLETIME, 2.0, 0, 0.02, 0, false);
+    	PID omegaPIDParking = new PID(0, SAMPLETIME, 5, 0, 0.004, 0, false);
     	
     	// transform into local coordinates by translating absolute coordinates into centerPoint
     	// variables for x- and y-coordinates of the next track section-destination 

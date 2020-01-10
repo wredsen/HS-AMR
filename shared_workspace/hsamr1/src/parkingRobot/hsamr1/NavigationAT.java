@@ -279,7 +279,7 @@ public class NavigationAT implements INavigation{
 				fastAreaIndex = 0;
 				area = false;
 			}
-			if ((this.pose.getX()>=1.7)&&(this.pose.getY()>=0.10)&&(this.pose.getY()<=0.45)) {
+			if ((this.pose.getX()>=1.7)&&(this.pose.getY()>=0.10)&&(this.pose.getY()<=0.35)) {
 				fastAreaIndex = 1;
 				area = false;
 			}
@@ -753,8 +753,7 @@ public class NavigationAT implements INavigation{
 				double y_Front = slot.getBackBoundaryPosition().getY();
 				slotListIndex =  i;
 													
-					if ((Math.abs(x_new_Back - x_Back)< 0.05) && (Math.abs(y_new_Back - y_Back)< 0.05)) return true;			
-					if ((Math.abs(x_new_Front - x_Front)< 0.05) && (Math.abs(y_new_Front - y_Front)< 0.05)) return true;
+				if ( ((Math.abs(x_new_Back - x_Back)< 0.05) && (Math.abs(y_new_Back - y_Back)< 0.05)) || ((Math.abs(x_new_Front - x_Front)< 0.05) && (Math.abs(y_new_Front - y_Front)< 0.05)) ) return true;
 			}
 		}
 		return false;

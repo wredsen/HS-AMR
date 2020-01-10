@@ -323,7 +323,7 @@ public class Guidance {
 				} else if (anfahrt == true 
 							&& ( (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.1)
 								&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.1) 
-								&& (Math.abs(navigation.getPose().getHeading() - heading)    < Math.toRadians(25)) ) ){
+								&& (Math.abs(navigation.getPose().getHeading() - heading)    < Math.toRadians(15)) ) ){
 					control.setCtrlMode(ControlMode.INACTIVE);
 					Sound.twoBeeps();
 					currentStatus = CurrentStatus.PARK_THIS;
@@ -484,7 +484,7 @@ public class Guidance {
 						
 						
 						control.setVelocity(10);
-						control.setParkingFor(startPose, endPose);
+						control.setParkingData(startPose, endPose);
 						}
 						control.setCtrlMode(ControlMode.PARK_CTRL);
 					}
@@ -608,7 +608,7 @@ public class Guidance {
 								endPose = new Pose(startPose.getX() - 0.40f, startPose.getY() - 0.225f, (float) Math.toRadians(180));
 							}
 							control.setVelocity(10);
-							control.setParkingFor(startPose, endPose);
+							control.setParkingData(startPose, endPose);
 						}
 						control.setCtrlMode(ControlMode.PARK_CTRL);
 					}

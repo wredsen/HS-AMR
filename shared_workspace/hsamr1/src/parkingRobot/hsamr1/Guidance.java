@@ -484,7 +484,7 @@ public class Guidance {
 						
 						
 						control.setVelocity(10);
-						control.setParkingData(startPose, endPose);
+						control.setParkingFor(startPose, endPose);
 						}
 						control.setCtrlMode(ControlMode.PARK_CTRL);
 					}
@@ -608,7 +608,7 @@ public class Guidance {
 								endPose = new Pose(startPose.getX() - 0.40f, startPose.getY() - 0.225f, (float) Math.toRadians(180));
 							}
 							control.setVelocity(10);
-							control.setParkingData(startPose, endPose);
+							control.setParkingFor(startPose, endPose);
 						}
 						control.setCtrlMode(ControlMode.PARK_CTRL);
 					}

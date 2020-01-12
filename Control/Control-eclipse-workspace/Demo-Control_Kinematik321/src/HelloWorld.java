@@ -1,4 +1,5 @@
 import lejos.nxt.Button;
+import lejos.geom.Point;
 
 public class HelloWorld {
 

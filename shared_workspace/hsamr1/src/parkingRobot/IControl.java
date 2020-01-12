@@ -6,36 +6,34 @@ import lejos.robotics.navigation.Pose;
  * interface for the main module 'Control', providing methods for executing the algorithms to
  * control the robot according to different modes which is set by guidance.
  * 
- * @author RST
+ * @author Konstantin Wrede
  */
 public interface IControl {
-	// Inputs
-	
 	
 	/**
-	 * The predefined control modes
+	 * control modes
 	 */
 	public enum ControlMode {
 		
 
 		
 		/**
-		 * linefollowing mode at highspeed with low d-control 
+		 * linefollow mode at highspeed with low d-control 
 		 */
 		FAST,
 		
 		/**
-		 * linefollowing mode at lowspeed with high d-control 
+		 * linefollow mode at lowspeed with high d-control 
 		 */
 		SLOW,
 		
 		/**
-		 * executing parking in mode
+		 * executing parking mode
 		 */
 		PARK_CTRL,
 		
 		/**
-		 * v/w-Control, redundant, everything already included in drive-method
+		 * v/w-control for robot speed
 		 */
 		VW_CTRL,
 		
@@ -54,7 +52,7 @@ public interface IControl {
 	/**
 	 * set the required speed
 	 * 
-	 * @param velocity the velocity of the robot to be set
+	 * @param velocity setting the translatory velocity for all control sequences
 	 */	
 	public void setVelocity(double velocity);
 
@@ -62,7 +60,7 @@ public interface IControl {
 	/**
 	 *  set the required angular velocity
 	 *  
-	 * @param angularVelocity the angular velocity to be set
+	 * @param angularVelocity setting the angular velocity for all control sequences
 	 */
 	public void setAngularVelocity(double angularVelocity);
 
@@ -87,12 +85,12 @@ public interface IControl {
 	/**
 	 * set RELATIVE destination and velocities before entering setpose-mode
 	 * 
-	 * @param x the destination position in x axis in m
-	 * @param y the destination position in y axis in m 
+	 * @param x the destination position on x-axis in m
+	 * @param y the destination position on y-axis in m 
 	 * @param phi the heading angle of the robot at the destination in rad
-	 * @param v translatory velocity in cm//s
+	 * @param v translatory velocity in cm/s
 	 * @param w angular velocity in rad/s
-	 * @param startPose latest measured pose 
+	 * @param startPose latest measured pose to start trajectory 
 	 */
 	public void setDriveFor(double x, double y, double phi, double v, double w, Pose startPose);
 	
@@ -100,10 +98,10 @@ public interface IControl {
 	/**
 	 * set destination and calculate trajectory coefficients before parking-mode
 	 * 
-	 * @param startPose latest measured pose
-	 * @param endPose finishing pose of parking process 
+	 * @param startPose start pose of the trajectory
+	 * @param endPose finishing pose of the trajectory 
 	 */
-	public void setParkingData(Pose startPose, Pose endPose);
+	public void setParkingFor(Pose startPose, Pose endPose);
 	
 	
 	/**
@@ -129,7 +127,7 @@ public interface IControl {
 	
 	
 	/**
-	 * execute the selected algorithms for control which was set by guidance
+	 * execute the selected control algorithm which was set by guidance
 	 */
 	public void exec_CTRL_ALGO();
 

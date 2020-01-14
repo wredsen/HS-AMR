@@ -262,7 +262,7 @@ public class NavigationAT implements INavigation{
 	}
 	
 	/**
-	 * Signals when the robot is in the near of a corner
+	 * Signals when the robot is in the near of a corner.
 	 * @return boolean false if the robot is not in the near of a corner, true if it is
 	 */
 	public synchronized boolean getCornerArea() {
@@ -289,8 +289,6 @@ public class NavigationAT implements INavigation{
 	
 	// private methods
 	
-	// localization
-	
 	/**
 	 * Calls the perception methods for obtaining actual measurement data and writes the data into members.
 	 */
@@ -311,6 +309,9 @@ public class NavigationAT implements INavigation{
 		this.backSensorDistance		= perception.getBackSensorDistance();
 		this.backSideSensorDistance	= perception.getBackSideSensorDistance();
 	}	
+	
+	
+	// localization
 	
 	/**
 	 * Calculates the robot pose from the measurements.
@@ -518,60 +519,6 @@ public class NavigationAT implements INavigation{
 	}
 	
 	/**
-	* Defines the cornerIndexNumber for the current pose.
-	*/
-	private void checkAreaIndex() {
-		if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10) && cornerIndexNumber != 1) cornerIndexNumber = 0;
-		if ((this.pose.getX()>=1.60)&&(this.pose.getY()<=0.15) && cornerIndexNumber != 2) cornerIndexNumber = 1;
-		if ((this.pose.getX()>=1.60)&&(this.pose.getY()>=0.20) && cornerIndexNumber != 3) cornerIndexNumber = 2;
-		if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.50) && cornerIndexNumber != 4) cornerIndexNumber = 3;
-		if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.50) && cornerIndexNumber != 5) cornerIndexNumber = 4;
-		if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.50) && cornerIndexNumber != 6) cornerIndexNumber = 5;
-		if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50) && cornerIndexNumber != 7) cornerIndexNumber = 6;
-		if ((this.pose.getX()<=0.20)&&(this.pose.getY()>=0.50) && cornerIndexNumber != 0) cornerIndexNumber = 7;
-	}
-	
-	/**
-	* Resets the Angle on the beginning of each fast section.
-	*/ 
-	private void checkAngle() {
-		if(lastcheck != fastAreaIndex){
-		
-			//long straight
-		    if (fastAreaIndex == 0) {	
-				this.pose.setHeading((float) (0));
-				lastcheck = 0;
-				lastCornerNumber = 0;
-				nextCornerNumber = 1;
-			}
-	
-		    //shortest straight
-			if (fastAreaIndex == 1) {
-				this.pose.setHeading((float) (0.50*Math.PI));
-				lastcheck = 1;
-				lastCornerNumber = 1;
-				nextCornerNumber = 2;
-			}
-			
-			//short straight
-			if (fastAreaIndex == 2) {
-				this.pose.setHeading((float)(Math.PI));
-				lastcheck = 2;
-				lastCornerNumber = 4;
-				nextCornerNumber = 5;
-			}
-			
-			//shortest straight
-			if (fastAreaIndex == 3) {
-				this.pose.setHeading((float) (1.50*Math.PI));
-				lastcheck = 3;
-				lastCornerNumber = 7;
-				nextCornerNumber = 0;
-			}
-		}
-	}
-	
-	/**
 	 *  Evaluates the corner and overwrites the pose if the measured values are meaningful.
 	 */
 	private void evaluateCornerDetection() {
@@ -613,6 +560,61 @@ public class NavigationAT implements INavigation{
 			default:	
 		}
 	} 	
+	
+	/**
+	* Defines the cornerIndexNumber for the current pose.
+	*/
+	private void checkAreaIndex() {
+		if ((this.pose.getX()<=0.10)&&(this.pose.getY()<=0.10) && cornerIndexNumber != 1) cornerIndexNumber = 0;
+		if ((this.pose.getX()>=1.60)&&(this.pose.getY()<=0.15) && cornerIndexNumber != 2) cornerIndexNumber = 1;
+		if ((this.pose.getX()>=1.60)&&(this.pose.getY()>=0.20) && cornerIndexNumber != 3) cornerIndexNumber = 2;
+		if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.50) && cornerIndexNumber != 4) cornerIndexNumber = 3;
+		if ((this.pose.getX()>=1.40)&&(this.pose.getX()<=1.60)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.50) && cornerIndexNumber != 5) cornerIndexNumber = 4;
+		if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.20)&&(this.pose.getY()<=0.50) && cornerIndexNumber != 6) cornerIndexNumber = 5;
+		if ((this.pose.getX()>=0.20)&&(this.pose.getX()<=0.40)&&(this.pose.getY()>=0.50) && cornerIndexNumber != 7) cornerIndexNumber = 6;
+		if ((this.pose.getX()<=0.20)&&(this.pose.getY()>=0.50) && cornerIndexNumber != 0) cornerIndexNumber = 7;
+	}
+	
+	/**
+	* Resets the Angle on the beginning of each fast section / each long straight.
+	*/ 
+	private void checkAngle() {
+		if(lastcheck != fastAreaIndex){
+		
+			//long straight
+		    if (fastAreaIndex == 0) {	
+				this.pose.setHeading((float) (0));
+				lastcheck = 0;
+				lastCornerNumber = 0;
+				nextCornerNumber = 1;
+			}
+	
+		    //shortest straight
+			if (fastAreaIndex == 1) {
+				this.pose.setHeading((float) (0.50*Math.PI));
+				lastcheck = 1;
+				lastCornerNumber = 1;
+				nextCornerNumber = 2;
+			}
+			
+			//short straight
+			if (fastAreaIndex == 2) {
+				this.pose.setHeading((float)(Math.PI));
+				lastcheck = 2;
+				lastCornerNumber = 4;
+				nextCornerNumber = 5;
+			}
+			
+			//shortest straight
+			if (fastAreaIndex == 3) {
+				this.pose.setHeading((float) (1.50*Math.PI));
+				lastcheck = 3;
+				lastCornerNumber = 7;
+				nextCornerNumber = 0;
+			}
+		}
+	}
+	
 	
 	// parking slot detection
 	
@@ -666,7 +668,7 @@ public class NavigationAT implements INavigation{
 	}
 	
 	/**
-	 * Checks whether there is a back boundary or not!
+	 * Checks whether there is a back boundary or not.
 	 * @return boolean true if there is a back boundary
 	 */
 	private boolean detectBackBoundary() {
@@ -681,7 +683,7 @@ public class NavigationAT implements INavigation{
 	}
 	
 	/**
-	 * Checks whether there is a front boundary or not!
+	 * Checks whether there is a front boundary or not.
 	 * @return boolean true if there is a front boundary
 	 */
 	private boolean detectFrontBoundary() {
@@ -691,7 +693,7 @@ public class NavigationAT implements INavigation{
 	}
 	
 	/**
-	 * Saves the back-boundary of a parking slot, distinguishes between the vertical and horizontal slots for the offset correction.
+	 * Saves the back boundary of a parking slot, distinguishes between the vertical and horizontal slots for the offset correction.
 	 */
 	private void saveBackBoundary () {
 		if (verticalSlot==true) newBackBoundaryPosition=new Point( (this.pose.getX()) , (this.pose.getY()+offsetCorrection()) );
@@ -700,7 +702,7 @@ public class NavigationAT implements INavigation{
 	}
 	
 	/**
-	 * Saves the Front-Boundary of a parking slot, distinguishes between the vertical and horizontal slots for the offset correction.
+	 * Saves the front boundary of a parking slot, distinguishes between the vertical and horizontal slots for the offset correction.
 	 */
 	private void saveFrontBoundary () {
 		if (verticalSlot==true) newFrontBoundaryPosition=new Point( (this.pose.getX()) , (this.pose.getY()+offsetCorrection()) );
@@ -753,7 +755,7 @@ public class NavigationAT implements INavigation{
 	
 	/**
 	 * Checks if the current registered parking slot has a suitable length.
-	 * @return boolean true if the parking slot is longer than 45 centimeters
+	 * @return boolean true if the parking slot is longer than 50 centimeters
 	 */
 	private boolean checkSuitability() {
 		double frontValue = Math.abs(this.newFrontBoundaryPosition.getX())+Math.abs(this.newFrontBoundaryPosition.getY());
@@ -802,12 +804,6 @@ public class NavigationAT implements INavigation{
 			}
 		}
 	}
-	
-	private boolean checkSafety() {
-		if (Math.abs(this.newBackBoundaryPosition.getY() - this.newFrontBoundaryPosition.getY()) <= 0.03) {
-			if (Math.abs(this.newBackBoundaryPosition.getX() - this.newFrontBoundaryPosition.getX()) <= 0.03) return false;
-		}
-		return true;
-	}
+
 	
 }

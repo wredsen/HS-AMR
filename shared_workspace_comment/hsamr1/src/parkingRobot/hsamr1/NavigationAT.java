@@ -762,8 +762,8 @@ public class NavigationAT implements INavigation{
 		
 		if(this.newBackBoundaryPosition.getY() == this.newFrontBoundaryPosition.getY()) return false;
 		
-		if (parkingSlotLength>0.40) return true;		// the detected length of the parking slots is a littlebit smaler then thier length in reality
-		else return false;								// 40 cm in programm are around 45 cm in reality
+		if (parkingSlotLength>0.50) return true;		
+		else return false;								
 	}
 	
 	/**

@@ -18,182 +18,177 @@ import parkingRobot.IMonitor;
 import java.util.*;
 
 /**
- * A executable basic example implementation of the corresponding interface provided by the Institute of Automation with
- * limited functionality:
- * <p>
- * In this example only the both encoder sensors from the {@link IPerception} implementation are used for periodically calculating
- * the robots position and corresponding heading angle (together called 'pose'). Neither any use of the map information or other
- * perception sensor information is used nor any parking slot detection is performed, although the necessary members are already
- * prepared. Advanced navigation calculation and parking slot detection should be developed and invented by the students.  
+ * Fully functional navigation module / class for the NXT - Robot of the group hsamr1. The localization is done with the encoder
+ * sensors of both wheels, a correction on the long straights of the parcour and a reset of the pose when the robot is in a corner.
+ * If the robot is close to a corner, it will return true in a special getter method so that the robot can switch to a slower driving mode.
+ * There is a working parking slot detection. The robot will find new parking slots and overwrites the slots which are already known.
+ * Other moduls / classes can get the latest information about parking slots in form of an array that is returned by a getter method.
  * 
- * @author IfA
+ * @author Konstantin Kuhl
  */
 public class NavigationAT implements INavigation{
 	
-	INavigation.ParkingSlot[] Slots=null;  
+	//////////////////////////////////////////////////////////// variables for the parking slot detection
 	
-	/////////////////////////////////////////////////////////// Variablen fuer Parkluecken
 	boolean foundBackBoundary = false;
 	boolean verticalSlot = false;
-	
 	Point newBackBoundaryPosition=null;
 	Point newFrontBoundaryPosition=null;
-	
 	int parkingSlotAreaNumber = 0;
 	int ID = 1;
 	int slotListIndex = 0;
 	int slotMeasurementQuality = 1;
 	ArrayList<ParkingSlot>slotList=new ArrayList<ParkingSlot>();
+	INavigation.ParkingSlot[] Slots=null;
 	
-	////////////////////////////////////////////////////////////	Variabeln fuer Lokalisierungsauswertung
+	////////////////////////////////////////////////////////////	variables for the localization
+	
 	boolean cornerDetect;
 	double angleDiff = 0;													
 	double yDiff = 0;
 	double xDiff = 0;
-	//////////////////////////////////////////////////////////
-	double testvariable1 = 0;
-	double testvariable2 = 0;
-	double testvariable3 = 0;
 	
+	////////////////////////////////////////////////////////////
+
 	/**
-	 * color information measured by right light sensor: 0% --> black , 100% --> white
+	 * Color information measured by right light sensor: 0% --> black , 100% --> white.
 	 */
 	int rightLightSensorValue = 0;
 	
 	/**
-	 * color information measured by left light sensor: 0% --> black , 100% --> white
+	 * Color information measured by left light sensor: 0% --> black , 100% --> white.
 	 */
 	int leftLightSensorValue = 0;
 	
 	/**
-	 * holds the index number of the last corner
+	 * Holds the index number of the last corner.
 	 */
 	private int lastCornerNumber = 0;
 	
 	/**
-	 * holds the index number of the next corner
+	 * Holds the index number of the next corner.
 	 */
 	private int nextCornerNumber = 1;
 	
 	/**
-	 * holds the index number of the current corner area
+	 * Holds the index number of the current corner area.
 	 */
 	private int cornerIndexNumber = 0;
 	
 	/**
-	 * holds the index number of the current corner area
+	 * Holds the index number of the current fast area / long straight.
 	 */
 	private int fastAreaIndex = 0;
 	
 	/**
-	* save the last angle check
+	* Save the last angle check on the beginning of a fast area / long straight.
 	*/
 	private int lastcheck = 0;
 	
 	/**
-	 * line information measured by right light sensor: 0 - beside line, 1 - on line border or gray underground, 2 - on line
+	 * Line information measured by right light sensor: 0 - beside line, 1 - on line border or gray underground, 2 - on line.
 	 */
 	int lineSensorRight	=	0;
 	/**
-	 * line information measured by left light sensor: 0 - beside line, 1 - on line border or gray underground, 2 - on line
+	 * Line information measured by left light sensor: 0 - beside line, 1 - on line border or gray underground, 2 - on line.
 	 */
 	int lineSensorLeft	=	0;
 	
 	/**
-	 * reference to {@link IPerception.EncoderSensor} class for left robot wheel which measures the wheels angle difference
-	 * between actual an last request
+	 * Reference to {@link IPerception.EncoderSensor} class for left robot wheel which measures the wheels angle difference
+	 * between actual an last request.
 	 */
 	IPerception.EncoderSensor encoderLeft							=	null;
 	/**
-	 * reference to {@link IPerception.EncoderSensor} class for right robot wheel which measures the wheels angle difference
-	 * between actual an last request
+	 * Reference to {@link IPerception.EncoderSensor} class for right robot wheel which measures the wheels angle difference
+	 * between actual an last request.
 	 */
 	IPerception.EncoderSensor encoderRight							=	null;
 	
 	/**
-	 * reference to data class for measurement of the left wheels angle difference between actual an last request and the
-	 * corresponding time difference
+	 * Reference to data class for measurement of the left wheels angle difference between actual an last request and the
+	 * corresponding time difference.
 	 */
 	IPerception.AngleDifferenceMeasurement angleMeasurementLeft 	= 	null;
 	/**
-	 * reference to data class for measurement of the right wheels angle difference between actual an last request and the
-	 * corresponding time difference
+	 * Reference to data class for measurement of the right wheels angle difference between actual an last request and the
+	 * corresponding time difference.
 	 */
 	IPerception.AngleDifferenceMeasurement angleMeasurementRight	= 	null;
 	
 	/**
-	 * reference to {@link IPerception.OdoSensor} class for mouse odometry sensor to measure the ground displacement
-	 * between actual an last request
+	 * Reference to {@link IPerception.OdoSensor} class for mouse odometry sensor to measure the ground displacement
+	 * between actual an last request.
 	 */
 	IPerception.OdoSensor mouseodo = null;	
 		
 	/**
-	 * reference to data class for measurement of the mouse odometry sensor to measure the ground displacement between
-	 * actual an last request and the corresponding time difference
+	 * Reference to data class for measurement of the mouse odometry sensor to measure the ground displacement between
+	 * actual an last request and the corresponding time difference.
 	 */
 	IPerception.OdoDifferenceMeasurement mouseOdoMeasurement = null;
 	
 	/**
-	 * distance from optical sensor pointing in driving direction to obstacle in mm
+	 * Distance from optical sensor pointing in driving direction to obstacle in millimeter.
 	 */
 	double frontSensorDistance		=	0;
 	/**
-	 * distance from optical sensor pointing to the right side of robot to obstacle in mm (sensor mounted at the front)
+	 * Distance from optical sensor pointing to the right side of robot to obstacle in millimeter (sensor mounted at the front).
 	 */
 	double frontSideSensorDistance	=	0;
 	/**
-	 * distance from optical sensor pointing in opposite of driving direction to obstacle in mm
+	 * distance from optical sensor pointing in opposite of driving direction to obstacle in millimeter.
 	 */
 	double backSensorDistance		=	0;
 	/**
-	 * distance from optical sensor pointing to the right side of robot to obstacle in mm (sensor mounted at the back)
+	 * distance from optical sensor pointing to the right side of robot to obstacle in millimeter (sensor mounted at the back).
 	 */
 	double backSideSensorDistance	=	0;
 
 
 	/**
-	 * robot specific constant: radius of left wheel
+	 * Robot specific constant: radius of left wheel.
 	 */
-	static final double LEFT_WHEEL_RADIUS	= 	0.028; // only rough guess, to be measured exactly and maybe refined by experiments
+	static final double LEFT_WHEEL_RADIUS	= 	0.028;
 	/**
-	 * robot specific constant: radius of right wheel
+	 * Robot specific constant: radius of right wheel.
 	 */
-	static final double RIGHT_WHEEL_RADIUS	= 	0.028; // only rough guess, to be measured exactly and maybe refined by experiments
+	static final double RIGHT_WHEEL_RADIUS	= 	0.028; 
 	/**
-	 * robot specific constant: distance between wheels
+	 * Robot specific constant: distance between wheels.
 	 */
-	static final double WHEEL_DISTANCE		= 	0.15; // only rough guess, to be measured exactly and maybe refined by experiments
+	static final double WHEEL_DISTANCE		= 	0.15; 
 
 	
 	/**
-	 * map array of line references, whose corresponding lines form a closed chain and represent the map of the robot course
+	 * Map array of line references, whose corresponding lines form a closed chain and represent the map of the robot course.
 	 */
 	Line[] map 								= null;
 	/**
-	 * reference to the corresponding main module Perception class
+	 * Reference to the corresponding main module Perception class.
 	 */
 	IPerception perception 	        		= null;
 	/**
-	 * reference to the corresponding main module Monitor class
+	 * Reference to the corresponding main module Monitor class.
 	 */
 	IMonitor monitor = null;
 	/**
-	 * indicates if parking slot detection should be switched on (true) or off (false)
+	 * Indicates if parking slot detection should be switched on (true) or off (false).
 	 */
 	boolean parkingSlotDetectionIsOn		= false;
 	/**
-	 * pose class containing bundled current X and Y location and corresponding heading angle phi
+	 * Pose class containing bundled current X and Y location and corresponding heading angle phi.
 	 */
 	Pose pose								= new Pose();
 
 	/**
-	 * thread started by the 'Navigation' class for background calculating
+	 * Thread started by the 'Navigation' class for background calculating.
 	 */
 	NavigationThread navThread = new NavigationThread(this);
 
 	
 	/**
-	 * provides the reference transfer so that the class knows its corresponding perception object (to obtain the measurement
+	 * Provides the reference transfer so that the class knows its corresponding perception object (to obtain the measurement
 	 * information from) and starts the navigation thread.
 	 * 
 	 * @param perception corresponding main module Perception class object
@@ -207,7 +202,7 @@ public class NavigationAT implements INavigation{
 		this.mouseodo = perception.getNavigationOdo();		
 		
 		navThread.setPriority(Thread.MAX_PRIORITY - 1);
-		navThread.setDaemon(true); // background thread that is not need to terminate in order for the user program to terminate
+		navThread.setDaemon(true); // Background thread that is not need to terminate in order for the user program to terminate.
 		navThread.start();
 
 	}
@@ -223,6 +218,7 @@ public class NavigationAT implements INavigation{
 		this.parkingSlotDetectionIsOn = isOn;
 	}
 	
+	
 	// 	Class control
 	
 	public synchronized void updateNavigation(){	
@@ -231,15 +227,15 @@ public class NavigationAT implements INavigation{
 		this.calculateLocation();
 		this.getCorner();
 		
-		//calculate index 
+		//Calculation of indexes for reset on the parcour corners.
 		cornerIndexNumber = cornerIndexNumber % 8;
 		nextCornerNumber = nextCornerNumber % 8;
 		lastCornerNumber = lastCornerNumber % 8;
 		fastAreaIndex = fastAreaIndex % 4;
 		
-		//check methods to reset location
+		//Check methods to reset location on the parcour corners.
 		checkAreaIndex();
-		checkAngel();	
+		checkAngle();	
 	}
 	
 	
@@ -263,10 +259,6 @@ public class NavigationAT implements INavigation{
 	
 	public synchronized int getCornerIndex() {
 		return cornerIndexNumber;
-	}
-	
-	public synchronized boolean getCornerType() {
-		return false;
 	}
 	
 	/**
@@ -455,7 +447,7 @@ public class NavigationAT implements INavigation{
 	 * @return boolean true if a corner is detected
 	 */
 	private boolean getCorner() {
-		if (getCornerArea() == true && cornerIndexNumber == nextCornerNumber) {			//check if in corner area and if it is a new area
+		if (getCornerArea() == true && cornerIndexNumber == nextCornerNumber) {			//Check if in corner area and if it is a new area.
 			
 			//special condition for corner 4
 			if(cornerIndexNumber == 4 && this.getPose().getHeading()>=2.8 && this.getPose().getHeading() <= 3.5) {
@@ -542,7 +534,7 @@ public class NavigationAT implements INavigation{
 	/**
 	* Resets the Angle on the beginning of each fast section.
 	*/ 
-	private void checkAngel() {
+	private void checkAngle() {
 		if(lastcheck != fastAreaIndex){
 		
 			//long straight

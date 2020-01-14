@@ -60,13 +60,13 @@ public interface INavigation {
 	public ParkingSlot[] getParkingSlots();
 	
 	/**
-	 * Getter method for other modules to get the ID of the last corner 
+	 * Getter method for other modules to get the ID of the last corner. 
 	 * @return integer ID of the last detected corner
 	 */
 	public int getLastCornerNumber();
 	
 	/**
-	 * Getter method for other modules to get the ID of the next Corner the robot will reach
+	 * Getter method for other modules to get the ID of the next Corner the robot will reach.
 	 * @return integer ID of the next corner
 	 */
 	public int getNextCornerNumber();
@@ -83,11 +83,6 @@ public interface INavigation {
 	 */
 	public int getCornerIndex();
 	
-	/**
-	 * Gives information about the Type of the Corner
-	 * @return true if a left corner is close, false if a right corner is close 
-	 */
-	public boolean getCornerType();
 	
 	// Subclasses
 	

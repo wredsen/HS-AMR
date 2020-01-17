@@ -191,9 +191,9 @@ public enum CurrentStatusDrive {
 				//120 - 10 cm/s
 				if(currentStatus!=lastStatus) {
 					Pose startPose = navigation.getPose();
-					Pose endPose = new Pose(0.60f, -0.26f, 0f);
+					Pose endPose = new Pose(0.60f, -0.25f, 0f);
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
-					control.setParkingData(startPose,endPose);
+					control.setParkingFor(startPose,endPose);
 					control.setCtrlMode(ControlMode.PARK_CTRL);
 					lastStatus=currentStatus;
 					Thread.sleep(50);						
@@ -208,16 +208,16 @@ public enum CurrentStatusDrive {
 				//90°- 15 °/s math. pos
 				if(currentStatus!=lastStatus) {
 					Pose startPose = navigation.getPose();
-					Pose endPose = new Pose(navigation.getPose().getX()+0.6f,navigation.getPose().getY()+0.26f, 0f);
+					Pose endPose = new Pose(navigation.getPose().getX()+0.60f,navigation.getPose().getY()+0.25f, 0f);
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
-					control.setParkingData(startPose,endPose);
+					control.setParkingFor(startPose,endPose);
 					control.setCtrlMode(ControlMode.PARK_CTRL);
 					lastStatus=currentStatus;
 											
 				}
 				if(control.getCtrlMode()==ControlMode.INACTIVE) {
 					anfahrt=true;
-					anfahrort = new Point(1.80f, 0.08f);
+					anfahrort = new Point(1.80f, 0.1f);
 					heading = Math.PI/2;
 					currentStatus=CurrentStatus.LINE_FOLLOW;
 					Thread.sleep(500);
@@ -281,9 +281,9 @@ public enum CurrentStatusDrive {
 				//} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT) {
 					//	currentStatus = CurrentStatus.EXIT;
 				} else if (anfahrt == true 
-						&& ( (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.1)
-							&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.1) 
-							&& (Math.abs(navigation.getPose().getHeading() - heading)    < Math.toRadians(25)) ) ){
+						&& ( (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.05)
+							&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.05) 
+							&& (Math.abs(navigation.getPose().getHeading() - heading)    < Math.toRadians(15)) ) ){
 					Sound.twoBeeps();
 					control.setCtrlMode(ControlMode.INACTIVE);
 					currentStatus = CurrentStatus.EINPARK_2;
@@ -301,9 +301,9 @@ public enum CurrentStatusDrive {
 				if(currentStatus!=lastStatus) {
 					Pose startPose = navigation.getPose();
 					startPose.setHeading((float) Math.toRadians(90));
-					Pose endPose = new Pose(navigation.getPose().getX()+0.25f,navigation.getPose().getY()+0.35f, (float) Math.PI/2);
+					Pose endPose = new Pose(navigation.getPose().getX()+0.25f,navigation.getPose().getY()+0.30f, (float) Math.PI/2);
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
-					control.setParkingData(startPose,endPose);
+					control.setParkingFor(startPose,endPose);
 					control.setCtrlMode(ControlMode.PARK_CTRL);
 					lastStatus=currentStatus;
 					Thread.sleep(50);						
@@ -319,7 +319,7 @@ public enum CurrentStatusDrive {
 				if(currentStatus!=lastStatus) {
 					lastStatus=currentStatus;
 					double distance = perception.getBackSensorDistance();
-					//distance = distance;
+					distance = distance - 3;
 					control.setDriveFor(0,-0.01*distance,0,-10, 0, navigation.getPose());
 					control.setCtrlMode(ControlMode.SETPOSE);
 				}
@@ -334,9 +334,9 @@ public enum CurrentStatusDrive {
 				if(currentStatus!=lastStatus) {
 					Pose startPose = navigation.getPose();
 					startPose.setHeading((float) Math.toRadians(90));
-					Pose endPose = new Pose(navigation.getPose().getX()-0.25f, navigation.getPose().getY()+0.35f, (float)Math.PI/2);
+					Pose endPose = new Pose(navigation.getPose().getX()-0.25f, navigation.getPose().getY()+0.30f, (float)Math.PI/2);
 					control.setDriveFor(0, 0, 0, 10, 0, navigation.getPose());
-					control.setParkingData(startPose,endPose);
+					control.setParkingFor(startPose,endPose);
 					control.setCtrlMode(ControlMode.PARK_CTRL);
 					lastStatus=currentStatus;
 											
@@ -395,6 +395,14 @@ public enum CurrentStatusDrive {
 	 */
 	public static CurrentStatus getCurrentStatus(){
 		return GuiDemo3.currentStatus;
+	}
+	
+	/**
+	 * return true if "Anfahrt" true
+	 * @return anfahrt
+	 */
+	public static boolean getAnfahrt() {
+		return GuiDemo3.anfahrt;
 	}
 	
 	/**

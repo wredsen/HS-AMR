@@ -1,20 +1,12 @@
 package parkingRobot.hsamr1;
 
-
 import lejos.robotics.navigation.Pose;
 import parkingRobot.IControl;
 import parkingRobot.IMonitor;
 import parkingRobot.IPerception;
-import parkingRobot.IControl.ControlMode;
 import parkingRobot.IPerception.*;
-import parkingRobot.hsamr1.GuiDemo3.CurrentStatus;
-import parkingRobot.hsamr1.GuiDemo3.CurrentStatusDrive;
-import lejos.nxt.LCD;
 import lejos.nxt.NXTMotor;
 import parkingRobot.INavigation;
-import lejos.nxt.Sound;
-import lejos.nxt.comm.RConsole;
-import lejos.geom.Point;
 
 /**
  * Main class for control module
@@ -26,6 +18,7 @@ public class ControlRST implements IControl {
 	final double WHEELDIA = 56; // in mm
 	final double WHEELDISTANCE = 150; // in mm
 	
+	/* time between each linesensor sample */
 	final double SAMPLETIME = 0.032; // in seconds
 	
 	/**
@@ -65,25 +58,30 @@ public class ControlRST implements IControl {
 	IPerception perception = null;
 	INavigation navigation = null;
 	IMonitor monitor = null;
-	ControlThread ctrlThread = null;
+	ControlThread ctrlThread = null;	
+	ControlMode currentCTRLMODE = null;
 	
-	/* class variables of desired velocities */
+	EncoderSensor controlRightEncoder    = null;
+	EncoderSensor controlLeftEncoder     = null;
+
+	/* storing start time */
+	int lastTime = 0;
+	
+	/* class variables for desired velocities */
 	double velocity = 10.0;	// in cm/s
 	double angularVelocity = 1.0;	// in rad/s
 	
 	Pose currentPosition = new Pose();
 	Pose destination = new Pose();
 	
-	/* pose Data while entering the SETPOSE-mode */ 
+	/* current pose while entering the SETPOSE-mode */ 
 	Pose enteringPose = new Pose();
 	double enteringRouteAngle = 0;
 	
-	ControlMode currentCTRLMODE = null;
-	
-	EncoderSensor controlRightEncoder    = null;
-	EncoderSensor controlLeftEncoder     = null;
-
-	int lastTime = 0;
+	/* center point and coefficients of calculated trajectory for parking-mode */
+	Pose centerPoint = new Pose();
+	double trajectoryCoeffA = 0.0;
+	double trajectoryCoeffC = 0.0;
 	
 	/**
 	 * provides the reference transfer so that the class knows its corresponding navigation object (to obtain the current 
@@ -121,7 +119,7 @@ public class ControlRST implements IControl {
 	}
 	
 
-	// Inputs
+	/************************* public input methods *****************************/ 
 	
 	/**
 	 * set velocity
@@ -150,8 +148,13 @@ public class ControlRST implements IControl {
 	}
 	
 	/**
-	 * set drive for
-	 * @see parkingRobot.IControl#setDriveFor(double x, double y, double phi, double v, double w, Pose startPose)
+	 * sets destination and speed for straight trajectory of SETPOSE-mode
+	 * @param x relative x destination in m
+	 * @param y relative y destination in m
+	 * @param phi relative heading in rad
+	 * @param v translatory velocity in cm/s
+	 * @param w angular velocity in rad/s
+	 * @param enteringPose current position while starting SETPOSE-mode
 	 */
 	public void setDriveFor(double x, double y, double phi, double v, double w, Pose enteringPose) {
 		setDestination(enteringPose.getHeading()+phi, enteringPose.getX() + x, enteringPose.getY() + y);
@@ -168,37 +171,35 @@ public class ControlRST implements IControl {
 		}
 	}
 	
-	Point centerPoint;
-	double trajectoryParamA = 0.0;
-	double trajectoryParamC = 0.0;
 	/**
-	 * set parking data
-	 * @see parkingRobot.IControl#setParkingData(Pose startPose, Pose endPose)
+	 * sets destination and start for polynomial trajectory of parking-mode
+	 * @param startPose start pose of the polynome
+	 * @param finalPose final pose of the polynome
 	 */
-	public void setParkingData(Pose startPose, Pose endPose) {
-		setDestination(endPose.getHeading(), endPose.getX(), endPose.getY());
-		// calculate central point of trajectory
-		this.centerPoint = endPose.getLocation().add(startPose.getLocation()).multiply((float)0.5);
-		// local coordinates: translate absolute coordinates into centerPoint
-		endPose.setLocation(endPose.getLocation().subtract(this.centerPoint));
+	public void setParkingFor(Pose startPose, Pose finalPose) {
+		setDestination(finalPose.getHeading(), finalPose.getX(), finalPose.getY());
+		
+		/*calculate central point of trajectory */
+		this.centerPoint.setLocation(0.5f * (startPose.getX() + finalPose.getX()), 0.5f * (startPose.getY() + finalPose.getY()));
+		this.centerPoint.setHeading(0);
+		
+		/* local coordinates: translate absolute coordinates into centerPoint */
+		finalPose.setLocation(finalPose.getX() - centerPoint.getX(), finalPose.getY() - centerPoint.getY());
+		
+		/* local coordinate: rotate coordinates if necessary*/
+		if(Math.abs(startPose.getHeading() - Math.toRadians(180)) < 0.01) {	// right parking spot
+			finalPose.setLocation(-1.0f*finalPose.getX(), -1.0f*finalPose.getY());
+		}
+		if(Math.abs(startPose.getHeading() - Math.toRadians(90)) < 0.01) {	// top parking spot
+			finalPose.setLocation(finalPose.getY(), -1.0f*finalPose.getX());
+		}
 		
 		
-		// rotate local coordinates
-		if(startPose.getHeading() == 0) {
-			// do not rotate
-		}
-		else if(Math.abs(startPose.getHeading() - Math.PI/2) < 0.001) {
-			endPose.getLocation().makeRightOrth();
-		}
-		else if(Math.abs(startPose.getHeading() - Math.PI) < 0.001) {
-			endPose.setLocation(endPose.getLocation().reverse());
-		}
-		
-		// trajectory equation: y= a*(x**3)+c*x
+		// trajectory equation: y= a*(x**3)+c*x (see documentation)
 		// calculate a-coefficient of trajectory
-		this.trajectoryParamA = endPose.getY()/(-2*Math.pow(endPose.getX(), 3));
+		trajectoryCoeffA = (-1)*finalPose.getY()/(2*Math.pow(finalPose.getX(), 3));
 		// calculate c-coefficient of trajectory
-		this.trajectoryParamC = -this.trajectoryParamA*3*Math.pow(endPose.getX(), 2);
+		trajectoryCoeffC = -this.trajectoryCoeffA*3*Math.pow(finalPose.getX(), 2);
 	}
 	
 	/**
@@ -264,7 +265,7 @@ public class ControlRST implements IControl {
 
 	}
 	
-	// Private methods
+	/**************** Private methods ************************/
 	
 	/**
 	 * update parameters during VW Control Mode
@@ -284,7 +285,7 @@ public class ControlRST implements IControl {
 	 * update parameters during PARKING Control Mode
 	 */
 	private void update_PARKCTRL_Parameter(){
-		//redundant method already done in setParkingData and exec_PARKCTRL_ALGO
+		//redundant method already done in setParkingFor and exec_PARKCTRL_ALGO
 	}
 
 	/**
@@ -294,6 +295,13 @@ public class ControlRST implements IControl {
 		this.lineSensorRight		= perception.getRightLineSensorValue();
 		this.lineSensorLeft  		= perception.getLeftLineSensorValue();		
 		this.currentPosition		= navigation.getPose();
+	}
+	
+	/**
+	 * calculating the value of the polynom y(x) = a*(x**3) + c*x 
+	 */
+    private double getTrajectory(double x) {
+		return ( trajectoryCoeffA*Math.pow(x, 3) + trajectoryCoeffC*x );
 	}
 	
 	/**
@@ -309,65 +317,59 @@ public class ControlRST implements IControl {
      * enables controlled sequences of driving forward
      */    
 	private void exec_SETPOSE_ALGO(){  	
-		// PD-control with angularVelocity as output, deviating angle as input
+		this.update_SETPOSE_Parameter();
+		
+		/* PD-control with angularVelocity as output, deviating angle as input */
 		PID omegaPIDForward = new PID(0, SAMPLETIME, 12, 0, 0.01, 0, false);
-    	// signs of the initial pose data for checking if destination is reached and not driving beyond
+    	
+		/* signs of the initial pose data for checking if destination is reached and not driving beyond */
     	double signX = Math.signum(this.destination.getX() - this.enteringPose.getX());
     	double signY = Math.signum(this.destination.getY() - this.enteringPose.getY());
     	double signPhi = Math.signum(this.destination.getHeading() - this.enteringPose.getHeading());
     	double signEnterAng = Math.signum(this.enteringRouteAngle);
     	
-    	if ((	(signX*(this.destination.getX() - this.currentPosition.getX()) > 0.05) ||
-				(signY*(this.destination.getY() - this.currentPosition.getY()) > 0.005)    )
-			&& 	(this.velocity != 0)) 
-		{
-		    // angle for driving straight to the destination and setting it as desired angle for control
-			double routeAngle = Math.atan2(this.destination.getY()-this.currentPosition.getY(), this.destination.getX()-this.currentPosition.getX()); 
-			
-			// emulate forward angle for driving backwards
-			if (this.velocity < 0) {
-				routeAngle = routeAngle + Math.PI;
-			}
-			
-			// make angle orientation to shortest possible rotation way
-			routeAngle = (routeAngle + 2*Math.PI) % (2*Math.PI);
-			if (routeAngle > 1.8*Math.PI) {
-				routeAngle = routeAngle - 2*Math.PI;
-			}
-		    
-		    omegaPIDForward.updateDesiredValue(routeAngle);
-		    	
-		    // first Rotate towards destination 
-		    if ((signEnterAng*(routeAngle - this.currentPosition.getHeading()) >  Math.toRadians(5)) && (this.angularVelocity != 0)) {
-		    	// for driving backwards: emulate forward omega control
-		    	drive(0, this.angularVelocity); // rotate only
-		    }
-		    	
-		    // driving forward
-		    else {
-			    drive(this.velocity, omegaPIDForward.runControl(this.currentPosition.getHeading())); // drive with angle control
-		    }
+    	/* angle for driving straight to the destination and setting it as desired angle for control */
+		double routeAngle = Math.atan2(this.destination.getY() - this.currentPosition.getY(), this.destination.getX() - this.currentPosition.getX()); 
+		
+		/* emulate forward angle for driving backwards */
+		if (this.velocity < 0) {
+			routeAngle = routeAngle + Math.PI;
+		}
+		
+		/* make a continuous angle orientation for rotation */
+		routeAngle = (routeAngle + 2*Math.PI) % (2*Math.PI);
+		if (routeAngle > 1.8*Math.PI) {
+			routeAngle = routeAngle - 2*Math.PI;
+		}
+	    
+		/* setting calculated reference value for the controller */
+	    omegaPIDForward.updateDesiredValue(routeAngle);
+    	
+	    /* open loop controlled rotating towards destination first */
+	    if ((signEnterAng*(routeAngle - this.currentPosition.getHeading()) >  Math.toRadians(5)) && (Math.abs(this.angularVelocity) > 0)) {
+	    	drive(0, this.angularVelocity);
+	    }
+	    
+	    /* driving forward with omega control */
+	    else if (	(signX*(this.destination.getX() - this.currentPosition.getX()) > 0.005) ||
+					(signY*(this.destination.getY() - this.currentPosition.getY()) > 0.005)		){
+	    	
+	    	drive(this.velocity, omegaPIDForward.runControl(this.currentPosition.getHeading()));
 	    }
     	
-    	//	rotate only
-    	else if ( ( signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(5) ) && ( this.angularVelocity != 0 ) )
-    	{
-    		drive(0,this.angularVelocity);
+    	/* open loop controlled rotating only after destination position reached */
+    	else if (( signPhi*(this.destination.getHeading() - this.currentPosition.getHeading()) > Math.toRadians(5) ) && ( this.angularVelocity != 0 )){
+    		drive(0, this.angularVelocity);
     	}
     	
-    	// stop because destination reached
+    	/* stop if destination reached */
     	else {
     		this.setCtrlMode(ControlMode.INACTIVE);
     	}
     	
 	}
-	
     
-    private double getTrajectory(double x) {
-		return this.trajectoryParamA*Math.pow(x, 3) + this.trajectoryParamC*x;
-	}
-    
-    // variable for storing of last controller output
+    /* variable for storing of last controller output */
     double parkingOmega;
 	/**
 	 * parking along the generated trajectory
@@ -375,97 +377,77 @@ public class ControlRST implements IControl {
 	private void exec_PARKCTRL_ALGO(){
     	this.update_SETPOSE_Parameter();
     	
-    	// PD-control with angularVelocity as output, deviating angle as input
+    	/* PD-control with angularVelocity as output, deviating angle as input */
     	PID omegaPIDParking = new PID(0, SAMPLETIME, 5.0, 0, 0.004, 0, false);
     	
-    	// transform into local coordinates by translating absolute coordinates into centerPoint
-    	// variables for x- and y-coordinates of the next track section-destination 
-    	double nextX = this.currentPosition.getX() - this.centerPoint.x;
-    	double nextY = this.currentPosition.getY() - this.centerPoint.y;	
-    	// rotate local coordinates
-    	if (this.destination.getHeading() == 0 ) {
-    		// do not rotate
-    	}
-    	else if (Math.abs(this.destination.getHeading() - Math.PI) < 0.001) {
+    	/* transform into local coordinates by translating absolute coordinates into centerPoint
+    	 * so variables for x- and y-coordinates of the next track section-destination can be easily calculated */
+    	double nextX = this.currentPosition.getX() - this.centerPoint.getX();
+    	double nextY = this.currentPosition.getY() - this.centerPoint.getY();	
+    	
+    	/* rotate local coordinates if necessary*/
+    	if (Math.abs(this.destination.getHeading() - Math.toRadians(180)) < 0.01){	// top parking spot
     		nextX = -nextX;
     		nextY = -nextY;
     	}
-    	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
+    	if (Math.abs(this.destination.getHeading() - Math.toRadians(90)) < 0.01){	// right parking spot
     		double storing = nextX;
     		nextX = nextY;
     		nextY = -storing;
     	}
     	
-    	//TODO: Das hier rausnehmen oder inkrement erhöhen -> von x abhängig machen?
-    	// Check for driving direction
-    	if (Math.signum(this.velocity) == 1){
-    		nextX = nextX + 0.01;
-    	}
-    	else if (Math.signum(this.velocity) == -1) {
-    		nextX = nextX - 0.01;
-    	}
-    	
+    	/* iterating over x-destination-segment and incrementing it */
+    	nextX = nextX + 0.01;
+    	/* calculating corresponding y value */
     	nextY = getTrajectory(nextX);
     	
-    	// back transformation to absolute coordinates
-    	if (this.destination.getHeading() == 0 ) {
-    		// do not rotate
+    	/* transforming back to absolute coordinates by first rotating if necessary */
+    	if (Math.abs(this.destination.getHeading() - Math.toRadians(180)) < 0.01){	// top parking spot
+    		nextX = -nextX;
+    		nextY = -nextY;
     	}
-    	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
+    	if (Math.abs(this.destination.getHeading() - Math.toRadians(90)) < 0.01){	// right parking spot
     		double store = nextX;
     		nextX = -nextY;
     		nextY = store;
     	}
-    	else if (Math.abs(this.destination.getHeading() - Math.PI) < 0.001) {
-    		nextX = -nextX;
-    		nextY = -nextY;
-    	}
     	
-    	// translate back into absolute coordinates
-    	nextY = nextY + this.centerPoint.y;
-    	nextX = nextX + this.centerPoint.x;
+    	/* transforming back to absolute coordinates by translating */
+    	nextY = nextY + this.centerPoint.getY();
+    	nextX = nextX + this.centerPoint.getX();
     	
-    	//TODO: PID-Regler einbauen -> routeAngle für eta ersetzen; obacht: this.currentPosition.getHeading()
+    	/* initializing reference variable */
     	double routeAngle = 0;
     	
-    	//check parking orientation
-    	if (Math.abs(this.destination.getHeading() - Math.PI) < 0.001) {
-    		routeAngle = Math.atan((this.currentPosition.getY() - nextY)/(this.currentPosition.getX() - nextX)) + Math.PI;
-    	}
-    	else if (Math.abs(this.destination.getHeading() - Math.PI/2) < 0.001) {
-    		if (GuiDemo3.getCurrentStatus() == CurrentStatus.AUSPARK_2 || GuiDemo3.getCurrentStatus() == CurrentStatus.AUSPARK) {
-    			routeAngle = Math.atan2(-(this.currentPosition.getY() - nextY), -(this.currentPosition.getX() - nextX));
-    		}
-    		else {
-    			routeAngle = Math.atan2(-(this.currentPosition.getY() - nextY), -(this.currentPosition.getX() - nextX));
-    		}
-    		
-    	}
-    	else {
-    		routeAngle = Math.atan2(-(this.currentPosition.getY() - nextY), -(this.currentPosition.getX() - nextX));
+    	/* calculating reference angle for upcoming iteration*/
+    	routeAngle = Math.atan2(nextY - this.currentPosition.getY(), nextX - this.currentPosition.getX());
+    	
+    	/* cover case with discontinuity */
+    	if (Math.abs(this.destination.getHeading() - Math.toRadians(180)) < 0.01){
+    		/* make a continuous angle orientation for rotation */	
+        	routeAngle = (routeAngle + 2*Math.PI) % (2*Math.PI);
+        	if (routeAngle > 1.8*Math.PI) {
+        		routeAngle = routeAngle - 2*Math.PI;
+        	}
     	}
     	
+    	/* update reference angle */
     	omegaPIDParking.updateDesiredValue(routeAngle);
     	
-    	//	 Check if destination is reached
-    	if (this.currentPosition.getLocation().subtract(this.destination.getLocation()).length()<0.05) {
-    		routeAngle = this.destination.getHeading();
-	    	//etaoldPose = routeAngle - this.currentPosition.getHeading();
-    		drive(0,Math.signum(parkingOmega) * Math.toRadians(40));
-			if (Math.abs(destination.getHeading() - this.currentPosition.getHeading()) < Math.toRadians(2)) {
-				Sound.beep();
-				this.setCtrlMode(ControlMode.INACTIVE);				
-			}
+    	/* Check if destination is reached */
+    	if (	( Math.abs(this.destination.getX() - this.currentPosition.getX()) > 0.03) ||
+				( Math.abs(this.destination.getY() - this.currentPosition.getY()) > 0.03)    ){
+    		/* calculate controller output as angular velocity and drive under it */
+    		parkingOmega = omegaPIDParking.runControl(this.currentPosition.getHeading());
+	    	drive(this.velocity, parkingOmega);		
     	}
     	else {
-	    	//etasumPose += (routeAngle - currentPosition.getHeading());
-	    	parkingOmega = omegaPIDParking.runControl(this.currentPosition.getHeading());
-	    	RConsole.println("Istwinkel: "+ Math.toDegrees(this.currentPosition.getHeading()));
-	    	RConsole.println("Sollwinkel: "+ Math.toDegrees(routeAngle));
-	    	RConsole.println("nX=: "+ 100*nextX + ", nY=: " + 100*nextY);
-	    	
-	    	//etaoldPose = (routeAngle - currentPosition.getHeading());
-	    	drive(this.velocity, parkingOmega);
+    		/* rotate towards destination heading */
+    		drive(0,Math.signum(parkingOmega) * Math.toRadians(40));
+    		/* stop if destination reached */
+			if (Math.abs(destination.getHeading() - this.currentPosition.getHeading()) < Math.toRadians(1)) {
+				this.setCtrlMode(ControlMode.INACTIVE);				
+			}
 	    }
 	}
 	
@@ -478,8 +460,8 @@ public class ControlRST implements IControl {
 	 * with high speed of 15 cm/s and low d-control
 	 */
  	private void exec_FAST_ALGO() {
- 		// PID-control with angularVelocity as output, deviation from black line center via linesensors as input
- 	 	PID lineFollowPIDFast = new PID(0, SAMPLETIME, 0.02, 0.0, 0.002, 999999, false); // divided Kp/25.6 since change away from direkt powerCTR
+ 		/* PID-control with angularVelocity as output, deviation from black line center via linesensors as input */
+ 	 	PID lineFollowPIDFast = new PID(0, SAMPLETIME, 0.02, 0.0, 0.002, 999999, false);
     	leftMotor.forward();
 		rightMotor.forward();
 		double desiredVelocity = 15;
@@ -492,8 +474,8 @@ public class ControlRST implements IControl {
 	 * with low speed of 7 cm/s and high d-control
 	 */ 
  	private void exec_SLOW_ALGO() {
- 		// PID-control with angularVelocity as output, deviation from black line center via linesensors as input
- 	 	PID lineFollowPIDSlow = new PID(0, SAMPLETIME, 0.01, 0.0, 0.06, 999999, true); // divided Kp/25.6 since change away from direkt powerCTR
+ 		/* PID-control with angularVelocity as output, deviation from black line center via linesensors as input */
+ 	 	PID lineFollowPIDSlow = new PID(0, SAMPLETIME, 0.01, 0.0, 0.06, 999999, true);
  		leftMotor.forward();
 		rightMotor.forward();
 		double desiredVelocity = 7;
@@ -519,7 +501,7 @@ public class ControlRST implements IControl {
      */
 	private void drive(double desiredVelocity, double desiredAngularVelocity){	
 		/* variables for drive method */
-		// one PID control for each motor, outputs pwm value, input RPM
+		/* one PID control for each motor, outputs pwm value, input RPM */
 	    PID leftPIDRPM = new PID(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false);
 	    PID rightPIDRPM = new PID(0, SAMPLETIME, 0.6, 0.2, 0.005, 99999, false); 
 	    int leftControlOut = 0;
@@ -540,12 +522,13 @@ public class ControlRST implements IControl {
 		
 		/* feed forward control*/
 		desiredRPMLeft = (desiredVelocity-(desiredAngularVelocity*(WHEELDISTANCE/2.0)/10.0))/(WHEELDIA*Math.PI/(10.0*60.0));
-		desiredRPMRight = (desiredVelocity+(desiredAngularVelocity*(WHEELDISTANCE/2.0)/10.0))/(WHEELDIA*Math.PI/(10.0*60.0)); 
-		// power values from sampled linear regression
+		desiredRPMRight = (desiredVelocity+(desiredAngularVelocity*(WHEELDISTANCE/2.0)/10.0))/(WHEELDIA*Math.PI/(10.0*60.0));
+		
+		/* power values from sampled linear regression */
 		desiredPowerLeft = (int) (0.72762 * desiredRPMLeft + 8.61696);
 		desiredPowerRight = (int) (0.77850 * desiredRPMRight + 8.40402);
 		
-		// RPM from angle difference and conversion from deg/s to RPM 
+		/* RPM from angle difference and conversion from deg/s to RPM */
 		measuredRPMLeft = ((double) leftAngle.getAngleSum() / (double) leftAngle.getDeltaT()) * 166.667; //in revelations per min
 		measuredRPMRight = ((double) rightAngle.getAngleSum() / (double) rightAngle.getDeltaT()) * 166.667; //in revelations per min
 		

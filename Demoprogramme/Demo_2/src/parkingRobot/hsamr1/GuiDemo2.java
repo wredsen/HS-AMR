@@ -251,7 +251,7 @@ public class GuiDemo2 {
 					
 					Thread.sleep(500);
 					anfahrt=true;
-					anfahrort= new Point(0f,0f);
+					anfahrort= new Point(0.07f,0f);
 					heading = Math.PI;
 					Sound.twoBeeps();
 				}
@@ -314,9 +314,9 @@ public class GuiDemo2 {
 				//} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT) {
 					//	currentStatus = CurrentStatus.EXIT;
 				} else if (anfahrt == true 
-							&& ( (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.1)
-								&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.15) 
-								&& (Math.abs(-navigation.getPose().getHeading() - heading)    < Math.toRadians(25)) ) ) {
+							&& ( (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.05)
+								&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.05) 
+								&& (Math.abs(-navigation.getPose().getHeading() - heading)    < Math.toRadians(15)) ) ) {
 					control.setCtrlMode(ControlMode.INACTIVE);
 					currentStatus = CurrentStatus.DREHUNG_3;
 					Sound.twoBeeps();
@@ -332,7 +332,7 @@ public class GuiDemo2 {
 			case DREHUNG_3:
 				// 180°- max. °/s math. pos
 				if (currentStatus != lastStatus) {
-					control.setDriveFor(0, 0, Math.toRadians(179), 0, Math.toRadians(120), navigation.getPose());
+					control.setDriveFor(0, 0, Math.toRadians(180), 0, Math.toRadians(120), navigation.getPose());
 					control.setCtrlMode(ControlMode.SETPOSE);
 					lastStatus = CurrentStatus.DREHUNG_3;
 					Thread.sleep(50);

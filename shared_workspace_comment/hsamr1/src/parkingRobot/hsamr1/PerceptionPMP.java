@@ -145,10 +145,7 @@ public class PerceptionPMP implements IPerception {
 		catch(InterruptedException e){
 			e.printStackTrace();
 		}
-		/*
-		this.LSrwhite = this.RightLineSensor;
-		this.LSlwhite = this.LeftLineSensor;
-		*/
+	
 		
 		leftLight.setHigh(this.LeftLineSensor);
 		rightLight.setHigh(this.RightLineSensor);
@@ -296,11 +293,24 @@ public class PerceptionPMP implements IPerception {
 			
 	}
 
-	
+	/**
+	 * returns the brightness of the subsurfacecolor under the left linesensor in raw values.
+	 * (0 to 1023)
+	 * is used in <code>{@link IPerception#calibrateLineSensors}</code> to calibrate the sensor for given environmental brightness
+	 * 
+	 * @return brightness of the groundcolor in raw values
+	 */
 	private void updateLeftLightSensor() {
 		LeftLineSensor = leftLight.readNormalizedValue();
 	}
 
+	/**
+	 * returns the brightness of the subsurfacecolor under the right linesensor in raw values.
+	 * (0 to 1023)
+	 * is used in <code>{@link IPerception#calibrateLineSensors}</code> to calibrate the sensor for given environmental brightness
+	 * 
+	 * @return brightness of the groundcolor in raw values
+	 */
 	private void updateRightLightSensor() {
 		RightLineSensor = rightLight.readNormalizedValue();
 		

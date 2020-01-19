@@ -20,9 +20,9 @@
                   % ATTENTION: 'screen' changes size of text area slightly. Always optimize document WITH
                   % 'print' option first for printing (size of graphics etc.) and convert afterwards
                   % in screen optimized version!
-  %listoffigures,  % includes list of figures
+  listoffigures,  % includes list of figures
   xcolor=dvipsnamesabbrevations
-  %listoftables,   % includes list of tables
+  listoftables,   % includes list of tables
   %listoflistings, % includes list of listings
   abbrevations,   % includes index of symbols and abbrevations
   bibIfa,         % citation style (IfA standard), alternatives: bibNumeric, bibHarvard
@@ -61,7 +61,7 @@ stringstyle=\color{mymauve},     % string literal style
 %\ifaAbstractDE{example_files/00_abstract_de}           % a tex file containing the german abstract
 %\ifaAbstractEN{example_files/00_abstract_en__invalid}  % a tex file containing the german abstract
 %\ifaAbbrev{}                                          % a tex file containing the various abbreviations to include into the list of abbreviations (alternatively,
-%\ifaUserListings{}                                    % a tex file containing additional listings to be printed (besides list of figures, tables, and/or listings)
+\ifaUserListings{}                                    % a tex file containing additional listings to be printed (besides list of figures, tables, and/or listings)
 %\ifaAcknowledegments{}                                % the acknowlegements for the thesis (usually only used for dissertation)
                                                        % these may also be defined in the text where they are first used)
 

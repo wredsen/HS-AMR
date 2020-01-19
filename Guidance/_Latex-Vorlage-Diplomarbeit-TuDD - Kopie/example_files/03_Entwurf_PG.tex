@@ -2,7 +2,7 @@
 
 \section{Geforderte Funktionen}
 
-Damit der Roboter einparken kann, soll er einem Polynom folgen. Dabei ist zu beachten, dass für jede Parklücke individuell ein Polynom entwickelt werden muss.\\
+Damit der Roboter einparken kann, muss er einem Polynom folgen. Dabei ist zu beachten, dass für jede Parklücke individuell ein Polynom entwickelt werden muss.\\
 
 \noindent In dem Modul Guidance wird die Start- und Endpose festgelegt. Anschließend muss der entsprechende Controlmodus gestartet werden. Die Berechnung des Polynoms wird danach im Control-Modul aufgerufen. 
 
@@ -25,13 +25,13 @@ f=y(x)=a*x^3+b*x
 \noindent Es werden zwei Bedingungen benötigt, damit die Koeffizienten berechnet werden können. 
 
 \begin{equation}
- y'_{ende}=f'(x_{ende})=0
+ y'_{ende}=f'(x_{ende})=3*a*x_{ende}^2+b=0
  \end{equation}
  \begin{equation}
 y_{ende}=a*x_{ende}^3+b*x_{ende}
  \end{equation}
  
-\noindent Es folgt:
+\noindent Durch das Umstellen folgt:
  %this.trajectory_a = endPose.getY()/(-2*Math.pow(endPose.getX(),3));
  \begin{equation}
 a=-\dfrac{y_{ende}}{2*x_{ende}^3}

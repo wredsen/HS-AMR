@@ -57,7 +57,7 @@ public class Guidance {
 		 */
 		DRIVING,
 		/**
-		 * indicates that robot is performing an parking maneuver
+		 * indicates that robot is inactive
 		 */
 		INACTIVE,
 		/**
@@ -207,19 +207,18 @@ public class Guidance {
 	 */
 	static Line[] map = { line0, line1, line2, line3, line4, line5, line6, line7 };
 
-	/**
-	 * Save the variable lastStatus
+	/*
+	 * variables for the program
 	 */
 	protected static CurrentStatus lastStatusSave;
 	protected static CurrentStatusPark lastStatusParkThisSave;
 	protected static CurrentStatusParkOut lastStatusParkOutSave;
 	private static boolean outside = false;
-	private static boolean anfahrt = false;
+	private static boolean approach = false;
 	private static boolean correct = false;
 	private static boolean back = false;
-	private static int parkplatz;
-	static double[] parameter;
-	static Point anfahrort;
+	private static int parkingslot;
+	static Point destination;
 	static Point p2;
 	static Pose endPose;
 	static double heading;
@@ -259,30 +258,32 @@ public class Guidance {
 
 			// Main finite state machine
 			switch (currentStatus) {
-			/////////////////////////////////////////////////////////////////
+			// *******************************************************************//
 			case DRIVING:
 				// Into action
 				if (lastStatus != currentStatus) {
 					Sound.beep();
+					//Select velocity
 					if (navigation.getCornerArea() == true) {
 						control.setCtrlMode(ControlMode.SLOW);
 					} else {
 						control.setCtrlMode(ControlMode.FAST);
 					}
-					if (anfahrt == false) {
+					//Activate parking slot detection
+					if (approach == false) {
 						navigation.setDetectionState(true);
 					}
 				}
 				// While action
+
 				// sub finite state machine DRIVE
 				switch (currentStatusDrive) {
 				case SLOW:
-					// LCD.drawString("SLOW",0,1);
 					if (lastStatusDrive != currentStatusDrive) {
 						control.setCtrlMode(ControlMode.SLOW);
 					}
 					break;
-
+				///////////////////////////////////////////////////	
 				case FAST:
 					// Into action
 					// LCD.drawString("FAST",0,1);
@@ -318,12 +319,12 @@ public class Guidance {
 					} // wait for button release
 				} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.DISCONNECT) {
 					currentStatus = CurrentStatus.EXIT;
-				} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS && (anfahrt == false)) { // ausgew�hlter Parkplatz
+				} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_THIS && (approach == false)) {
 					currentStatus = CurrentStatus.PARK_THIS;
-				} else if (anfahrt == true 
-							&& ( (Math.abs(navigation.getPose().getX() - anfahrort.getX()) < 0.1)
-								&& (Math.abs(navigation.getPose().getY() - anfahrort.getY()) < 0.1) 
-								&& (Math.abs(navigation.getPose().getHeading() - heading)    < Math.toRadians(15)) ) ){
+				} else if (approach == true 
+						&& ((Math.abs(navigation.getPose().getX() - destination.getX()) < 0.05)
+						&& (Math.abs(navigation.getPose().getY() - destination.getY()) < 0.05)
+						&& (Math.abs(navigation.getPose().getHeading() - heading) < Math.toRadians(15)))) {
 					control.setCtrlMode(ControlMode.INACTIVE);
 					Sound.twoBeeps();
 					currentStatus = CurrentStatus.PARK_THIS;
@@ -331,20 +332,22 @@ public class Guidance {
 				}
 
 				// Leave action
+				//Deactivate parking slot detection
 				if (currentStatus != CurrentStatus.DRIVING) {
 					navigation.setDetectionState(false);
 				}
 				break;
-			/////////////////////////////////////////////////////////////////////////////////
+			// *******************************************************************//
 			case INACTIVE:
 				// Into action
+				//Save the last state
 				if (lastStatus != CurrentStatus.INACTIVE) {
 					control.setCtrlMode(ControlMode.INACTIVE);
 					lastStatusSave = lastStatus;
-					if(lastStatusSave==CurrentStatus.PARK_THIS) {
-						lastStatusParkThisSave=currentStatusPark;
-					}else if(lastStatusSave==CurrentStatus.PARK_OUT) {
-						lastStatusParkOutSave=currentStatusParkOut;
+					if (lastStatusSave == CurrentStatus.PARK_THIS) {
+						lastStatusParkThisSave = currentStatusPark;
+					} else if (lastStatusSave == CurrentStatus.PARK_OUT) {
+						lastStatusParkOutSave = currentStatusParkOut;
 					}
 				}
 
@@ -354,12 +357,12 @@ public class Guidance {
 				lastStatus = currentStatus;
 				if (hmi.getMode() == parkingRobot.INxtHmi.Mode.SCOUT) {
 					currentStatus = lastStatusSave;
-					if(lastStatusSave==CurrentStatus.PARK_THIS) {
-						currentStatusPark=lastStatusParkThisSave;
-						lastStatusPark=CurrentStatusPark.ELSE;
-					}else if(lastStatusSave==CurrentStatus.PARK_OUT) {
-						currentStatusParkOut=lastStatusParkOutSave;
-						lastStatusParkOut=CurrentStatusParkOut.ELSE;
+					if (lastStatusSave == CurrentStatus.PARK_THIS) {
+						currentStatusPark = lastStatusParkThisSave;
+						lastStatusPark = CurrentStatusPark.ELSE;
+					} else if (lastStatusSave == CurrentStatus.PARK_OUT) {
+						currentStatusParkOut = lastStatusParkOutSave;
+						lastStatusParkOut = CurrentStatusParkOut.ELSE;
 					}
 				} else if (Button.ENTER.isDown()) {
 					currentStatus = lastStatusSave;
@@ -378,7 +381,7 @@ public class Guidance {
 				// Leave action
 
 				break;
-			////////////////////////////////////////////////////////////////////////////////////////
+			// *******************************************************************//
 			case EXIT:
 				hmi.disconnect();
 				/**
@@ -388,7 +391,7 @@ public class Guidance {
 				// monitor.stopLogging();
 				System.exit(0);
 				break;
-			////////////////////////////////////////////////////////////////////////////////////////
+			// *******************************************************************//
 			case PARK:
 				//
 				// Into action
@@ -399,10 +402,11 @@ public class Guidance {
 				// While action
 				LCD.drawString("Abstand" + perception.getFrontSensorDistance(), 0, 5);
 				LCD.drawString("Abstand" + perception.getBackSensorDistance(), 0, 6);
+				
 				// State transition check
 				lastStatus = currentStatus;
-				if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_OUT) { // PARKOUT
-					currentStatus = CurrentStatus.PARK_OUT; // PARK_OUT
+				if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PARK_OUT) { 
+					currentStatus = CurrentStatus.PARK_OUT;
 				} else if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE) {
 					currentStatus = CurrentStatus.INACTIVE;
 				} else if (Button.ENTER.isDown()) {
@@ -422,45 +426,45 @@ public class Guidance {
 
 				//
 				break;
-			////////////////////////////////////////////////////////////////////////////////////////
+			// *******************************************************************//
 			case PARK_THIS:
 				LCD.drawString("SP " + currentStatusPark, 0, 4);
 				// Into action
 				if (lastStatus != CurrentStatus.PARK_THIS) {
-					if (anfahrt == false && (lastStatus != CurrentStatus.INACTIVE)) {
+					if (approach == false && (lastStatus != CurrentStatus.INACTIVE)) {
 						currentStatusPark = CurrentStatusPark.TO_SLOT;
 					}
-					parkplatz = hmi.getSelectedParkingSlot();
+					//Get selectet parking slot information
+					parkingslot = hmi.getSelectedParkingSlot();
 					ParkingSlot[] parkingslots = navigation.getParkingSlots();
-					anfahrort = parkingslots[parkplatz - 1].getFrontBoundaryPosition(); // start
-					p2 = parkingslots[parkplatz - 1].getBackBoundaryPosition();// ende
-					anfahrt = false;
+					destination = parkingslots[parkingslot - 1].getFrontBoundaryPosition(); // start
+					p2 = parkingslots[parkingslot - 1].getBackBoundaryPosition();// end
+					approach = false;
 					correct = false;
 				}
 				// While action
 				// sub finite state machine PARK_THIS
 				switch (currentStatusPark) {
 				case TO_SLOT:
-					anfahrt = true;
-					
-						//Winkelberechnung
-						if(Math.abs(anfahrort.getX()-p2.getX())<0.05){ //deltaX small -> Angle 90�
-							heading=Math.PI/2;
-						}else if((anfahrort.getY()-p2.getY())<0.05) { //deltaY small -> Angle 180� or 0�
-							if(anfahrort.getX()<p2.getX()) {//if startpose global smaller than endpose -> 0� 
-								heading=0;
-							}else if(anfahrort.getX()>p2.getX()) {//If startpose global greater than endpose -> 180�
-								heading=Math.PI;
-							}
+					approach = true;
+
+					// Winkelberechnung
+					if (Math.abs(destination.getX() - p2.getX()) < 0.05) { 			// deltaX small -> Angle 90 degree
+						heading = Math.PI / 2;
+					} else if ((destination.getY() - p2.getY()) < 0.05) { 			// deltaY small -> Angle 180 degree or 0 degree
+						if (destination.getX() < p2.getX()) {						// if start pose (global view) smaller than end pose -> 0 degree
+							heading = 0;
+						} else if (destination.getX() > p2.getX()) {				// If start pose (global view) greater than end pose -> 180 degree
+							heading = Math.PI;
 						}
-					
-					
-					if (Math.abs(heading) < Math.toRadians(20)) { //0�
-						anfahrort.x = anfahrort.x + 0.05f;
-					} else if (Math.abs(heading - Math.PI / 2) < Math.toRadians(20)) { //90�
-						anfahrort.y = anfahrort.y + 0.07f;
-					} else if (Math.abs(heading - Math.PI) < Math.toRadians(20)) { //180�
-						anfahrort.x = anfahrort.x - 0.08f;		// geaendert auf 
+					}
+
+					if (Math.abs(heading) < Math.toRadians(20)) { 											// if angle 0 degree
+						destination.x = destination.x + 0.05f;
+					} else if (Math.abs(heading - Math.PI / 2) < Math.toRadians(20)) { 						//if angle 90 degree
+						destination.y = destination.y + 0.08f;
+					} else if (Math.abs(heading - Math.PI) < Math.toRadians(20)) { 							//if angle 180 degree
+						destination.x = destination.x - 0.06f; 
 					}
 
 					currentStatus = CurrentStatus.DRIVING;
@@ -470,21 +474,22 @@ public class Guidance {
 					// Into-action
 					if (lastStatusPark != CurrentStatusPark.REACHED_SLOT) {
 						Pose startPose = navigation.getPose();
-						if(lastStatus!=CurrentStatus.INACTIVE) {
-						if (Math.abs(startPose.getHeading()) < Math.toRadians(20)) {
-							startPose.setHeading((float) Math.toRadians(0));
-							endPose = new Pose(startPose.getX() + 0.40f, startPose.getY() - 0.25f, 0);
-						} else if (Math.abs(startPose.getHeading() - Math.PI / 2) < Math.toRadians(20)) {
-							startPose.setHeading((float) Math.toRadians(90));
-							endPose = new Pose(startPose.getX() + 0.25f, startPose.getY() + 0.35f, (float) Math.toRadians(90));
-						} else if (Math.abs(startPose.getHeading() - Math.PI) < Math.toRadians(20)) {
-							startPose.setHeading((float) Math.toRadians(180));
-							endPose = new Pose((startPose.getX() - 0.40f), startPose.getY() + 0.20f, (float) Math.toRadians(180));
-						}
-						
-						
-						control.setVelocity(10);
-						control.setParkingFor(startPose, endPose);
+						if (lastStatus != CurrentStatus.INACTIVE) {
+							if (Math.abs(startPose.getHeading()) < Math.toRadians(20)) { 						//if angle 0 degree
+								startPose.setHeading((float) Math.toRadians(0));
+								endPose = new Pose(startPose.getX() + 0.35f, startPose.getY() - 0.25f, 0);
+							} else if (Math.abs(startPose.getHeading() - Math.PI / 2) < Math.toRadians(20)) {  // if angle 90 degree
+								startPose.setHeading((float) Math.toRadians(90));
+								endPose = new Pose(startPose.getX() + 0.25f, startPose.getY() + 0.30f,
+										(float) Math.toRadians(90));
+							} else if (Math.abs(startPose.getHeading() - Math.PI) < Math.toRadians(20)) { 		// if angle 180 degree
+								startPose.setHeading((float) Math.toRadians(180));
+								endPose = new Pose((startPose.getX() - 0.35f), startPose.getY() + 0.20f,
+										(float) Math.toRadians(180));
+							}
+
+							control.setVelocity(10);
+							control.setParkingFor(startPose, endPose);
 						}
 						control.setCtrlMode(ControlMode.PARK_CTRL);
 					}
@@ -501,7 +506,9 @@ public class Guidance {
 					correct = true;
 					break;
 				////////////////////////////////
-
+				case ELSE:
+					//nothing to do
+					break;
 				}
 
 				// State transition check
@@ -527,13 +534,13 @@ public class Guidance {
 				}
 				// Leave action
 				break;
-			////////////////////////////////////////////////////////////////////////////////////////
+			// *******************************************************************//
 			case PARK_OUT:
 				// Into action
 
 				if (lastStatus != CurrentStatus.PARK_OUT) {
-					if(lastStatus!=CurrentStatus.INACTIVE) {
-					currentStatusParkOut = CurrentStatusParkOut.BACKWARDS;
+					if (lastStatus != CurrentStatus.INACTIVE) {
+						currentStatusParkOut = CurrentStatusParkOut.BACKWARDS;
 					}
 					back = false;
 				}
@@ -543,69 +550,67 @@ public class Guidance {
 				switch (currentStatusParkOut) {
 
 				case BACKWARDS:
-					
+
 					if (lastStatusParkOut != currentStatusParkOut) {
-						if(lastStatus!=CurrentStatus.INACTIVE) {
+						if (lastStatus != CurrentStatus.INACTIVE) {
 							if (perception.getFrontSensorDistance() < 30) {
 								double distance = perception.getBackSensorDistance();
-								distance = distance - 1;
+								distance = distance - 3;
 
 								if ((Math.abs(Math.toRadians(90) - navigation.getPose().getHeading()) < Math
-										.toRadians(20))) {// wenn Winkel 90�
+										.toRadians(20))) {														 //if angle 90 degree
 									control.setDriveFor(0, distance * (-0.01), 0, -10, 0, navigation.getPose());
-								} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) { // wenn Winkel 0�
+								} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) { // if angel 0 degree
 									control.setDriveFor(distance * (-0.01), 0, 0, -10, 0, navigation.getPose());
-								} else {// Winkel 180�
+								} else {																		 // if angle 180 degree
 									control.setDriveFor((distance * 0.01), 0, 0, -10, 0, navigation.getPose());
 								}
 							} else {
 								if ((Math.abs(Math.toRadians(90) - navigation.getPose().getHeading()) < Math
-										.toRadians(20))) {// wenn Winkel 90�
-									control.setDriveFor(0, -0.2, 0, -10, 0, navigation.getPose());
-								} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) { // wenn
-																												// Winkel
-																												// 0�
-									control.setDriveFor(-0.2, 0, 0, -10, 0, navigation.getPose());
-								} else {// Winkel 180�
-									control.setDriveFor(0.2, 0, 0, -10, 0, navigation.getPose());
+										.toRadians(20))) {														//if angle 90 degree
+									control.setDriveFor(0, -0.05, 0, -10, 0, navigation.getPose());
+								} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) {// if angle 0 degree
+									control.setDriveFor(-0.05, 0, 0, -10, 0, navigation.getPose());
+								} else {																		//if angle 180 degree
+									control.setDriveFor(0.05, 0, 0, -10, 0, navigation.getPose());
 								}
 							}
-						}else if(lastStatus==CurrentStatus.INACTIVE) {
+						} else if (lastStatus == CurrentStatus.INACTIVE) {
 							Sound.twoBeeps();
-							if ((Math.abs(Math.toRadians(90) - navigation.getPose().getHeading()) < Math.toRadians(20))) {// wenn Winkel 90�
-								control.setDriveFor(0, -0.2, 0, -10, 0, navigation.getPose());
-							} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) { // wenn Winkel 0�
-								control.setDriveFor(-0.2, 0, 0, -10, 0, navigation.getPose());
-							} else {// Winkel 180�
-								control.setDriveFor(0.2, 0, 0, -10, 0, navigation.getPose());
+							if ((Math.abs(Math.toRadians(90) - navigation.getPose().getHeading()) < Math
+									.toRadians(20))) {															// if angle 90 degree
+								control.setDriveFor(0, -0.05, 0, -10, 0, navigation.getPose());
+							} else if ((Math.abs(navigation.getPose().getHeading()) < Math.toRadians(20))) { 	// if angle 0 degree
+								control.setDriveFor(-0.05, 0, 0, -10, 0, navigation.getPose());
+							} else {																			//if angle 180 degree
+								control.setDriveFor(0.05, 0, 0, -10, 0, navigation.getPose());
 							}
 						}
 						control.setCtrlMode(ControlMode.SETPOSE);
-						}
+					}
 
-						Thread.sleep(50);
-					
-				
+					Thread.sleep(50);
+
 					if (control.getCtrlMode() == ControlMode.INACTIVE) {
-						if(perception.getBackSensorDistance()==9) {
-							back = true;
-						}	
+						back = true;
 					}
 					break;
-				/////////////////////////////////////////////////////////////////////////////////////////////////////
+				///////////////////////////////
 				case PARKOUT:
 					if (lastStatusParkOut != currentStatusParkOut) {
-						if(lastStatusParkOut!=CurrentStatusParkOut.ELSE) {
+						if (lastStatus != CurrentStatus.INACTIVE) {
 							Pose startPose = navigation.getPose();
-							if (Math.abs(startPose.getHeading()) < Math.toRadians(20)) {
+							if (Math.abs(startPose.getHeading()) < Math.toRadians(20)) { 						//if angle 0 degree
 								startPose.setHeading(0);
-								endPose = new Pose(startPose.getX() + 0.40f, startPose.getY() + 0.25f, 0);
-							} else if (Math.abs(startPose.getHeading() - Math.PI / 2) < Math.toRadians(20)) {
+								endPose = new Pose(startPose.getX() + 0.35f, startPose.getY() + 0.25f, 0);
+							} else if (Math.abs(startPose.getHeading() - Math.PI / 2) < Math.toRadians(20)) { 	//if angle 90 degree
 								startPose.setHeading((float) Math.toRadians(90));
-								endPose = new Pose(startPose.getX() - 0.25f, startPose.getY() + .35f, (float) Math.toRadians(90));
-							} else if (Math.abs(startPose.getHeading() - Math.PI) < Math.toRadians(20)) {
+								endPose = new Pose(startPose.getX() - 0.25f, startPose.getY() + .30f,
+										(float) Math.toRadians(90));
+							} else if (Math.abs(startPose.getHeading() - Math.PI) < Math.toRadians(20)) { 		//if angle 180 degree
 								startPose.setHeading((float) Math.toRadians(180));
-								endPose = new Pose(startPose.getX() - 0.40f, startPose.getY() - 0.225f, (float) Math.toRadians(180));
+								endPose = new Pose(startPose.getX() - 0.35f, startPose.getY() - 0.20f,
+										(float) Math.toRadians(180));
 							}
 							control.setVelocity(10);
 							control.setParkingFor(startPose, endPose);
@@ -615,6 +620,10 @@ public class Guidance {
 					if (control.getCtrlMode() == ControlMode.INACTIVE) {
 						outside = true;
 					}
+					break;
+				////////////////////////////	
+				case ELSE:
+					//nothing to do
 					break;
 				}
 				// State transition check 1
@@ -627,7 +636,7 @@ public class Guidance {
 				// State transition check 2
 				lastStatus = currentStatus;
 
-				if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE) { 
+				if (hmi.getMode() == parkingRobot.INxtHmi.Mode.PAUSE) {
 					currentStatus = CurrentStatus.INACTIVE;
 				} else if (Button.ENTER.isDown()) {
 					currentStatus = CurrentStatus.INACTIVE;
@@ -664,13 +673,14 @@ public class Guidance {
 	public static CurrentStatus getCurrentStatus() {
 		return Guidance.currentStatus;
 	}
-	
+
 	/**
-	 * return true if "Anfahrt" true
-	 * @return anfahrt
+	 * return true if approach is true
+	 * 
+	 * @return approach
 	 */
-	public static boolean getAnfahrt() {
-		return Guidance.anfahrt;
+	public static boolean getApproach() {
+		return Guidance.approach;
 	}
 
 	/**
@@ -678,7 +688,7 @@ public class Guidance {
 	 * 
 	 * @param navigation reference to the navigation class for getting pose
 	 *                   information
-	 * @param perception reference to the perception class for sensor information                  
+	 * @param perception reference to the perception class for sensor information
 	 */
 	protected static void showData(INavigation navigation, IPerception perception) {
 

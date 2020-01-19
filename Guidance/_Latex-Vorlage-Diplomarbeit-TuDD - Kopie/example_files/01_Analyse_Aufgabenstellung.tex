@@ -11,7 +11,10 @@ In eine der gefundenen Lücken soll anschließend eingeparkt werden. Mit Hilfe e
 
 \section{Geplantes Vorgehen}
 
-Um den Missionsplaner und Pfadgenerator zeit effektiv zu implementieren, wurde als erster Schritt eine theoretische Vorbetrachtung getätigt. Dabei wurde ein Zustandsdiagramm mit entsprechenden Aktionstabellen und die Berechnungsvorschrift für das Pfadpolynom entworfen. Anschließend wurden die Modelle implementiert. Beim Programmieren sollte regelmäßig der aktuelle Stand in ein \glqq GitHub Repository\grqq{} geladen werden, damit die anderen Module ihre Funktionen testen können.
+Um den Missionsplaner und Pfadgenerator zeit effektiv zu implementieren, wurde als erster Schritt eine theoretische Vorbetrachtung getätigt. Dabei wurde ein Zustandsdiagramm mit entsprechenden Aktionstabellen und die Berechnungsvorschrift für das Pfadpolynom entworfen. \\
+\noindent Für den Entwurf der Zustandsmaschine wurde die online Software Lucidchart verwendet. Mit dieser ist es möglich Diagramme zu zeichnen. \\
+
+\noindent Anschließend wurden die Modelle implementiert. Beim Programmieren sollte regelmäßig der aktuelle Stand in ein \glqq GitHub Repository\grqq{} geladen werden, damit die anderen Module ihre Funktionen testen können.
 
 \section{Schnittstellen und Zusammenarbeit zu/mit anderen Modulen/Modulverantwortlichen}
 
@@ -19,8 +22,10 @@ Das Projekt wurde in der objektorientierten Programmiersprache Java umgesetzt. D
 
 
 \noindent Mit Hilfe von Setter-Methoden ist es möglich festzulegen, welche Funktionen in den entsprechenden Modulen ausgeführt werden sollen.
-Im Gegenzug kann mit den Getter-Methoden aktuelle Eigenschaften des Roboters abgefragt werden. Mit diesen Informationen werden die jeweiligen Zustandsübergänge überprüft.\\
+Im Gegenzug können mit Getter-Methoden aktuelle Eigenschaften des Roboters abgefragt werden. Mit diesen Informationen werden die jeweiligen Zustandsübergänge überprüft.\\
 
 \noindent Unsere Gruppe hat sich regelmäßig getroffen. Dabei wurden Etappenziele gesetzt und wichtige Änderung besprochen. Zum Beispiel sollte bis Ende 2019 alles implementiert sein, damit in den letzten zwei Wochen ein ausführlicher Funktionstest durchgeführt werden kann und alle auftretenden Fehler beseitigt werden können.\\
 
-\noindent Beim Programmieren war es auch oft notwendig zusammen zu arbeiten, weil man allein nicht alles überschauen konnte. Vor allem die Demoprogramme zwei und drei wurden zusammen mit der Control implementiert. Ich programmierte alle notwendigen Befehle und Zustandswechsel. Der Controlverantwortliche konnte seine Regler testen und anpassen, sodass alle Manöver abfahrbar waren.
+\noindent Beim Programmieren war es auch oft notwendig zusammen zu arbeiten, weil man allein nicht alles überschauen konnte. Vor allem die Demoprogramme zwei und drei wurden zusammen mit der Control implementiert. Ich programmierte alle notwendigen Methodenaufrufe und Zustandswechsel. Der Controlverantwortliche konnte seine Regler testen und anpassen, sodass alle Manöver abfahrbar waren.\\
+
+\noindent Durch die Implementierung der Demoprogramme war es möglich einen guten Überblick über die Programmteile der anderen Module zu bekommen. Es ist somit möglich mein Programmentwurf stückweise zu testen. Auftretende Fehler in allen Modulen konnten entdeckt werden. Vor allem jene, die erst beim Zusammenspiel mit allen Modulen auftraten. Durch die Zusammenarbeit wurden diese schnell behoben. 

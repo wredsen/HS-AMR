@@ -524,11 +524,11 @@ public class NavigationAT implements INavigation{
 	private void evaluateCornerDetection() {
 		switch(lastCornerNumber){
 			case 0: 
-				if (Guidance.getAnfahrt() == false)	this.pose.setLocation((float)0.00,(float)0.00);
+				if (Guidance.getApproach() == false)	this.pose.setLocation((float)0.00,(float)0.00);
 				nextCornerNumber = 1;
 				break; 
 			case 1: 
-				if (Guidance.getAnfahrt() == false)	this.pose.setLocation((float)1.80,(float)0.00);
+				if (Guidance.getApproach() == false)	this.pose.setLocation((float)1.80,(float)0.00);
 				nextCornerNumber = 2;
 				foundBackBoundary = false;
 				break; 
@@ -541,7 +541,7 @@ public class NavigationAT implements INavigation{
 				nextCornerNumber = 4;
 				break;
 			case 4:
-				if (Guidance.getAnfahrt() == false)	this.pose.setLocation((float)1.50,(float)0.30);
+				if (Guidance.getApproach() == false)	this.pose.setLocation((float)1.50,(float)0.30);
 				nextCornerNumber = 5;
 				break;
 			case 5:

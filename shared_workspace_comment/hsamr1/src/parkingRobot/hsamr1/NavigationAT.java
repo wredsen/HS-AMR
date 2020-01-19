@@ -638,7 +638,7 @@ public class NavigationAT implements INavigation{
 	
 	/**
 	* Checks whether the robot is in an area, where it is allowed to search for parking slots.
-	* @return boolean true when it´s allowed to register a parking slot
+	* @return boolean true when its allowed to register a parking slot
 	*/
 	private boolean checkParkingSlotArea() {
 		if ((this.pose.getX()>=0.05) && (this.pose.getX()<=1.75) && (this.pose.getY()<0.1) ) {	

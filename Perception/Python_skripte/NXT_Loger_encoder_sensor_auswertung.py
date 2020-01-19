@@ -37,7 +37,7 @@ while i <= 100:
                                         k+=1
                                    
                                    left_meas = float(line[1][-(k-1):])              #cast from string to float line from -(k-1) to end of line
-                                   sample_value_right[sampcount_l] = left_meas      #save sample to array 
+                                   sample_value_left[sampcount_l] = left_meas      #save sample to array 
                                    sampcount_l += 1                                  #increment sample count
 
                               except ValueError:            
@@ -51,7 +51,7 @@ while i <= 100:
                                         m+=1
 
                                    right_meas = float(line[1][-(m-1):-(k)])           #cast from string to float line from -(m-1) to -(k-1) second sample 
-                                   sample_value_left[sampcount_r] = right_meas        #save sample to array
+                                   sample_value_right[sampcount_r] = right_meas        #save sample to array
                                    sampcount_r += 1                                  #increment sample count
 
                               except ValueError:

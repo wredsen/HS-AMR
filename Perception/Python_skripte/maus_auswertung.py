@@ -316,24 +316,24 @@ plt.show()
 
 
 width=0.2
-ind= np.arange(5)
+ind= np.arange(4)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-xval = [abs(uncertainty_hight_array[0]-31.5),abs(uncertainty_hight_array[2]-31.5),abs(uncertainty_hight_array[4]-31.5),abs(uncertainty_hight_array[6]-31.5),abs(uncertainty_hight_array[8]-31.5)]
-xerr = [gauss_hight_array[0,1]/300,gauss_hight_array[2,1]/300,gauss_hight_array[4,1]/300,gauss_hight_array[6,1]/300,gauss_hight_array[8,1]/300]
+xval = [abs(uncertainty_hight_array[2]-31.5),abs(uncertainty_hight_array[4]-31.5),abs(uncertainty_hight_array[6]-31.5),abs(uncertainty_hight_array[8]-31.5)]
+xerr = [gauss_hight_array[2,1]/300,gauss_hight_array[4,1]/300,gauss_hight_array[6,1]/300,gauss_hight_array[8,1]/300]
 
 rects1 = ax.bar(ind-width/2,xval,width,yerr=xerr,capsize=10)
 
-yval = [abs(uncertainty_hight_array[1]-31.5),abs(uncertainty_hight_array[3]-31.5),abs(uncertainty_hight_array[5]-31.5),abs(uncertainty_hight_array[7]-31.5),abs(uncertainty_hight_array[9]-31.5)]
-yerr = [gauss_hight_array[1,1]/300,gauss_hight_array[3,1]/300,gauss_hight_array[5,1]/300,gauss_hight_array[7,1]/300,gauss_hight_array[9,1]/300]
+yval = [abs(uncertainty_hight_array[3]-31.5),abs(uncertainty_hight_array[5]-31.5),abs(uncertainty_hight_array[7]-31.5),abs(uncertainty_hight_array[9]-31.5)]
+yerr = [gauss_hight_array[3,1]/300,gauss_hight_array[5,1]/300,gauss_hight_array[7,1]/300,gauss_hight_array[9,1]/300]
 
 rects2 = ax.bar(ind+width/2,yval,width,yerr=yerr,capsize=10)
 
 
 ax.set_ylabel('Messunsicherheit in [mm]')
 ax.set_xticks(ind+width)
-ax.set_xticklabels( ('6','6,3','5,85','5,8','5,3') )
+ax.set_xticklabels( ('6,3','5,85','5,8','5,3') )
 ax.legend( (rects1[0], rects2[0]), ('Horizontale systematische MU', 'Vertikale systematische MU') )
 plt.axhline(0,color='black')
 plt.xlabel('Distanz in [mm]')

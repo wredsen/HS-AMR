@@ -332,7 +332,7 @@ public class GuiDemo2 {
 			case DREHUNG_3:
 				// 180°- max. °/s math. pos
 				if (currentStatus != lastStatus) {
-					control.setDriveFor(0, 0, Math.toRadians(180), 0, Math.toRadians(120), navigation.getPose());
+					control.setDriveFor(0, 0, Math.toRadians(177), 0, Math.toRadians(120), navigation.getPose());
 					control.setCtrlMode(ControlMode.SETPOSE);
 					lastStatus = CurrentStatus.DREHUNG_3;
 					Thread.sleep(50);

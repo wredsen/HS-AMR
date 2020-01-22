@@ -51,7 +51,7 @@ Für den Entwurf der folgenden Zustandsmaschinen wurde sich an den geforderten F
 	\hline
 	 & Parkplatzinformation abfragen &  &  \\ 
 	\hline
-	 & Variable \glqq anfahrt\grqq und \glqq correct\grqq auf falsch setzen &  &  \\
+	 & Variable \glqq anfahrt\grqq und \glqq correct\grqq{} auf falsch setzen &  &  \\
 	\hline
 	Park Out & Auswahl des richtigen Subzustands & siehe Unterzustandsmaschine &  \\ 
 	\hline 
@@ -98,7 +98,7 @@ Es gibt keine Unterzustandsmaschine.
 	\hline 
 	Zustand & Eingangsaktion & Nominalaktion & Ausgangsaktion \\ 
 	\hline 
-	To Slot & Zielwinkelberechnung & Zustand \glqq DRIVING\grqq bis Pose erreicht ist &  \\ 
+	To Slot & Zielwinkelberechnung & Zustand \glqq DRIVING\grqq{} bis Pose erreicht ist &  \\ 
 	\hline 
 	 & Anfahrort festlegen &  &  \\ 
 	\hline
@@ -106,9 +106,9 @@ Es gibt keine Unterzustandsmaschine.
 	\hline
 	 & Geschwindigkeit festlegen &  &  \\ 
 	\hline 
-	 & Setzen des Controlmodus \glqq PARK\_CTRL\grqq   & Überprüfung ob Polynom abgefahren wurde &  \\ 
+	 & Setzen des Controlmodus \glqq PARK\_CTRL\grqq{}   & Überprüfung ob Polynom abgefahren wurde &  \\ 
 	\hline
-	In Slot &  & Variable \glqq back\grqq  auf wahr setzen &  \\ 
+	In Slot &  & Variable \glqq back\grqq{}  auf wahr setzen &  \\ 
 	\hline 
 	
 \end{tabular} 
@@ -121,13 +121,13 @@ Es gibt keine Unterzustandsmaschine.
 	\hline 
 	Backwarts & Berechnung der Rückfahrdistanz & Überprüfung ob das Zurückfahren erfolgt ist &  \\ 
 	\hline
-	 & Setzen des Controlmodus \glqq SETPOSE\grqq & &\\ 
+	 & Setzen des Controlmodus \glqq SETPOSE\grqq{} & &\\ 
 	\hline
 	ParkOut & Start- und Endpose vom Polynom festlegen  & Überprüfung ob Polynom abgefahren wurde  &  \\ 
 	\hline 
 	 & Geschwindigkeit festlegen  &  &  \\ 
 	\hline  
-	& Setzen des Controlmodus \glqq PARK\_CTRL\grqq & &  \\ 
+	& Setzen des Controlmodus \glqq PARK\_CTRL\grqq{} & &  \\ 
 	\hline
  
 \end{tabular} 

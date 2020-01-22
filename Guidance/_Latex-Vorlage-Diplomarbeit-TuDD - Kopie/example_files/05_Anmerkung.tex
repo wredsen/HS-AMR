@@ -1,9 +1,9 @@
 \chapter{Anmerkungen und Verbesserungsmöglichkeiten}
 
-Im späteren Berufsleben wäre es möglich Zustandsmaschinen anstatt mit einer Programmiersprache mit Hilfe von Fachsprachen nach IEC 1131 zu entwerfen. Jedoch kann mit Programmiersprachen die selben und viele weiter Probleme gelöst werden.\\
+Im späteren Berufsleben wäre es möglich Zustandsmaschinen anstatt mit einer Programmiersprache mit Hilfe von Fachsprachen nach IEC 1131 zu entwerfen. Jedoch können mit Programmiersprachen die selben und viele weiter Probleme gelöst werden.\\
 
 \noindent Der Roboter fährt auf dem Parcours schon sehr genau und stabil. In seltenen Fällen können noch Fehler auftreten, welche noch nicht mit Hilfe einer Exception ausgewertet werden. Es könnten noch weiter Fehlerabfangroutinen hinzugefügt werden. \\
 
-\noindent Das HMI-Modul versuchte außerdem das Problem der graphischen Parklückenüberschreitung in der App zu lösen. Dabei wurde festgestellt, dass beim Ausparken die Parklücke falsch vermessen wird. Der Roboter vermisst nach dem Ausparken nicht die komplette Parklücke von Anfang an, sondern von seiner aktuellen Pose. Um dies zu umgehen, müsste implementiert werden, dass er erst nach der aktuellen Parklücke anfängt mit messen.\\
+\noindent Das HMI-Modul versuchte außerdem das Problem der graphischen Parklückenüberschreitung in der App zu lösen. Dabei wurde festgestellt, dass beim Ausparken die Parklücke, in der gerade ausgeparkt wurde, falsch vermessen wird. Der Roboter vermisst nach dem Ausparken nicht die komplette Parklücke von Anfang an, sondern von seiner aktuellen Pose. Um dies zu umgehen, müsste implementiert werden, dass er erst nach der aktuellen Parklücke anfängt mit messen.\\
 
 \noindent Da unser Roboter ein Modell ist, könnte nun versucht werden, diese Technik des Einparkens in Parkhäusern und Parkplätzen für ein echtes Fahrzeug zu realisieren. Bekannte Automobilfirmen haben dieses Problem schon gelöst. Dies bedeutet, dass moderne Autos in der Lage sind einen freien Parkplatz zu detektieren und anschließend können sie in diesen einparken. \\

@@ -39,7 +39,7 @@ a=-\dfrac{y_{ende}}{2*x_{ende}^3}
 \noindent und
 %this.trajectory_c = -this.trajectory_a*3*Math.pow(endPose.getX(),2);
 \begin{equation} 
-b=-3*a*x_{ende}^3
+b=-3*a*x_{ende}^2 = \dfrac{3*y_{ende}}{2*x_{ende}}
 \end{equation}
 
 \noindent Damit die Brechung stets auf das selbe Problem zurückzuführen ist, gibt es einen globales und lokales Koordinatensystem. Wie in der Abbildung \ref{img:grafik-Parkluecke} zu sehen, ist der Mittelpunkt zwischen Start- und Zielpose im globalen Koordinatensystem identisch mit dem Ursprung des lokalem Systems. Dieses ist je nach Richtungswinkel des Roboters entsprechend gedreht. \\

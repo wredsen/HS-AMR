@@ -217,7 +217,7 @@ public enum CurrentStatusDrive {
 				}
 				if(control.getCtrlMode()==ControlMode.INACTIVE) {
 					anfahrt=true;
-					anfahrort = new Point(1.80f, 0.1f);
+					anfahrort = new Point(1.80f, 0.15f);
 					heading = Math.PI/2;
 					currentStatus=CurrentStatus.LINE_FOLLOW;
 					Thread.sleep(500);
@@ -318,8 +318,8 @@ public enum CurrentStatusDrive {
 			case RUECKWAERTS:
 				if(currentStatus!=lastStatus) {
 					lastStatus=currentStatus;
-					double distance = perception.getBackSensorDistance();
-					distance = distance - 3;
+					//double distance = perception.getBackSensorDistance();
+					double distance = 20;
 					control.setDriveFor(0,-0.01*distance,0,-10, 0, navigation.getPose());
 					control.setCtrlMode(ControlMode.SETPOSE);
 				}

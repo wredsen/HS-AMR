@@ -275,6 +275,7 @@ public class PerceptionPMP implements IPerception {
 					if(timeoutc>10){	//if timeout - 2nd. try
 						RS485.hsWrite(sendBuffer,0,sendBuffer.length);
 						readBytesSumm=0;
+						//return;
 					}
 				}
 				if(timeoutc==10) return;

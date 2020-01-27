@@ -546,7 +546,7 @@ public class Guidance {
 					
 					if (lastStatusParkOut != currentStatusParkOut) {
 						if(lastStatus!=CurrentStatus.INACTIVE) {
-							if (perception.getFrontSensorDistance() < 30) {
+							if (perception.getFrontSensorDistance() < 30 || perception.getFrontSensorDistance()==81 ) {
 								double distance = perception.getBackSensorDistance();
 								distance = distance - 3;
 

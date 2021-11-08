@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HSAMR1</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">RCTestapp</string>
+    <string name="title_activity_position_visualization">PositionVisualization</string>
+    <string name="title_paired_devices">Paired devices</string>
+    <string name="title_other_devices">Other devices</string>
+    <string name="title_activity_bluetooth">Bluetooth</string>
+    <string name="setupBluetooth">Connect</string>
+    <string name="text_scan_bt_devices">Scan for devices</string>
+    <string name="textview_status">Status:</string>
+    <string name="distance_front_value">dist front:</string>
+    <string name="distance_front_side_value">dist front (side):</string>
+    <string name="distance_back_value">dist back:</string>
+    <string name="distance_back_side_value">dist back (side):</string>
+    <string name="bluetooth_label">Bluetooth:</string>
+    <string name="bt_connect_hint">Please select a Robot from the list. Make sure it has been paired, is within bluetooth reach and has been set to connect mode.</string>
+
+    <string name="Continue">Continue</string>
+    <string name="pause">Pause</string>
+    <string name="scouts">Scout</string>
+    <string name="parking_button">Park</string>
+
+    <string name="status">No bluetooth</string>
+
+    <string name="coords_label">Location:</string>
+    <string name="coords_x">x = 0 cm,</string>
+    <string name="coords_y">y = 0 cm</string>
+    <string name="angle_label">Angle (\u03C6):</string>
+    <string name="angle_value">0°</string>
+
+    <string name="speed">Speed:</string>
+    <string name="speed_value">0m/s</string>
+
+    <string name="park_id_label">Park ID:</string>
+    <string name="park_id_value">0</string>
+
+    <string name="park_no_label">No. of Slots:</string>
+    <string name="park_no_value">0</string>
+
+</resources>
